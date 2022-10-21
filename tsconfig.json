@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "ES2016",
+        "allowSyntheticDefaultImports": true,
+        "module": "CommonJS",
+        "esModuleInterop": true,
+        "baseUrl": "./src",
+        "outDir": "./dist",
+        "types": ["node"],
+        "moduleResolution": "node",
+        "forceConsistentCasingInFileNames": true,
+        "strict": true
+    },
+    "include": ["src"]
+}
