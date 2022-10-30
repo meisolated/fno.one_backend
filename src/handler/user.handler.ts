@@ -1,4 +1,10 @@
-export class User {
+export interface user {
+    auth_code: string
+    loggedIn: boolean
+    access_token: string
+    refresh_token: string
+}
+export class User implements user {
     auth_code
     loggedIn
     access_token

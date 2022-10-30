@@ -9,13 +9,13 @@ const fyers = new fyersHandler()
 app.get("/", (_req: Request, res: Response) => {
     res.send({ message: "Something is missing over here", code: 200 })
 })
-app.get("/accept_access", async (_req: Request, res: Response) => {
-    console.log(_req.query)
-    if (_req.query.auth_code) {
-        const accessToken = await fyers.generateAccessToken(_req.query.auth_code)
+app.get("/accept_access", async (req: Request, res: Response) => {
+    console.log(req.query)
+    if (req.query.auth_code) {
+        const accessToken = await fyers.generateAccessToken(req.query.auth_code)
         fyers.setAccessToken(accessToken.access_token)
         const up = await fyers.getUserProfile()
-        await fyers.connectToWebSocket()
+        await fyers.marketDataConnectSocket()
         const tb = await fyers.getTradeBook()
         console.log(tb)
         console.log(up)
@@ -27,3 +27,5 @@ app.get("/accept_access", async (_req: Request, res: Response) => {
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:` + port)
 })
+
+setInterval(() => {}, 1000)

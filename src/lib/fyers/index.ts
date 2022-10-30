@@ -33,7 +33,9 @@ class clientApi {
         const client_id = (req && req.client_id) || token.getAppId()
         const redirect_uri = (req && req.redirect_uri) || token.getRedirectUrl()
         const state = (req && req.state) || "sample_state"
-        console.log(`${aPI}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`)
+        console.log(
+            `${aPI}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
+        )
     }
 
     generate_access_token = async (req) => {
@@ -67,12 +69,12 @@ class clientApi {
     }
 
     get_profile = async (req?) => {
-        let AuthrizationToken = this.generateAuthToken(req)
+        let AuthorizationToken = this.generateAuthToken(req)
 
         try {
             const profile = await axios.get(`${aPI}profile`, {
                 headers: {
-                    Authorization: AuthrizationToken,
+                    Authorization: AuthorizationToken,
                 },
             })
             return profile.data
@@ -295,7 +297,7 @@ class clientApi {
         helper.FyersConnect(req.token, req.symbol, req.dataType, callback4)
     }
 
-    fyers_unsuscribe = async (req) => {
+    fyers_unsubscribe = async (req?) => {
         helper.FyersConnect(req.token, req.symbol, req.dataType, null, true)
     }
     history = history
