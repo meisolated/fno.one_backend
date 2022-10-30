@@ -1,1 +1,1 @@
-setInterval(() => { }, 500)
+setInterval(() => {}, 500)

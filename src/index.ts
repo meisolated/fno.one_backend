@@ -14,18 +14,20 @@ app.get("/accept_access", async (req: Request, res: Response) => {
     if (req.query.auth_code) {
         const accessToken = await fyers.generateAccessToken(req.query.auth_code)
         fyers.setAccessToken(accessToken.access_token)
-        const up = await fyers.getUserProfile()
-        await fyers.marketDataConnectSocket()
-        const tb = await fyers.getTradeBook()
-        console.log(tb)
-        console.log(up)
-        fyers.getHistory()
+        await fyers.connectToMarketDataSocket()
+        await fyers.connectToOrderSocket()
+        return res.send({ message: "Access token generated", code: 200 })
+    } else {
+        res.send({ message: "Something is missing over here", code: 200 })
     }
-    res.send({ message: "Something is missing over here", code: 200 })
 })
 
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:` + port)
 })
 
-setInterval(() => {}, 1000)
+// setInterval(async () => {
+//     if (fyers.user.loggedIn) {
+
+//     }
+// }, 1000)

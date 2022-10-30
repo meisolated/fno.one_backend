@@ -36,7 +36,7 @@ export default class fyersHandler {
         const tradebook = await this.fyers.get_tradebook()
         return tradebook
     }
-    async marketDataConnectSocket() {
+    async connectToMarketDataSocket() {
         chatter.on("marketDataSymbolUpdate", (symbols: Array<string>) => {
             this.fyers.fyers_unsubscribe()
             const reqBody = { symbols, dataType: "symbolUpdate" }
@@ -68,7 +68,6 @@ export default class fyersHandler {
             dataType: "symbolUpdate",
         }
     }
-
     async getHistory() {
         let from: any = new Date(2022, 1, 1)
         from = moment(from)
@@ -83,5 +82,16 @@ export default class fyersHandler {
             .setRangeTo(to)
             .getHistory()
         console.log(result)
+    }
+    async connectToOrderSocket() {
+        const reqBody = {
+            dataType: "orderUpdate",
+        }
+        this.fyers.fyers_connect(reqBody, (res: any) => {
+            const data = JSON.parse(res)
+            if (data.s == "ok") {
+                console.log(data.d)
+            }
+        })
     }
 }

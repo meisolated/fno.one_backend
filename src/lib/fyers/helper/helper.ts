@@ -138,7 +138,7 @@ function unPackUDP(resp: any) {
                         parseFloat(
                             ((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) /
                                 dataDict[FY_P_VAL_KEY].prev_close_price) *
-                                100
+                            100
                         ).toFixed(2)
                     ) // Percent change
                     //@ts-ignore
@@ -281,7 +281,7 @@ function unPackUDP(resp: any) {
                         parseFloat(
                             ((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) /
                                 dataDict[FY_P_VAL_KEY].prev_close_price) *
-                                100
+                            100
                         ).toFixed(2)
                     ) // Percent change
                     //@ts-ignore
@@ -398,7 +398,8 @@ const getSymbolData = async (ws: any, symbol: any, callback: any) => {
 }
 
 function onOrderUpdate(tokenValue: any, callback2: any, isUnsub = false) {
-    let url = `${WS_URL}?access_token=${tokenValue}&user-agent=fyers-api&type=orderUpdate`
+    // let url = `${WS_URL}?access_token=${tokenValue}&user-agent=fyers-api&type=orderUpdate`
+    let url = `wss://api.fyers.in/socket/v2/dataSock?access_token=${tokenValue}&user-agent=fyers-api&type=orderUpdate`
     let dataToSend = { T: "SUB_ORD", SLIST: ["orderUpdate"], SUB_T: 1 }
 
     if (isUnsub && orderUpdateInstance) {
