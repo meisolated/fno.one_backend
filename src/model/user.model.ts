@@ -15,6 +15,23 @@ interface user {
         activeStrategies: string[]
         dailyTrades: number
     }
+    fy_access_token: string
+    fy_refresh_token: string
+    last_login: Date
+    loggedIn: boolean
+    socket: {
+        marketData: {
+            socket: any
+            subscribed: boolean
+            subscribedSymbols: string[]
+        }
+        order: {
+            socket: any
+            subscribed: boolean
+            subscribedSymbols: string[]
+        }
+    }
+
 }
 
 export default new Schema<user>(
@@ -22,7 +39,6 @@ export default new Schema<user>(
         _id: { type: String, required: true },
         email: { type: String, required: true },
         name: { type: String, required: true },
-        fy_id: { type: String, required: true },
         image: { type: String, required: true },
         pan: { type: String, required: true },
         status: { type: String, required: true },
@@ -33,6 +49,9 @@ export default new Schema<user>(
             activeStrategies: [{ type: String, required: true }],
             dailyTrades: { type: Number, required: true },
         },
+        fy_id: { type: String, required: true },
+        fy_access_token: { type: String, required: true },
+        fy_refresh_token: { type: String, required: true },
     },
     { timestamps: true }
 )

@@ -9,6 +9,7 @@ export default class fyersHandler {
     private appId: string = config.fyers.appId
     private redirect: string = config.fyers.redirect
     private fyers: any
+    private token: any
     user: user
     constructor() {
         this.user = new User()
@@ -18,6 +19,7 @@ export default class fyersHandler {
     }
     setAccessToken(token: any) {
         if (!token) return console.log("Invalid token")
+        this.token = token
         this.fyers.setAccessToken(token)
     }
     generateLoginUrl() {
@@ -67,6 +69,16 @@ export default class fyersHandler {
             ],
             dataType: "symbolUpdate",
         }
+        this.fyers.fyers_connect(reqBody, (res: any) => {
+            const data = JSON.parse(res)
+            if (data.s == "ok") {
+                data.d["7208"].forEach((e: any) => {
+                    // TODO: Maybe we will use it some other time
+                    // MarketData.create(e.v)
+                    chatter.emit("symbolMarketDataUpdate", e.v)
+                })
+            }
+        })
     }
     async getHistory() {
         let from: any = new Date(2022, 1, 1)
@@ -93,5 +105,30 @@ export default class fyersHandler {
                 console.log(data.d)
             }
         })
+    }
+    async placeTestOrder() {
+        const reqBody = {
+            data: {
+                "symbol": "NSE:BANKNIFTY22N1041500PE",
+                "qty": 25,
+                "type": 1,
+                "side": 1,
+                "productType": "INTRADAY",
+                "limitPrice": 200,
+                "stopPrice": 0,
+                "disclosedQty": 0,
+                "validity": "DAY",
+                "offlineOrder": "false",
+                "stopLoss": 0,
+                "takeProfit": 0
+            },
+
+            app_id: config.fyers.appId,
+
+            token: this.token
+
+        }
+        const res = await this.fyers.place_order(reqBody)
+        console.log(res)
     }
 }
