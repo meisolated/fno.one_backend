@@ -1,5 +1,1 @@
-import chatter from "events/eventEmitter"
-
-
-
-
+import chatter from "events"

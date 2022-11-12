@@ -1,15 +1,13 @@
 export default {
     version: 1,
-    name: '920',
+    name: "920",
     marketDataInterval: 3 * 60, // 3 minutes
     market: "NSE:NIFTYBANK-INDEX",
     backtest: {
         from: "2021-01-01",
         to: "2021-01-31",
         timeframe: "5m",
-        symbols: [
-
-        ],
+        symbols: [],
     },
     riskManager: {
         enabled: true,
@@ -26,6 +24,5 @@ export default {
         allowModifyStopLoss: true,
         allowModifyTakeProfit: true,
         allowModifyTrailingStop: true,
-
-    }
+    },
 }

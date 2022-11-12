@@ -46,7 +46,6 @@ interface openInterest {
         underlyingValue: number
         underlying: string
     }
-
 }
 
 export default new Schema<openInterest>(
@@ -95,7 +94,7 @@ export default new Schema<openInterest>(
             totalTradedVolume: { type: Number, required: true },
             underlyingValue: { type: Number, required: true },
             underlying: { type: String, required: true },
-        }
+        },
     },
     { timestamps: true }
 )

@@ -31,7 +31,6 @@ interface user {
             subscribedSymbols: string[]
         }
     }
-
 }
 
 export default new Schema<user>(

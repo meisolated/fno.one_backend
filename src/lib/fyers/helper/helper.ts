@@ -138,7 +138,7 @@ function unPackUDP(resp: any) {
                         parseFloat(
                             ((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) /
                                 dataDict[FY_P_VAL_KEY].prev_close_price) *
-                            100
+                                100
                         ).toFixed(2)
                     ) // Percent change
                     //@ts-ignore
@@ -281,7 +281,7 @@ function unPackUDP(resp: any) {
                         parseFloat(
                             ((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) /
                                 dataDict[FY_P_VAL_KEY].prev_close_price) *
-                            100
+                                100
                         ).toFixed(2)
                     ) // Percent change
                     //@ts-ignore

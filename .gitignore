@@ -3,3 +3,4 @@ dist
 .env
 src/config/index.ts
 yarn.lock
+yarn-error.log

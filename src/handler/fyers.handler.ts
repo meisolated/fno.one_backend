@@ -1,6 +1,6 @@
 import moment from "moment"
 import config from "../config"
-import chatter from "../events/eventEmitter"
+import chatter from "../events"
 import fyers from "../lib/fyers"
 import { MarketData } from "../model"
 import { user, User } from "./user.handler"
@@ -109,24 +109,23 @@ export default class fyersHandler {
     async placeTestOrder() {
         const reqBody = {
             data: {
-                "symbol": "NSE:BANKNIFTY22N1041500PE",
-                "qty": 25,
-                "type": 1,
-                "side": 1,
-                "productType": "INTRADAY",
-                "limitPrice": 200,
-                "stopPrice": 0,
-                "disclosedQty": 0,
-                "validity": "DAY",
-                "offlineOrder": "false",
-                "stopLoss": 0,
-                "takeProfit": 0
+                symbol: "NSE:BANKNIFTY22N1041500PE",
+                qty: 25,
+                type: 1,
+                side: 1,
+                productType: "INTRADAY",
+                limitPrice: 200,
+                stopPrice: 0,
+                disclosedQty: 0,
+                validity: "DAY",
+                offlineOrder: "false",
+                stopLoss: 0,
+                takeProfit: 0,
             },
 
             app_id: config.fyers.appId,
 
-            token: this.token
-
+            token: this.token,
         }
         const res = await this.fyers.place_order(reqBody)
         console.log(res)
