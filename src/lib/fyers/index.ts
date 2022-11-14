@@ -33,9 +33,7 @@ class clientApi {
         const client_id = (req && req.client_id) || token.getAppId()
         const redirect_uri = (req && req.redirect_uri) || token.getRedirectUrl()
         const state = (req && req.state) || "sample_state"
-        console.log(
-            `${aPI}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
-        )
+        console.log(`${aPI}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`)
     }
 
     generate_access_token = async (req) => {

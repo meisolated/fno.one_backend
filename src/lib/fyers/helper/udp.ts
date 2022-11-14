@@ -72,22 +72,14 @@ class Udp {
                         symbol_ticker = fyersDict[token].split(":")
                         dataDict[FY_P_STATUS] = "ok"
                         dataDict[FY_P_VAL_KEY] = {}
-                        dataDict[FY_P_VAL_KEY].high_price = (
-                            parseInt(cmn_data.getInt32(12)) / price_conv
-                        ).toString()
-                        dataDict[FY_P_VAL_KEY].prev_close_price = parseFloat(
-                            parseInt(cmn_data.getInt32(20)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY].ch = Number(
-                            parseFloat(ltp - dataDict[FY_P_VAL_KEY].prev_close_price).toFixed(2)
-                        )
+                        dataDict[FY_P_VAL_KEY].high_price = (parseInt(cmn_data.getInt32(12)) / price_conv).toString()
+                        dataDict[FY_P_VAL_KEY].prev_close_price = parseFloat(parseInt(cmn_data.getInt32(20)) / price_conv)
+                        dataDict[FY_P_VAL_KEY].ch = Number(parseFloat(ltp - dataDict[FY_P_VAL_KEY].prev_close_price).toFixed(2))
                         dataDict[FY_P_VAL_KEY].tt = parseInt(header.getInt32(8)) // Timestamp sent by exchange
                         dataDict[FY_P_VAL_KEY].description = fyersDict[token]
                         dataDict[FY_P_VAL_KEY].short_name = symbol_ticker[1] //temp_value
                         dataDict[FY_P_VAL_KEY].exchange = symbol_ticker[0]
-                        dataDict[FY_P_VAL_KEY].low_price = parseFloat(
-                            parseInt(cmn_data.getInt32(16)) / price_conv
-                        )
+                        dataDict[FY_P_VAL_KEY].low_price = parseFloat(parseInt(cmn_data.getInt32(16)) / price_conv)
                         // dataDict[FY_P_VAL_KEY].trans_code = fyCode;
                         dataDict[FY_P_VAL_KEY].oi = parseInt(cmn_data.getBigUint64(48))
                         var pdoi = parseInt(cmn_data.getBigUint64(56))
@@ -102,34 +94,17 @@ class Udp {
 
                         dataDict[FY_P_VAL_KEY].percentoi = percentChangeInOI.toFixed(2) + "%"
                         dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY] = {}
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].c = parseFloat(
-                            parseInt(cmn_data.getInt32(36)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].h = parseFloat(
-                            parseInt(cmn_data.getInt32(28)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].l = parseFloat(
-                            parseInt(cmn_data.getInt32(32)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].o = parseFloat(
-                            parseInt(cmn_data.getInt32(24)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t =
-                            parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60) // LTT
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].c = parseFloat(parseInt(cmn_data.getInt32(36)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].h = parseFloat(parseInt(cmn_data.getInt32(28)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].l = parseFloat(parseInt(cmn_data.getInt32(32)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].o = parseFloat(parseInt(cmn_data.getInt32(24)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t = parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60) // LTT
                         dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].v = parseInt(cmn_data.getBigUint64(40))
 
                         dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].tf = ""
                         dataDict[FY_P_VAL_KEY].original_name = fyersDict[token]
-                        dataDict[FY_P_VAL_KEY].chp = Number(
-                            parseFloat(
-                                ((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) /
-                                    dataDict[FY_P_VAL_KEY].prev_close_price) *
-                                    100
-                            ).toFixed(2)
-                        ) // Percent change
-                        dataDict[FY_P_VAL_KEY].open_price = parseFloat(
-                            parseInt(cmn_data.getInt32(8)) / price_conv
-                        )
+                        dataDict[FY_P_VAL_KEY].chp = Number(parseFloat(((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) / dataDict[FY_P_VAL_KEY].prev_close_price) * 100).toFixed(2)) // Percent change
+                        dataDict[FY_P_VAL_KEY].open_price = parseFloat(parseInt(cmn_data.getInt32(8)) / price_conv)
                         dataDict[FY_P_VAL_KEY].lp = ltp // LTP
 
                         dataDict[FY_P_VAL_KEY].symbol = fyersDict[token]
@@ -140,9 +115,7 @@ class Udp {
                         dataCount = 120
                         dataDict[FY_P_VAL_KEY].LTQ = parseFloat(additional.getInt32(0))
                         dataDict[FY_P_VAL_KEY].L2_LTT = parseInt(additional.getInt32(4))
-                        dataDict[FY_P_VAL_KEY].ATP = parseFloat(
-                            parseInt(additional.getInt32(8)) / price_conv
-                        )
+                        dataDict[FY_P_VAL_KEY].ATP = parseFloat(parseInt(additional.getInt32(8)) / price_conv)
                         dataDict[FY_P_VAL_KEY].volume = parseInt(additional.getInt32(12))
                         dataDict[FY_P_VAL_KEY].tot_buy = parseFloat(additional.getBigUint64(16))
                         dataDict[FY_P_VAL_KEY].tot_sell = parseFloat(additional.getBigUint64(24))
@@ -181,18 +154,12 @@ class Udp {
                             // console.log(depth);
                         } else {
                             var bid_ask = new DataView(data_array_buffer, 120, 8)
-                            dataDict[FY_P_VAL_KEY].bid = parseFloat(
-                                parseInt(bid_ask.getInt32(0)) / price_conv
-                            )
-                            dataDict[FY_P_VAL_KEY].ask = parseFloat(
-                                parseInt(bid_ask.getInt32(4)) / price_conv
-                            )
+                            dataDict[FY_P_VAL_KEY].bid = parseFloat(parseInt(bid_ask.getInt32(0)) / price_conv)
+                            dataDict[FY_P_VAL_KEY].ask = parseFloat(parseInt(bid_ask.getInt32(4)) / price_conv)
                             dataCount = 128
                         }
 
-                        dataDict[FY_P_VAL_KEY].spread =
-                            parseFloat(dataDict[FY_P_VAL_KEY].ask) -
-                            parseFloat(dataDict[FY_P_VAL_KEY].bid)
+                        dataDict[FY_P_VAL_KEY].spread = parseFloat(dataDict[FY_P_VAL_KEY].ask) - parseFloat(dataDict[FY_P_VAL_KEY].bid)
                         dataDict[FY_P_VAL_KEY].marketStat = parseInt(header.getInt16(14))
                         dataDict.n = fyersDict[token]
                         dataDict.fy = token
@@ -213,51 +180,26 @@ class Udp {
                         symbol_ticker = fyersDict[token].split(":")
                         dataDict[FY_P_STATUS] = "ok"
                         dataDict[FY_P_VAL_KEY] = {}
-                        dataDict[FY_P_VAL_KEY].high_price = (
-                            parseInt(cmn_data.getInt32(12)) / price_conv
-                        ).toString()
-                        dataDict[FY_P_VAL_KEY].prev_close_price = parseFloat(
-                            parseInt(cmn_data.getInt32(20)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY].ch = Number(
-                            parseFloat(ltp - dataDict[FY_P_VAL_KEY].prev_close_price).toFixed(2)
-                        ) // Previous change
+                        dataDict[FY_P_VAL_KEY].high_price = (parseInt(cmn_data.getInt32(12)) / price_conv).toString()
+                        dataDict[FY_P_VAL_KEY].prev_close_price = parseFloat(parseInt(cmn_data.getInt32(20)) / price_conv)
+                        dataDict[FY_P_VAL_KEY].ch = Number(parseFloat(ltp - dataDict[FY_P_VAL_KEY].prev_close_price).toFixed(2)) // Previous change
                         dataDict[FY_P_VAL_KEY].tt = parseInt(header.getInt32(8)) // Timestamp sent by exchange
                         dataDict[FY_P_VAL_KEY].description = fyersDict[token]
                         dataDict[FY_P_VAL_KEY].short_name = symbol_ticker[1] //temp_value
                         dataDict[FY_P_VAL_KEY].exchange = symbol_ticker[0]
-                        dataDict[FY_P_VAL_KEY].low_price = parseFloat(
-                            parseInt(cmn_data.getInt32(16)) / price_conv
-                        )
+                        dataDict[FY_P_VAL_KEY].low_price = parseFloat(parseInt(cmn_data.getInt32(16)) / price_conv)
                         // dataDict[FY_P_VAL_KEY].trans_code = fyCode;
                         dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY] = {}
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].c = parseFloat(
-                            parseInt(cmn_data.getInt32(36)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].h = parseFloat(
-                            parseInt(cmn_data.getInt32(28)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].l = parseFloat(
-                            parseInt(cmn_data.getInt32(32)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].o = parseFloat(
-                            parseInt(cmn_data.getInt32(24)) / price_conv
-                        )
-                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t =
-                            parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60) // LTT
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].c = parseFloat(parseInt(cmn_data.getInt32(36)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].h = parseFloat(parseInt(cmn_data.getInt32(28)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].l = parseFloat(parseInt(cmn_data.getInt32(32)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].o = parseFloat(parseInt(cmn_data.getInt32(24)) / price_conv)
+                        dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t = parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60) // LTT
                         dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].v = parseInt(cmn_data.getBigUint64(40))
                         dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].tf = ""
                         dataDict[FY_P_VAL_KEY].original_name = fyersDict[token]
-                        dataDict[FY_P_VAL_KEY].chp = Number(
-                            parseFloat(
-                                ((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) /
-                                    dataDict[FY_P_VAL_KEY].prev_close_price) *
-                                    100
-                            ).toFixed(2)
-                        ) // Percent change
-                        dataDict[FY_P_VAL_KEY].open_price = parseFloat(
-                            parseInt(cmn_data.getInt32(8)) / price_conv
-                        )
+                        dataDict[FY_P_VAL_KEY].chp = Number(parseFloat(((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) / dataDict[FY_P_VAL_KEY].prev_close_price) * 100).toFixed(2)) // Percent change
+                        dataDict[FY_P_VAL_KEY].open_price = parseFloat(parseInt(cmn_data.getInt32(8)) / price_conv)
                         dataDict[FY_P_VAL_KEY].lp = ltp // LTP
 
                         dataDict[FY_P_VAL_KEY].symbol = fyersDict[token]
@@ -268,14 +210,10 @@ class Udp {
                             dataCount = 104
                             dataDict[FY_P_VAL_KEY].LTQ = parseFloat(additional.getInt32(0))
                             dataDict[FY_P_VAL_KEY].L2_LTT = parseInt(additional.getInt32(4))
-                            dataDict[FY_P_VAL_KEY].ATP = parseFloat(
-                                parseInt(additional.getInt32(8)) / price_conv
-                            )
+                            dataDict[FY_P_VAL_KEY].ATP = parseFloat(parseInt(additional.getInt32(8)) / price_conv)
                             dataDict[FY_P_VAL_KEY].volume = parseInt(additional.getInt32(12))
                             dataDict[FY_P_VAL_KEY].tot_buy = parseFloat(additional.getBigUint64(16))
-                            dataDict[FY_P_VAL_KEY].tot_sell = parseFloat(
-                                additional.getBigUint64(24)
-                            )
+                            dataDict[FY_P_VAL_KEY].tot_sell = parseFloat(additional.getBigUint64(24))
                             if (L2 == 1) {
                                 // console.log("unPackUDP 7");
                                 var bid = new DataView(data_array_buffer, 104, 164 - 104)
@@ -288,16 +226,12 @@ class Udp {
                                 for (var i = 0; i < 5; i++) {
                                     bidList.push({
                                         volume: parseInt(bid.getInt32(i * 12 + 4)),
-                                        price: parseFloat(
-                                            parseInt(bid.getInt32(i * 12)) / price_conv
-                                        ),
+                                        price: parseFloat(parseInt(bid.getInt32(i * 12)) / price_conv),
                                         ord: parseInt(bid.getInt32(i * 12 + 8)),
                                     })
                                     askList.push({
                                         volume: parseInt(ask.getInt32(i * 12 + 4)),
-                                        price: parseFloat(
-                                            parseInt(ask.getInt32(i * 12)) / price_conv
-                                        ),
+                                        price: parseFloat(parseInt(ask.getInt32(i * 12)) / price_conv),
                                         ord: parseInt(ask.getInt32(i * 12 + 8)),
                                     })
                                 }
@@ -314,21 +248,15 @@ class Udp {
                                 }
                             } else {
                                 var bid_ask = new DataView(data_array_buffer, 104, 8)
-                                dataDict[FY_P_VAL_KEY].bid = parseFloat(
-                                    parseInt(bid_ask.getInt32(0)) / price_conv
-                                )
-                                dataDict[FY_P_VAL_KEY].ask = parseFloat(
-                                    parseInt(bid_ask.getInt32(4)) / price_conv
-                                )
+                                dataDict[FY_P_VAL_KEY].bid = parseFloat(parseInt(bid_ask.getInt32(0)) / price_conv)
+                                dataDict[FY_P_VAL_KEY].ask = parseFloat(parseInt(bid_ask.getInt32(4)) / price_conv)
                                 dataCount = 112
                             }
                         } else {
                             dataDict[FY_P_VAL_KEY].bid = ltp
                             dataDict[FY_P_VAL_KEY].ask = ltp
                         }
-                        dataDict[FY_P_VAL_KEY].spread =
-                            parseFloat(dataDict[FY_P_VAL_KEY].ask) -
-                            parseFloat(dataDict[FY_P_VAL_KEY].bid)
+                        dataDict[FY_P_VAL_KEY].spread = parseFloat(dataDict[FY_P_VAL_KEY].ask) - parseFloat(dataDict[FY_P_VAL_KEY].bid)
                         dataDict[FY_P_VAL_KEY].marketStat = parseInt(header.getInt16(14))
                         dataDict.n = fyersDict[token]
                         dataDict.fy = token

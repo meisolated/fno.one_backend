@@ -8,7 +8,7 @@ interface user {
     image: string
     pan: string
     status: string
-    role: string
+    role: string[]
     settings: {
         stopLoss: number
         takeProfit: number
@@ -28,7 +28,6 @@ interface user {
         order: {
             socket: any
             subscribed: boolean
-            subscribedSymbols: string[]
         }
     }
 }
@@ -38,19 +37,32 @@ export default new Schema<user>(
         _id: { type: String, required: true },
         email: { type: String, required: true },
         name: { type: String, required: true },
-        image: { type: String, required: true },
-        pan: { type: String, required: true },
+        image: { type: String, required: false },
+        pan: { type: String, required: false },
         status: { type: String, required: true },
-        role: { type: String, required: true },
+        role: [{ type: String, required: true }],
         settings: {
-            stopLoss: { type: Number, required: true },
-            takeProfit: { type: Number, required: true },
-            activeStrategies: [{ type: String, required: true }],
-            dailyTrades: { type: Number, required: true },
+            stopLoss: { type: Number, required: false },
+            takeProfit: { type: Number, required: false },
+            activeStrategies: [{ type: String, required: false }],
+            dailyTrades: { type: Number, required: false },
         },
         fy_id: { type: String, required: true },
         fy_access_token: { type: String, required: true },
         fy_refresh_token: { type: String, required: true },
+        last_login: { type: Date, required: true },
+        loggedIn: { type: Boolean, required: true },
+        socket: {
+            marketData: {
+                socket: { type: Object, required: false },
+                subscribed: { type: Boolean, required: false },
+                subscribedSymbols: [{ type: String, required: false }],
+            },
+            order: {
+                socket: { type: Object, required: false },
+                subscribed: { type: Boolean, required: false },
+            },
+        },
     },
     { timestamps: true }
 )

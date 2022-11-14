@@ -86,13 +86,7 @@ export default class fyersHandler {
         from = from.unix()
         let to = moment().format("X")
         let history = new this.fyers.history()
-        let result = await history
-            .setSymbol("NSE:HDFCBANK-EQ")
-            .setResolution("D")
-            .setDateFormat(0)
-            .setRangeFrom(from)
-            .setRangeTo(to)
-            .getHistory()
+        let result = await history.setSymbol("NSE:HDFCBANK-EQ").setResolution("D").setDateFormat(0).setRangeFrom(from).setRangeTo(to).getHistory()
         console.log(result)
     }
     async connectToOrderSocket() {

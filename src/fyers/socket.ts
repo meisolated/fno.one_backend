@@ -1,5 +1,7 @@
+import logger from "../logger"
 import WebSocket from "ws"
 let reconnectedValue = 0
+
 function webSocketWrapper(url: string, dataToSubscribe: any, subscribeFun: any) {
     const pingFrequency = 6000
     const maxReconnectTimes = 10

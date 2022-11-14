@@ -1,3 +1,4 @@
+import loggerModel from "./logger.model"
 import marketData from "./marketData.model"
 import marketHistoryModel from "./marketHistory.model"
 import Mongoose from "./mongoose"
@@ -13,4 +14,5 @@ export const Settings = connection.model("Settings", settingsModel)
 export const Session = connection.model("Session", sessionModel)
 export const OpenInterest = connection.model("OpenInterest", openInterestsModel)
 export const MarketHistory = connection.model("MarketHistory", marketHistoryModel)
+export const Logger = connection.model("Logger", loggerModel)
 // connection.collection("videos").createIndex({ title: "text" })
