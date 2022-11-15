@@ -1,4 +1,8 @@
 //@ts-nocheck
+/**
+ * @deprecated
+ * Added this function inside helper file
+ */
 const api = "https://api.fyers.in/api/v2/"
 const dataApi = "https://api.fyers.in/data-rest/v2/"
 const WS_URL = "wss://api.fyers.in/socket/v2/dataSock"

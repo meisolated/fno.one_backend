@@ -1,5 +1,10 @@
-import logger from "../logger"
+/**
+ * @deprecated
+ * Added this function inside helper file
+ */
+
 import WebSocket from "ws"
+import logger from "../logger"
 let reconnectedValue = 0
 
 function webSocketWrapper(url: string, dataToSubscribe: any, subscribeFun: any) {

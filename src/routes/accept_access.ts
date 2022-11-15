@@ -3,25 +3,83 @@
 // clearCookie('cookie_name'); // logout
 import crypto from "crypto"
 import { Express, Request, Response } from "express"
-import { Session, User } from "model"
+import * as fyers from "../fyers"
+import { Session, User } from "../model"
+
 export default async function (app: Express, path: string) {
     console.log("Loaded route: " + path)
-    app.get(path, (_req: Request, res: Response) => {
-        if (_req.query.auth_code || _req.query.s == "ok") {
-            const currentTimeUnixMs = Date.now()
-            const cookie = crypto.randomBytes(64).toString("hex")
-            const hash =
-                "fno.one-" +
-                crypto
-                    .createHash("sha256")
-                    .update(cookie + currentTimeUnixMs)
-                    .digest("hex") +
-                "ily"
-            res.cookie("fno.on", hash, { maxAge: 1000 * 60 * 60 * 24 * 30 })
-
-            res.send({ message: "Something is missing over here", code: 404 })
+    app.get(path, async (_req: Request, res: Response) => {
+        if (_req.query.cookies) console.log(_req.query)
+        //@ts-ignore
+        if (_req.query.cookies && _req.query.cookies["fno.one"]) {
+            //@ts-ignore
+            const session = await Session.findOne({ session: _req.query.cookies["fno.one"] })
+            if (session) {
+                const user = await User.findOne({ _id: session.userId })
+                if (user) {
+                    const userProfile = await fyers.getProfile(user.fyAccessToken)
+                    if (userProfile.code == 200) {
+                        user.lastLogin = new Date()
+                        await user.save()
+                        return res.send({ message: "Logged in", code: 200, data: { userProfile } })
+                    } else {
+                        return res.send({ message: "Maybe access    token expired!", code: 401 })
+                    }
+                } else {
+                    return res.send({ message: "User not found", code: 404 })
+                }
+            } else {
+                return res.send({ message: "Session not found", code: 404 })
+            }
         } else {
-            res.send({ message: "Something is missing over here", code: 404 })
+            if (_req.query.auth_code || _req.query.s == "ok") {
+                const maxAge = 1000 * 60 * 60 * 24 * 30 // 30 days
+                const currentTimeUnixMs = Date.now()
+                const cookie = crypto.randomBytes(64).toString("hex")
+                const cookieHash =
+                    "fno.one-" +
+                    crypto
+                        .createHash("sha256")
+                        .update(cookie + currentTimeUnixMs)
+                        .digest("hex") +
+                    "ily"
+                res.cookie("fno.one", cookieHash, { maxAge })
+                const accessToken = await fyers.generateAccessToken(_req.query.auth_code)
+                if (accessToken.code != 200) return res.send({ message: accessToken.message, code: accessToken.code })
+                const userProfile = await fyers.getProfile(accessToken.access_token)
+                if (userProfile.code != 200) return res.send({ message: userProfile.message, code: userProfile.code })
+                let user = await User.findOne({ email: userProfile.data.email_id })
+                if (user) {
+                    user.fyAccessToken = accessToken.access_token
+                    user.fyRefreshToken = accessToken.refresh_token
+                    user.loggedIn = true
+                    user.lastLogin = new Date()
+                    await user.save()
+                } else {
+                    user = new User({
+                        email: userProfile.data.email_id,
+                        fyId: userProfile.data.fy_id,
+                        fyAccessToken: accessToken.access_token,
+                        fyRefreshToken: accessToken.refresh_token,
+                        name: userProfile.data.name,
+                        image: userProfile.data.image,
+                        status: "1",
+                        displayName: userProfile.data.display_name,
+                        loggedIn: true,
+                        lastLogin: new Date(),
+                    })
+                    await user.save()
+                }
+                const session = new Session({
+                    session: cookieHash,
+                    expires: new Date(currentTimeUnixMs + maxAge),
+                    userId: user._id,
+                })
+                await session.save()
+                res.send({ message: "Login Successful", code: 200, cookie: cookieHash, maxAge })
+            } else {
+                res.send({ message: "Login Failed " + _req.query.message, code: 500 })
+            }
         }
     })
 }

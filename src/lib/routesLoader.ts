@@ -38,7 +38,7 @@ const LoadRoute = (routesList: Array<Object>, app: any, logging: boolean) =>
         routesList.map(async (route: any, index) => {
             try {
                 await import(route.path).then((fun) => {
-                    if (logging) console.log(`Loading ${route.route}`)
+                    if (logging) console.log(`Loading route ${route.route}`)
                     return fun.default(app, route.route)
                 })
             } catch (error: any) {

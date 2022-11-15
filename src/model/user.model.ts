@@ -1,10 +1,9 @@
 import { Schema } from "mongoose"
 
 interface user {
-    _id: string
     email: string
     name: string
-    fy_id: string
+    displayName: string
     image: string
     pan: string
     status: string
@@ -15,9 +14,10 @@ interface user {
         activeStrategies: string[]
         dailyTrades: number
     }
-    fy_access_token: string
-    fy_refresh_token: string
-    last_login: Date
+    fyId: string
+    fyAccessToken: string
+    fyRefreshToken: string
+    lastLogin: Date
     loggedIn: boolean
     socket: {
         marketData: {
@@ -34,9 +34,9 @@ interface user {
 
 export default new Schema<user>(
     {
-        _id: { type: String, required: true },
         email: { type: String, required: true },
         name: { type: String, required: true },
+        displayName: { type: String, required: true },
         image: { type: String, required: false },
         pan: { type: String, required: false },
         status: { type: String, required: true },
@@ -47,10 +47,10 @@ export default new Schema<user>(
             activeStrategies: [{ type: String, required: false }],
             dailyTrades: { type: Number, required: false },
         },
-        fy_id: { type: String, required: true },
-        fy_access_token: { type: String, required: true },
-        fy_refresh_token: { type: String, required: true },
-        last_login: { type: Date, required: true },
+        fyId: { type: String, required: true },
+        fyAccessToken: { type: String, required: true },
+        fyRefreshToken: { type: String, required: true },
+        lastLogin: { type: Date, required: true },
         loggedIn: { type: Boolean, required: true },
         socket: {
             marketData: {

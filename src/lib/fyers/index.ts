@@ -52,6 +52,7 @@ class clientApi {
                     code: req.auth_code,
                     appIdHash: sha256,
                 })
+                console.log(access_token)
                 return access_token.data
             } else {
                 const access_token = await axios.post(`${aPI}validate-authcode`, {

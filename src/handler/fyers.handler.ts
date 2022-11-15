@@ -7,7 +7,7 @@ import { user, User } from "./user.handler"
 
 export default class fyersHandler {
     private appId: string = config.fyers.appId
-    private redirect: string = config.fyers.redirect
+    private redirect: string = config.fyers.redirectUrl
     private fyers: any
     private token: any
     user: user
@@ -54,19 +54,7 @@ export default class fyersHandler {
             })
         })
         const reqBody = {
-            symbol: [
-                "NSE:HDFCBANK-EQ",
-                "NSE:SBIN-EQ",
-                "NSE:ICICIBANK-EQ",
-                "NSE:KOTAKBANK-EQ",
-                "NSE:AXISBANK-EQ",
-                "NSE:INDUSINDBK-EQ",
-                "NSE:AUBANK-EQ",
-                "NSE:BANKBARODA-EQ",
-                "NSE:FEDERALBNK-EQ",
-                "NSE:BANDHANBNK-EQ",
-                "NSE:NIFTYBANK-INDEX",
-            ],
+            symbol: ["NSE:HDFCBANK-EQ", "NSE:SBIN-EQ", "NSE:ICICIBANK-EQ", "NSE:KOTAKBANK-EQ", "NSE:AXISBANK-EQ", "NSE:INDUSINDBK-EQ", "NSE:AUBANK-EQ", "NSE:BANKBARODA-EQ", "NSE:FEDERALBNK-EQ", "NSE:BANDHANBNK-EQ", "NSE:NIFTYBANK-INDEX"],
             dataType: "symbolUpdate",
         }
         this.fyers.fyers_connect(reqBody, (res: any) => {

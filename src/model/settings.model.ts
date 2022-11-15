@@ -12,7 +12,7 @@ interface settings {
     fyers: {
         appId: string
         secretId: string
-        redirect: string
+        redirectUrl: string
         callbackSecret: string
         apiUrl: string
         webSocketUrl: string
@@ -38,7 +38,7 @@ export default new Schema<settings>(
         fyers: {
             appId: { type: String, required: true },
             secretId: { type: String, required: true },
-            redirect: { type: String, required: true },
+            redirectUrl: { type: String, required: true },
             callbackSecret: { type: String, required: true },
             apiUrl: { type: String, required: true },
             dataApiUrl: { type: String, required: true },

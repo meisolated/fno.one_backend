@@ -3,12 +3,13 @@ import WebSocket from "ws"
 import logger from "../logger"
 const api = "https://api.fyers.in/api/v2/"
 const dataApi = "https://api.fyers.in/data-rest/v2/"
-const WS_URL = "wss://api.fyers.in/socket/v2/dataSock"
+const WS_URL = (token: string, update: string) => `wss://api.fyers.in/socket/v2/dataSock?access_token=${token}&user-agent=fyers-api&type=${update}`
 var _globalFyersDict: any = {}
 
 const generateAccessTokenUrl = (authToken: string, appId: string) => api + "genrateToken?authorization_code=" + authToken.authorization_code + "&app_id=" + appId
 
-export async function sha256(s) {
+// ------| Helper functions |------
+export async function sha256(s: any) {
     var chrsz = 8
     var hexcase = 0
     function safe_add(x, y) {
@@ -184,7 +185,7 @@ export async function sha256(s) {
     s = Utf8Encode(s)
     return binb2hex(core_sha256(str2binb(s), s.length * chrsz))
 }
-export async function socketWrapper(url: string, data: string, callback: Function, user?: string) {
+async function socketWrapper(url: string, data: string, callback: Function, user?: string) {
     const pingFrequency = 6000
     const maxReconnectTimes = 10
     let isAlive = false
@@ -225,7 +226,7 @@ export async function socketWrapper(url: string, data: string, callback: Functio
     }, pingFrequency)
     return ws
 }
-export async function unPackUDP(resp: any) {
+async function unPackUDP(resp: any) {
     var FY_P_VAL_KEY = "v"
     var FY_P_DATA_KEY = "d"
     var FY_P_MIN_KEY = "cmd"
@@ -490,3 +491,51 @@ export async function unPackUDP(resp: any) {
         return dictInfo
     }
 }
+
+// ------| Class to handle the data received from the websocket |------
+class marketDataUpdateHelper {
+    private marketDataUpdateInstance: any
+    private data = { T: "SUB_DATA", TLIST: null, SUB_T: 1 }
+    async onMarketDataUpdate(symbol: Array<string>, accessToken: string, callback: Function) {
+        this.data.TLIST = symbol
+        const dataString = JSON.stringify(this.data)
+        const url = WS_URL(accessToken, "symbolUpdate")
+        this.marketDataUpdateInstance = socketWrapper(url, dataString, (data: any) => {
+            const unpackedData = unPackUDP(data)
+            callback(unpackedData)
+        })
+    }
+    async unsubscribe() {
+        if (this.marketDataUpdateInstance) {
+            this.data.SUB_T = 0
+            const dataString = JSON.stringify(this.data)
+            this.marketDataUpdateInstance.send(dataString)
+            return true
+        } else {
+            return false
+        }
+    }
+}
+class orderUpdateHelper {
+    private orderUpdateInstance: any
+    private data = { T: "SUB_ORD", SLIST: ["orderUpdate"], SUB_T: 1 }
+
+    async onOrderUpdate(accessToken: string, callback: Function) {
+        const dataString = JSON.stringify(this.data)
+        const url = WS_URL(accessToken, "orderUpdate")
+        this.orderUpdateInstance = socketWrapper(url, dataString, (data: any) => {
+            return callback(data)
+        })
+    }
+    async unsubscribe() {
+        if (this.orderUpdateInstance) {
+            this.data.SUB_T = 0
+            const dataString = JSON.stringify(this.data)
+            this.orderUpdateInstance.send(dataString)
+            return true
+        } else {
+            return false
+        }
+    }
+}
+export { marketDataUpdateHelper, orderUpdateHelper, sha256 }

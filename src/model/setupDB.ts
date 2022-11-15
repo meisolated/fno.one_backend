@@ -30,7 +30,7 @@ export default async () =>
             fyers: {
                 appId: config.fyers.appId,
                 secretId: config.fyers.secretId,
-                redirect: config.fyers.redirect,
+                redirectUrl: config.fyers.redirectUrl,
                 callbackSecret: config.fyers.callbackSecret,
                 apiUrl: db.apiUrl,
                 dataApiUrl: db.dataApiUrl,

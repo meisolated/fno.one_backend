@@ -4,6 +4,7 @@ import http from "http"
 import * as path from "path"
 import { Server } from "socket.io"
 import config from "./config"
+import initialize from "./initialize"
 import LoadRoutes from "./lib/routesLoader"
 import logger from "./logger"
 import middleware from "./middleware"
@@ -13,6 +14,7 @@ const server = http.createServer(app)
 const port: number = config.port
 const io = new Server(server)
 const routesDirPath = path.join(__dirname, "/routes")
+const configDir = path.join(__dirname, "/config/index.json")
 app.use(compression({ level: 9 }))
 app.use(middleware)
 app.use(json())
@@ -23,7 +25,7 @@ app.get("/", (_req: Request, res: Response) => {
     res.send({ message: "Something is missing over here", code: 200 })
 })
 logger.log("Loading routes...")
-LoadRoutes(app, routesDirPath, "", true).then(() => {
+LoadRoutes(app, routesDirPath, "", true).then(async () => {
     logger.log("Routes loaded!")
     logger.log("Loading socket.io events...")
     io.on("connection", (socket) => {
@@ -41,4 +43,6 @@ LoadRoutes(app, routesDirPath, "", true).then(() => {
     server.listen(port, () => {
         logger.log(`Server started on port ${port}`)
     })
+    // ---------| Initialize server config |-----------
+    await initialize(configDir)
 })

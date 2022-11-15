@@ -3,13 +3,14 @@
         "target": "ES2016",
         "allowSyntheticDefaultImports": true,
         "module": "CommonJS",
-        "esModuleInterop": true,
         "baseUrl": "./src",
         "outDir": "./dist",
         "types": ["node"],
         "moduleResolution": "node",
         "forceConsistentCasingInFileNames": true,
-        "strict": true
+        "strict": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true
     },
     "include": ["src"]
 }

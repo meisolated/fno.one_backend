@@ -1,0 +1,24 @@
+{
+    "id": 1,
+    "realTimeMarketsToWatch": null,
+    "keepRealTimeMarketsData": null,
+    "activeStrategies": null,
+    "globalStopLoss": null,
+    "globalTakeProfit": null,
+    "globalDailyTrades": null,
+    "userLimit": null,
+    "fyers": {
+        "appId": null,
+        "secretId": null,
+        "redirectUrl": null,
+        "callbackSecret": null,
+        "apiUrl": null,
+        "webSocketUrl": null,
+        "dataApiUrl": null
+    },
+    "NSEApi": {
+        "NSEOptionQuoteDerivativeAPIUrl": null,
+        "NSEOptionChainDataAPIUrl": null
+    },
+    "lastUpdated": null
+}
