@@ -1,4 +1,5 @@
 import fs from "fs"
+import logger from "../logger"
 import { timeout } from "../helper"
 
 const findAllRoutes = (routesDir: string, routePrefix: string) =>
@@ -23,7 +24,7 @@ const findAllRoutes = (routesDir: string, routePrefix: string) =>
                     if (fs.lstatSync(dir + "/" + file).isDirectory()) {
                         findInThisDir(dir + "/" + file)
                     } else {
-                        console.log(`Skipping this file ${dir + file}`)
+                        logger.info(`Skipping this file ${dir + file}`)
                     }
                 }
             })
@@ -38,7 +39,7 @@ const LoadRoute = (routesList: Array<Object>, app: any, logging: boolean) =>
         routesList.map(async (route: any, index) => {
             try {
                 await import(route.path).then((fun) => {
-                    if (logging) console.log(`Loading route ${route.route}`)
+                    if (logging) logger.info(`Loading route ${route.route}`)
                     return fun.default(app, route.route)
                 })
             } catch (error: any) {
@@ -63,7 +64,7 @@ const LoadRoutes = async (app: any, routesDir: string, routePrefix: string, logg
     new Promise(async (resolve, reject) => {
         if (fs.existsSync(routesDir)) {
             const routesList: any = await findAllRoutes(routesDir, routePrefix)
-            console.log(`Found ${routesList.length} routes`)
+            logger.info(`Found ${routesList.length} routes`)
             await LoadRoute(routesList, app, logging)
             resolve(true)
         } else {

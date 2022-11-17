@@ -5,6 +5,7 @@ import setupDB from "../model/setupDB"
 
 export default (configDir: string) =>
     new Promise((resolve, reject) => {
+        logger.info("Checking config file...", false)
         Settings.findOne({ id: 1 }).then(async (settings) => {
             if (settings) {
                 Settings.findOne({ id: 1 }).then(async (settings) => {

@@ -3,17 +3,17 @@
 // clearCookie('cookie_name'); // logout
 import crypto from "crypto"
 import { Express, Request, Response } from "express"
+import logger from "../logger"
 import * as fyers from "../fyers"
 import { Session, User } from "../model"
-
 export default async function (app: Express, path: string) {
-    console.log("Loaded route: " + path)
-    app.get(path, async (_req: Request, res: Response) => {
-        if (_req.query.cookies) console.log(_req.query)
-        //@ts-ignore
-        if (_req.query.cookies && _req.query.cookies["fno.one"]) {
+    logger.info("Loaded route: " + path)
+    app.get(path, async (req: Request, res: Response) => {
+        const cookie = req.cookies["fno.one"]
+        if (req.headers.referer !== "https://api.fyers.in/") return res.redirect("https://api.fyers.in/")
+        if (cookie) {
             //@ts-ignore
-            const session = await Session.findOne({ session: _req.query.cookies["fno.one"] })
+            const session = await Session.findOne({ session: cookie })
             if (session) {
                 const user = await User.findOne({ _id: session.userId })
                 if (user) {
@@ -21,18 +21,25 @@ export default async function (app: Express, path: string) {
                     if (userProfile.code == 200) {
                         user.lastLogin = new Date()
                         await user.save()
-                        return res.send({ message: "Logged in", code: 200, data: { userProfile } })
+                        return res.redirect("/dashboard")
+                        // return res.send({ message: "Logged in", code: 200, data: { userProfile } })
                     } else {
-                        return res.send({ message: "Maybe access    token expired!", code: 401 })
+                        res.clearCookie("fno.one")
+                        return res.redirect("/error/sessionTimeout")
+                        //return res.send({ message: "Maybe access token expired!", code: 401 })
                     }
                 } else {
-                    return res.send({ message: "User not found", code: 404 })
+                    res.clearCookie("fno.one")
+                    return res.redirect("/error/userNotFound")
+                    //return res.send({ message: "User not found", code: 404 })
                 }
             } else {
-                return res.send({ message: "Session not found", code: 404 })
+                res.clearCookie("fno.one")
+                return res.redirect("/error/sessionTimeout")
+                //return res.send({ message: "Session not found", code: 404 })
             }
         } else {
-            if (_req.query.auth_code || _req.query.s == "ok") {
+            if (req.query.auth_code || req.query.s == "ok") {
                 const maxAge = 1000 * 60 * 60 * 24 * 30 // 30 days
                 const currentTimeUnixMs = Date.now()
                 const cookie = crypto.randomBytes(64).toString("hex")
@@ -44,7 +51,7 @@ export default async function (app: Express, path: string) {
                         .digest("hex") +
                     "ily"
                 res.cookie("fno.one", cookieHash, { maxAge })
-                const accessToken = await fyers.generateAccessToken(_req.query.auth_code)
+                const accessToken = await fyers.generateAccessToken(req.query.auth_code)
                 if (accessToken.code != 200) return res.send({ message: accessToken.message, code: accessToken.code })
                 const userProfile = await fyers.getProfile(accessToken.access_token)
                 if (userProfile.code != 200) return res.send({ message: userProfile.message, code: userProfile.code })
@@ -76,9 +83,11 @@ export default async function (app: Express, path: string) {
                     userId: user._id,
                 })
                 await session.save()
-                res.send({ message: "Login Successful", code: 200, cookie: cookieHash, maxAge })
+                return res.redirect("/dashboard")
+                //res.send({ message: "Login Successful", code: 200, cookie: cookieHash, maxAge })
             } else {
-                res.send({ message: "Login Failed " + _req.query.message, code: 500 })
+                return res.redirect("/error/invalidRequest")
+                //res.send({ message: "Login Failed " + _req.query.message, code: 500 })
             }
         }
     })

@@ -1,4 +1,5 @@
 import compression from "compression"
+import cookieParser from "cookie-parser"
 import express, { Express, json, Request, Response, urlencoded } from "express"
 import http from "http"
 import * as path from "path"
@@ -8,6 +9,7 @@ import initialize from "./initialize"
 import LoadRoutes from "./lib/routesLoader"
 import logger from "./logger"
 import middleware from "./middleware"
+import socketLoader from "./socket"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -20,29 +22,24 @@ app.use(middleware)
 app.use(json())
 app.use(urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, "/public")))
+app.use(cookieParser())
 
 app.get("/", (_req: Request, res: Response) => {
     res.send({ message: "Something is missing over here", code: 200 })
 })
-logger.log("Loading routes...")
+// ------------| Loading Routes |------------
+logger.info("Loading routes...")
 LoadRoutes(app, routesDirPath, "", true).then(async () => {
-    logger.log("Routes loaded!")
-    logger.log("Loading socket.io events...")
-    io.on("connection", (socket) => {
-        logger.log("New client connected")
-        if (!socket.handshake.query.key) {
-            socket.disconnect()
-        }
-        socket.on("disconnect", () => {
-            logger.log("user disconnected")
-        })
-    })
-    logger.log("Socket.io events loaded!")
-    logger.log("Starting server...")
-
-    server.listen(port, () => {
-        logger.log(`Server started on port ${port}`)
-    })
+    logger.info("Routes loaded!")
+    // -----------| Initializing Socket |-----------
+    logger.info("Loading socket.io events...")
+    socketLoader(io)
+    logger.info("Socket.io events loaded!")
     // ---------| Initialize server config |-----------
     await initialize(configDir)
+    // -----------| Starting server |-----------
+    logger.info("Starting server...")
+    server.listen(port, () => {
+        logger.info(`Server started on port ${port}`)
+    })
 })

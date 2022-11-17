@@ -16,12 +16,10 @@ const getConfig = async () => {
     const config = await import("../config/index.json")
     return config
 }
-
 const getAuthToken = async (token: string) => {
     const config = await getConfig()
     return `${config.fyers.appId}:${token}`
 }
-
 const generateLoginUrl = async (req: any) => {
     const config = await getConfig()
     const client_id = config.fyers.appId
@@ -29,7 +27,6 @@ const generateLoginUrl = async (req: any) => {
     const state = "sample_state"
     return `${config.fyers.apiUrl}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
 }
-
 const generateAccessToken = async (authCode: any) => {
     const config = await getConfig()
     const appId = config.fyers.appId
@@ -47,7 +44,6 @@ const generateAccessToken = async (authCode: any) => {
         return error
     }
 }
-
 const getProfile = async (token: string) => {
     const config = await getConfig()
     const AuthorizationToken = await getAuthToken(token)
@@ -65,5 +61,38 @@ const getProfile = async (token: string) => {
         return error
     }
 }
-
-export { generateLoginUrl, generateAccessToken, getProfile }
+const getFunds = async (token: string) => {
+    const config = await getConfig()
+    const AuthorizationToken = await getAuthToken(token)
+    const reqConfig = {
+        method: "GET",
+        headers: {
+            Authorization: AuthorizationToken,
+        },
+    }
+    try {
+        const funds = await axios.get(`${config.fyers.apiUrl}funds`, reqConfig)
+        return funds.data
+    } catch (error: any) {
+        logger.info(error, false)
+        return error
+    }
+}
+const getHoldings = async (token: string) => {
+    const config = await getConfig()
+    const AuthorizationToken = await getAuthToken(token)
+    const reqConfig = {
+        method: "GET",
+        headers: {
+            Authorization: AuthorizationToken,
+        },
+    }
+    try {
+        const holdings = await axios.get(`${config.fyers.apiUrl}holdings`, reqConfig)
+        return holdings.data
+    } catch (error: any) {
+        logger.info(error, false)
+        return error
+    }
+}
+export { generateLoginUrl, generateAccessToken, getProfile, getFunds, getHoldings }
