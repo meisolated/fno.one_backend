@@ -18,6 +18,10 @@ interface settings {
         webSocketUrl: string
         dataApiUrl: string
     }
+    fyersTrueData: {
+        username: string
+        password: string
+    }
     NSEApi: {
         NSEOptionQuoteDerivativeAPIUrl: string
         NSEOptionChainDataAPIUrl: string
@@ -43,6 +47,10 @@ export default new Schema<settings>(
             apiUrl: { type: String, required: true },
             dataApiUrl: { type: String, required: true },
             webSocketUrl: { type: String, required: true },
+        },
+        fyersTrueData: {
+            username: { type: String, required: true },
+            password: { type: String, required: true },
         },
         NSEApi: {
             NSEOptionQuoteDerivativeAPIUrl: { type: String, required: true },

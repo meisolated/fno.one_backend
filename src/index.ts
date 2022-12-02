@@ -4,19 +4,18 @@ import express, { Express, json, Request, Response, urlencoded } from "express"
 import http from "http"
 import * as path from "path"
 import { Server } from "socket.io"
+import middleware from "./api/middleware"
+import socketLoader from "./api/socket"
 import config from "./config"
 import initialize from "./initialize"
 import LoadRoutes from "./lib/routesLoader"
 import logger from "./logger"
-import middleware from "./middleware"
-import socketLoader from "./socket"
 
 const app: Express = express()
 const server = http.createServer(app)
 const port: number = config.port
 const io = new Server(server)
-const routesDirPath = path.join(__dirname, "/routes")
-const configDir = path.join(__dirname, "/config/index.json")
+const routesDirPath = path.join(__dirname, "/api/routes")
 app.use(compression({ level: 9 }))
 app.use(middleware)
 app.use(json())
@@ -36,7 +35,7 @@ LoadRoutes(app, routesDirPath, "", true).then(async () => {
     socketLoader(io)
     logger.info("Socket.io events loaded!")
     // ---------| Initialize server config |-----------
-    await initialize(configDir)
+    await initialize()
     // -----------| Starting server |-----------
     logger.info("Starting server...")
     server.listen(port, () => {

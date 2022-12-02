@@ -3,7 +3,7 @@ import WebSocket from "ws"
 import logger from "../logger"
 const api = "https://api.fyers.in/api/v2/"
 const dataApi = "https://api.fyers.in/data-rest/v2/"
-const WS_URL = (token: string, update: string) => `wss://api.fyers.in/socket/v2/dataSock?access_token=${token}&user-agent=fyers-api&type=${update}`
+const WS_URL = (appId: string, token: string, update: string) => `wss://api.fyers.in/socket/v2/dataSock?access_token=${appId}:${token}&user-agent=fyers-api&type=${update}`
 var _globalFyersDict: any = {}
 
 const generateAccessTokenUrl = (authToken: string, appId: string) => api + "genrateToken?authorization_code=" + authToken.authorization_code + "&app_id=" + appId
@@ -522,10 +522,11 @@ class orderUpdateHelper {
 
     async onOrderUpdate(accessToken: string, callback: Function) {
         const dataString = JSON.stringify(this.data)
-        const url = WS_URL(accessToken, "orderUpdate")
+        const config = await import("../config/index.json")
+        const url = WS_URL(config.fyers.appId, accessToken, "orderUpdate")
         this.orderUpdateInstance = socketWrapper(url, dataString, (data: any) => {
             return callback(data)
-        })
+        }, accessToken)
     }
     async unsubscribe() {
         if (this.orderUpdateInstance) {

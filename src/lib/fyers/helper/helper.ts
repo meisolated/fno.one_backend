@@ -335,7 +335,7 @@ function onOrderUpdate(tokenValue: any, callback2: any, isUnsub = false) {
     // let url = `${WS_URL}?access_token=${tokenValue}&user-agent=fyers-api&type=orderUpdate`
     let url = `wss://api.fyers.in/socket/v2/dataSock?access_token=${tokenValue}&user-agent=fyers-api&type=orderUpdate`
     let dataToSend = { T: "SUB_ORD", SLIST: ["orderUpdate"], SUB_T: 1 }
-
+    console.log("fyers v2", url)
     if (isUnsub && orderUpdateInstance) {
         dataToSend.SUB_T = 0
         orderUpdateInstance.send(JSON.stringify(dataToSend))

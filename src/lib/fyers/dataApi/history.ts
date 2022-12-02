@@ -56,7 +56,6 @@ class History {
 
     getUserValueObject() {
         let userObject = {}
-
         userObject.symbol = this.#symbol
         userObject.resolution = this.#resolution
         userObject.date_format = this.#dateFormat

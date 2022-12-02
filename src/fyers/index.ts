@@ -11,6 +11,7 @@
 import axios from "axios"
 import logger from "../logger"
 import * as helper from "./helper"
+const orderUpdateSocket = helper.orderUpdateHelper
 
 const getConfig = async () => {
     const config = await import("../config/index.json")
@@ -95,4 +96,5 @@ const getHoldings = async (token: string) => {
         return error
     }
 }
-export { generateLoginUrl, generateAccessToken, getProfile, getFunds, getHoldings }
+export { generateLoginUrl, generateAccessToken, getProfile, getFunds, getHoldings, orderUpdateSocket }
+

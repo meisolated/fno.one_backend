@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express"
-import logger from "../logger"
+import logger from "../../logger"
 
 export default async function (app: Express, path: string) {
     logger.info("Loaded route: " + path)

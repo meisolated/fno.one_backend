@@ -3,15 +3,14 @@
 // clearCookie('cookie_name'); // logout
 import crypto from "crypto"
 import { Express, Request, Response } from "express"
-import logger from "../logger"
-import * as fyers from "../fyers"
-import { Session, User } from "../model"
+import * as fyers from "../../fyers"
+import logger from "../../logger"
+import { Session, User } from "../../model"
 export default async function (app: Express, path: string) {
     logger.info("Loaded route: " + path)
     app.get(path, async (req: Request, res: Response) => {
         const cookie = req.cookies["fno.one"]
-        if (req.headers.referer !== "https://api.fyers.in/") return res.redirect("https://api.fyers.in/")
-        if (cookie) {
+        if (cookie && cookie.includes("ily") && cookie.includes("fno.one-")) {
             //@ts-ignore
             const session = await Session.findOne({ session: cookie })
             if (session) {
@@ -39,6 +38,7 @@ export default async function (app: Express, path: string) {
                 //return res.send({ message: "Session not found", code: 404 })
             }
         } else {
+            if (req.headers.referer !== "https://api.fyers.in/") return res.redirect("https://api.fyers.in/")
             if (req.query.auth_code || req.query.s == "ok") {
                 const maxAge = 1000 * 60 * 60 * 24 * 30 // 30 days
                 const currentTimeUnixMs = Date.now()
