@@ -1,7 +1,6 @@
 import config from "../config"
 import logger from "../logger"
 import { Settings } from "./"
-
 const settingsData = {
     id: 1,
     realTimeMarketsToWatch: [

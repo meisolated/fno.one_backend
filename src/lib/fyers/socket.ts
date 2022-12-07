@@ -4,7 +4,7 @@
  */
 
 import WebSocket from "ws"
-import logger from "../logger"
+import logger from "../../logger"
 let reconnectedValue = 0
 
 function webSocketWrapper(url: string, dataToSubscribe: any, subscribeFun: any) {

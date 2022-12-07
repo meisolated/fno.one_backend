@@ -4,11 +4,9 @@ import logger from "../logger"
 import { Settings } from "../model"
 import setupDB from "../model/setupDB"
 const configDir = path.join(process.cwd() + "/dist/config/index.json")
-
 export default () =>
     new Promise(async (resolve, reject) => {
         logger.info("Checking config file...", false)
-
         await setupDB()
         Settings.findOne({ id: 1 }).then(async (settings) => {
             await writeFile(settings)
@@ -20,7 +18,6 @@ export default () =>
                 })
         })
     })
-
 const writeFile = (settings: any) =>
     new Promise((resolve, reject) => {
         let data = JSON.stringify(settings)

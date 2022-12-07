@@ -17,8 +17,10 @@ interface user {
     fyId: string
     fyAccessToken: string
     fyRefreshToken: string
+    connectedApps: string[]
     lastLogin: Date
     loggedIn: boolean
+    socketId: string
     socket: {
         marketData: {
             socket: any
@@ -52,6 +54,8 @@ export default new Schema<user>(
         fyRefreshToken: { type: String, required: true },
         lastLogin: { type: Date, required: true },
         loggedIn: { type: Boolean, required: true },
+        socketId: { type: String, required: false },
+        connectedApps: [{ type: String, required: false }],
         socket: {
             marketData: {
                 socket: { type: Object, required: false },

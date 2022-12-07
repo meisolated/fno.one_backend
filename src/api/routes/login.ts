@@ -7,8 +7,7 @@ export default async function (app: Express, path: string) {
         if (cookie && cookie.includes("ily") && cookie.includes("fno.one-")) {
             res.clearCookie("fno.one")
             return res.redirect("/dashboard")
-        }
-        else {
+        } else {
             const config = await import("../../config/index.json")
             const loginUrl = `https://api.fyers.in/api/v2/generate-authcode?client_id=${config.fyers.appId}&redirect_uri=${config.fyers.redirectUrl}&response_type=code&state=${config.fyers.callbackSecret}`
             return res.redirect(loginUrl)

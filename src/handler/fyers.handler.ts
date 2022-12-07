@@ -1,8 +1,8 @@
 import moment from "moment"
 import config from "../config"
 import chatter from "../events"
-import fyers from "../lib/fyers"
 import { MarketData } from "../model"
+import fyers from "../old/fyers"
 import { user, User } from "./user.handler"
 
 export default class fyersHandler {

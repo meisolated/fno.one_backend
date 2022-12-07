@@ -1,6 +1,7 @@
 //@ts-nocheck
 import WebSocket from "ws"
-import logger from "../logger"
+import config from "../../config"
+import logger from "../../logger"
 const api = "https://api.fyers.in/api/v2/"
 const dataApi = "https://api.fyers.in/data-rest/v2/"
 const WS_URL = (appId: string, token: string, update: string) => `wss://api.fyers.in/socket/v2/dataSock?access_token=${appId}:${token}&user-agent=fyers-api&type=${update}`
@@ -522,11 +523,15 @@ class orderUpdateHelper {
 
     async onOrderUpdate(accessToken: string, callback: Function) {
         const dataString = JSON.stringify(this.data)
-        const config = await import("../config/index.json")
         const url = WS_URL(config.fyers.appId, accessToken, "orderUpdate")
-        this.orderUpdateInstance = socketWrapper(url, dataString, (data: any) => {
-            return callback(data)
-        }, accessToken)
+        this.orderUpdateInstance = socketWrapper(
+            url,
+            dataString,
+            (data: any) => {
+                return callback(data)
+            },
+            accessToken
+        )
     }
     async unsubscribe() {
         if (this.orderUpdateInstance) {
