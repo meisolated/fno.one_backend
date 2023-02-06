@@ -39,7 +39,7 @@ function unPackUDP(resp: any) {
             // console.log("unPackUDP 3");
             var token = parseInt(header.getBigUint64(0))
             var fyCode = parseInt(header.getInt16(12))
-
+            console.log("fyCode", fyCode)
             if (fyCode == 7202) {
                 if (token in _globalFyersDict) {
                     cmn_data = new DataView(data_array_buffer, 24, 32)
@@ -356,6 +356,8 @@ async function onSymbolUpdate(symbol: any, tokenValue: any, callback2: any, isUn
     let dataToSend = { T: "SUB_DATA", TLIST: symbol, SUB_T: 1 }
     // let url = `${WS_URL}?access_token=${tokenValue}&user-agent=fyers-api&type=symbolUpdate`
     let url = `wss://api.fyers.in/socket/v2/dataSock?access_token=${tokenValue}&user-agent=fyers-api&type=symbolUpdate`
+
+
     if (isUnsub && onSymbolUpdateInstance) {
         dataToSend.SUB_T = 0
         onSymbolUpdateInstance.send(JSON.stringify(dataToSend))
@@ -365,6 +367,8 @@ async function onSymbolUpdate(symbol: any, tokenValue: any, callback2: any, isUn
         console.log("Error : Subscribe first")
         return
     }
+    console.log(url)
+    console.log(JSON.stringify(dataToSend))
     onSymbolUpdateInstance = webSocketWrapper(url, JSON.stringify(dataToSend), function (data: any) {
         let a = unPackUDP(data) //!symbol, tokenValue
         callback2(JSON.stringify(a))

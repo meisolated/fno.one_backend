@@ -19,6 +19,7 @@ export default async function (app: Express, path: string) {
                     const userProfile = await fyers.getProfile(user.fyAccessToken)
                     if (userProfile.code == 200) {
                         user.lastLogin = new Date()
+                        if (user.connectedApps.includes("fyers") == false) user.connectedApps.push("fyers")
                         await user.save()
                         return res.redirect("/dashboard")
                         // return res.send({ message: "Logged in", code: 200, data: { userProfile } })
@@ -60,11 +61,15 @@ export default async function (app: Express, path: string) {
                     user.fyAccessToken = accessToken.access_token
                     user.fyRefreshToken = accessToken.refresh_token
                     user.loggedIn = true
+                    user.pan = userProfile.data.pan
+                    user.image = userProfile.data.image
                     user.lastLogin = new Date()
+                    if (user.connectedApps.includes("fyers") == false) user.connectedApps.push("fyers")
                     await user.save()
                 } else {
                     user = new User({
                         email: userProfile.data.email_id,
+                        pan: userProfile.data.pan,
                         fyId: userProfile.data.fy_id,
                         fyAccessToken: accessToken.access_token,
                         fyRefreshToken: accessToken.refresh_token,
@@ -73,6 +78,7 @@ export default async function (app: Express, path: string) {
                         status: "1",
                         displayName: userProfile.data.display_name,
                         loggedIn: true,
+                        connectedApps: ["fyers"],
                         lastLogin: new Date(),
                     })
                     await user.save()

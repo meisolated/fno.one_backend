@@ -21,7 +21,8 @@ export default async function (app: Express, path: string) {
                                     res.clearCookie("fno.one")
                                     return res.redirect("/error/sessionTimeout")
                                 }
-                                return res.send({ message: "Logged in", code: 200, data: { ...userProfile.data } })
+                                const userRawData = user.toObject()
+                                return res.send({ message: "Logged in", code: 200, data: { ...userRawData } })
                             } else {
                                 res.clearCookie("fno.one")
                                 return res.redirect("/error/userNotFound")

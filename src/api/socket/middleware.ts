@@ -1,12 +1,19 @@
-import soket from "socket.io"
-export default (socket: any) => {
-    socket.on("connection", (socket: any) => {
-        console.log("New client connected")
-        if (!socket.handshake.query.token) {
-            socket.disconnect()
+import { Socket } from "socket.io"
+import { Session } from "../../model"
+
+export default async (socket: Socket, next: Function) => {
+    console.log(`Socket ${socket.id} connected`)
+    if (socket.handshake.query.sessionId) {
+        const userId = await Session.findOne({ session: socket.handshake.query.sessionId })
+        if (!userId) {
+            console.log(`Socket ${socket.id} disconnected`)
+            return socket.disconnect()
         }
-        socket.on("disconnect", () => {
-            console.log("user disconnected", socket.handshake.query.token)
-        })
-    })
+        socket.data.userId = userId.userId
+        console.log(`Socket ${socket.id} authenticated`)
+        next()
+    } else {
+        console.log(`Socket ${socket.id} disconnected`)
+        socket.disconnect()
+    }
 }

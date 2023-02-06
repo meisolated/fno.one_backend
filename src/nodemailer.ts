@@ -684,7 +684,7 @@ function main() {
             to: "isolatedbot@gmail.com", // used as RCPT TO: address for SMTP
         },
         text: "Plaintext version of the message",
-        html: template
+        html: template,
     }
     mailer.sendMail(message, function (err: any, info: any) {
         if (err) {

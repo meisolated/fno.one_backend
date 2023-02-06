@@ -1,14 +1,11 @@
 //@ts-nocheck
-/**
- * @deprecated
- * Added this function inside helper file
- */
 const api = "https://api.fyers.in/api/v2/"
 const dataApi = "https://api.fyers.in/data-rest/v2/"
 const WS_URL = "wss://api.fyers.in/socket/v2/dataSock"
 
 var _globalFyersDict: any = {}
-export default function unPackUDP(resp: any) {
+
+export default async function unPackUDP(resp: any) {
     var FY_P_VAL_KEY = "v"
     var FY_P_DATA_KEY = "d"
     var FY_P_MIN_KEY = "cmd"
@@ -26,12 +23,14 @@ export default function unPackUDP(resp: any) {
         var dataCount = 0
         while (count > 0) {
             if (a >= 50) {
+                // console.log("break");
                 break
             }
             a += 1
             var header: any = new DataView(data_array_buffer, 0, 24)
             var cmn_data: any = null
             var dataDict: any = {}
+            // console.log("unPackUDP 3");
             var token = parseInt(header.getBigUint64(0))
             var fyCode = parseInt(header.getInt16(12))
 
@@ -65,6 +64,7 @@ export default function unPackUDP(resp: any) {
             } else if (fyCode == 31038) {
                 cmn_data = new DataView(data_array_buffer, 24, 88)
                 var price_conv = parseFloat(cmn_data.getInt32(0))
+                //@ts-ignore
                 var ltp = parseFloat(parseInt(cmn_data.getInt32(4)) / price_conv)
 
                 var symbol_ticker = ""
@@ -73,13 +73,17 @@ export default function unPackUDP(resp: any) {
                     dataDict[FY_P_STATUS] = "ok"
                     dataDict[FY_P_VAL_KEY] = {}
                     dataDict[FY_P_VAL_KEY].high_price = (parseInt(cmn_data.getInt32(12)) / price_conv).toString()
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].prev_close_price = parseFloat(parseInt(cmn_data.getInt32(20)) / price_conv)
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].ch = Number(parseFloat(ltp - dataDict[FY_P_VAL_KEY].prev_close_price).toFixed(2))
-                    dataDict[FY_P_VAL_KEY].tt = parseInt(header.getInt32(8))
+                    dataDict[FY_P_VAL_KEY].tt = parseInt(header.getInt32(8)) // Timestamp sent by exchange
                     dataDict[FY_P_VAL_KEY].description = _globalFyersDict[token]
-                    dataDict[FY_P_VAL_KEY].short_name = symbol_ticker[1]
+                    dataDict[FY_P_VAL_KEY].short_name = symbol_ticker[1] //temp_value
                     dataDict[FY_P_VAL_KEY].exchange = symbol_ticker[0]
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].low_price = parseFloat(parseInt(cmn_data.getInt32(16)) / price_conv)
+                    // dataDict[FY_P_VAL_KEY].trans_code = fyCode;
                     dataDict[FY_P_VAL_KEY].oi = parseInt(cmn_data.getBigUint64(48))
                     var pdoi = parseInt(cmn_data.getBigUint64(56))
                     var changeOI = Number(dataDict[FY_P_VAL_KEY].oi - pdoi)
@@ -93,18 +97,24 @@ export default function unPackUDP(resp: any) {
 
                     dataDict[FY_P_VAL_KEY].percentoi = percentChangeInOI.toFixed(2) + "%"
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY] = {}
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].c = parseFloat(parseInt(cmn_data.getInt32(36)) / price_conv)
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].h = parseFloat(parseInt(cmn_data.getInt32(28)) / price_conv)
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].l = parseFloat(parseInt(cmn_data.getInt32(32)) / price_conv)
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].o = parseFloat(parseInt(cmn_data.getInt32(24)) / price_conv)
-                    dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t = parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60)
+                    dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t = parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60) // LTT
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].v = parseInt(cmn_data.getBigUint64(40))
 
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].tf = ""
                     dataDict[FY_P_VAL_KEY].original_name = _globalFyersDict[token]
-                    dataDict[FY_P_VAL_KEY].chp = Number(parseFloat(((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) / dataDict[FY_P_VAL_KEY].prev_close_price) * 100).toFixed(2))
+                    //@ts-ignore
+                    dataDict[FY_P_VAL_KEY].chp = Number(parseFloat(((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) / dataDict[FY_P_VAL_KEY].prev_close_price) * 100).toFixed(2)) // Percent change
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].open_price = parseFloat(parseInt(cmn_data.getInt32(8)) / price_conv)
-                    dataDict[FY_P_VAL_KEY].lp = ltp
+                    dataDict[FY_P_VAL_KEY].lp = ltp // LTP
 
                     dataDict[FY_P_VAL_KEY].symbol = _globalFyersDict[token]
                     dataCount = 88
@@ -114,23 +124,28 @@ export default function unPackUDP(resp: any) {
                     dataCount = 120
                     dataDict[FY_P_VAL_KEY].LTQ = parseFloat(additional.getInt32(0))
                     dataDict[FY_P_VAL_KEY].L2_LTT = parseInt(additional.getInt32(4))
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].ATP = parseFloat(parseInt(additional.getInt32(8)) / price_conv)
                     dataDict[FY_P_VAL_KEY].volume = parseInt(additional.getInt32(12))
                     dataDict[FY_P_VAL_KEY].tot_buy = parseFloat(additional.getBigUint64(16))
                     dataDict[FY_P_VAL_KEY].tot_sell = parseFloat(additional.getBigUint64(24))
                     if (L2 == "1") {
-                        var bid: any = new DataView(data_array_buffer, 120, 60)
-                        var ask: any = new DataView(data_array_buffer, 180, 60)
+                        // console.log("unPackUDP 7");
+                        var bid = new DataView(data_array_buffer, 120, 60)
+                        var ask = new DataView(data_array_buffer, 180, 60)
                         var bidList = []
                         var askList = []
                         var totBuy = dataDict[FY_P_VAL_KEY].tot_buy
                         var totSell = dataDict[FY_P_VAL_KEY].tot_sell
+                        //New change 2019-0709 Palash
                         for (var i = 0; i < 5; i++) {
+                            //@ts-ignore
                             bidList.push({
                                 volume: parseInt(bid.getInt32(i * 12 + 4)),
                                 price: parseFloat(parseInt(bid.getInt32(i * 12)) / price_conv),
                                 ord: parseInt(bid.getInt32(i * 12 + 8)),
                             })
+                            //@ts-ignore
                             askList.push({
                                 volume: parseInt(ask.getInt32(i * 12 + 4)),
                                 price: parseFloat(parseInt(ask.getInt32(i * 12)) / price_conv),
@@ -148,9 +163,12 @@ export default function unPackUDP(resp: any) {
                             totSell: totSell,
                             totBuy: totBuy,
                         }
+                        // console.log(depth);
                     } else {
                         var bid_ask = new DataView(data_array_buffer, 120, 8)
+                        //@ts-ignore
                         dataDict[FY_P_VAL_KEY].bid = parseFloat(parseInt(bid_ask.getInt32(0)) / price_conv)
+                        //@ts-ignore
                         dataDict[FY_P_VAL_KEY].ask = parseFloat(parseInt(bid_ask.getInt32(4)) / price_conv)
                         dataCount = 128
                     }
@@ -168,7 +186,8 @@ export default function unPackUDP(resp: any) {
                 }
             } else if (fyCode != 7202 && fyCode != 31038) {
                 cmn_data = new DataView(data_array_buffer, 24, 72 - 24)
-                var price_conv = parseFloat(cmn_data.getInt32(0))
+                var price_conv = parseFloat(cmn_data.getInt32(0)) // 4bytes
+                //@ts-ignore
                 var ltp = parseFloat(parseInt(cmn_data.getInt32(4)) / price_conv)
 
                 var symbol_ticker = ""
@@ -177,25 +196,35 @@ export default function unPackUDP(resp: any) {
                     dataDict[FY_P_STATUS] = "ok"
                     dataDict[FY_P_VAL_KEY] = {}
                     dataDict[FY_P_VAL_KEY].high_price = (parseInt(cmn_data.getInt32(12)) / price_conv).toString()
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].prev_close_price = parseFloat(parseInt(cmn_data.getInt32(20)) / price_conv)
-                    dataDict[FY_P_VAL_KEY].ch = Number(parseFloat(ltp - dataDict[FY_P_VAL_KEY].prev_close_price).toFixed(2))
-                    dataDict[FY_P_VAL_KEY].tt = parseInt(header.getInt32(8))
+                    //@ts-ignore
+                    dataDict[FY_P_VAL_KEY].ch = Number(parseFloat(ltp - dataDict[FY_P_VAL_KEY].prev_close_price).toFixed(2)) // Previous change
+                    dataDict[FY_P_VAL_KEY].tt = parseInt(header.getInt32(8)) // Timestamp sent by exchange
                     dataDict[FY_P_VAL_KEY].description = _globalFyersDict[token]
-                    dataDict[FY_P_VAL_KEY].short_name = symbol_ticker[1]
+                    dataDict[FY_P_VAL_KEY].short_name = symbol_ticker[1] //temp_value
                     dataDict[FY_P_VAL_KEY].exchange = symbol_ticker[0]
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].low_price = parseFloat(parseInt(cmn_data.getInt32(16)) / price_conv)
+                    // dataDict[FY_P_VAL_KEY].trans_code = fyCode;
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY] = {}
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].c = parseFloat(parseInt(cmn_data.getInt32(36)) / price_conv)
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].h = parseFloat(parseInt(cmn_data.getInt32(28)) / price_conv)
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].l = parseFloat(parseInt(cmn_data.getInt32(32)) / price_conv)
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].o = parseFloat(parseInt(cmn_data.getInt32(24)) / price_conv)
-                    dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t = parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60)
+                    dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].t = parseInt(header.getInt32(8)) - (parseInt(header.getInt32(8)) % 60) // LTT
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].v = parseInt(cmn_data.getBigUint64(40))
                     dataDict[FY_P_VAL_KEY][FY_P_MIN_KEY].tf = ""
                     dataDict[FY_P_VAL_KEY].original_name = _globalFyersDict[token]
-                    dataDict[FY_P_VAL_KEY].chp = Number(parseFloat(((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) / dataDict[FY_P_VAL_KEY].prev_close_price) * 100).toFixed(2))
+                    //@ts-ignore
+                    dataDict[FY_P_VAL_KEY].chp = Number(parseFloat(((ltp - dataDict[FY_P_VAL_KEY].prev_close_price) / dataDict[FY_P_VAL_KEY].prev_close_price) * 100).toFixed(2)) // Percent change
+                    //@ts-ignore
                     dataDict[FY_P_VAL_KEY].open_price = parseFloat(parseInt(cmn_data.getInt32(8)) / price_conv)
-                    dataDict[FY_P_VAL_KEY].lp = ltp
+                    dataDict[FY_P_VAL_KEY].lp = ltp // LTP
 
                     dataDict[FY_P_VAL_KEY].symbol = _globalFyersDict[token]
                     dataCount = 72
@@ -205,23 +234,28 @@ export default function unPackUDP(resp: any) {
                         dataCount = 104
                         dataDict[FY_P_VAL_KEY].LTQ = parseFloat(additional.getInt32(0))
                         dataDict[FY_P_VAL_KEY].L2_LTT = parseInt(additional.getInt32(4))
+                        //@ts-ignore
                         dataDict[FY_P_VAL_KEY].ATP = parseFloat(parseInt(additional.getInt32(8)) / price_conv)
                         dataDict[FY_P_VAL_KEY].volume = parseInt(additional.getInt32(12))
                         dataDict[FY_P_VAL_KEY].tot_buy = parseFloat(additional.getBigUint64(16))
                         dataDict[FY_P_VAL_KEY].tot_sell = parseFloat(additional.getBigUint64(24))
                         if (L2 == 1) {
+                            // console.log("unPackUDP 7");
                             var bid = new DataView(data_array_buffer, 104, 164 - 104)
                             var ask = new DataView(data_array_buffer, 164, 224 - 164)
                             var bidList = []
                             var askList = []
                             var totBuy = dataDict[FY_P_VAL_KEY].tot_buy
                             var totSell = dataDict[FY_P_VAL_KEY].tot_sell
+                            //New change 2019-0709 Palash
                             for (var i = 0; i < 5; i++) {
+                                //@ts-ignore
                                 bidList.push({
                                     volume: parseInt(bid.getInt32(i * 12 + 4)),
                                     price: parseFloat(parseInt(bid.getInt32(i * 12)) / price_conv),
                                     ord: parseInt(bid.getInt32(i * 12 + 8)),
                                 })
+                                //@ts-ignore
                                 askList.push({
                                     volume: parseInt(ask.getInt32(i * 12 + 4)),
                                     price: parseFloat(parseInt(ask.getInt32(i * 12)) / price_conv),
@@ -241,7 +275,9 @@ export default function unPackUDP(resp: any) {
                             }
                         } else {
                             var bid_ask = new DataView(data_array_buffer, 104, 8)
+                            //@ts-ignore
                             dataDict[FY_P_VAL_KEY].bid = parseFloat(parseInt(bid_ask.getInt32(0)) / price_conv)
+                            //@ts-ignore
                             dataDict[FY_P_VAL_KEY].ask = parseFloat(parseInt(bid_ask.getInt32(4)) / price_conv)
                             dataCount = 112
                         }
@@ -263,8 +299,9 @@ export default function unPackUDP(resp: any) {
                     throw "Token " + token + " mapping not found"
                 }
             }
-            return dictInfo
-        }
+        } // within while loop (end of while loop)
+        // console.log(dictInfo);
+        return dictInfo // return statement
     } catch (err) {
         var dictInfo: any = {}
         dictInfo[FY_P_STATUS] = "err"

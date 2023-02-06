@@ -18,10 +18,10 @@ const marketDataSocket = helper.marketDataUpdateHelper
 const getAuthToken = async (token: string) => {
     return `${config.fyers.appId}:${token}`
 }
-const generateLoginUrl = async (req: any) => {
+const generateLoginUrl = async () => {
     const client_id = config.fyers.appId
     const redirect_uri = config.fyers.redirectUrl
-    const state = "sample_state"
+    const state = config.fyers.callbackSecret
     return `${config.fyers.apiUrl}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
 }
 const generateAccessToken = async (authCode: any) => {

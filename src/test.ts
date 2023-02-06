@@ -1,95 +1,41 @@
-import { WebSocket } from "ws"
+import axios from "axios"
 
-let user = "FYERS1888"
-let pwd = "70goUByG"
-// enter the port you have been given for RT data. Production = 8082, Sandbox = 8084
-let port = "8082"
-var connection: any = null
-var isConnected = connect()
-var url = null
-var previousClose = 0
-// var heartbeattime = new Date(Date.now() + 3600 * 1000 * 5.5)
-
-// setInterval(socketstatus, 2000)
-// function socketstatus() {
-//     console.log(heartbeattime)
-// }
-function connect() {
-    console.log("Connecting..")
-    url = "wss://push.truedata.in:" + port + "?user=" + user + "&password=" + pwd
-    console.log(url)
-    try {
-        connection = new WebSocket(url)
-        //console.log(connection.OPEN);
-
-        connection.onopen = socketonopen
-        connection.onerror = socketonerror
-        connection.onmessage = socketonmessage
-        connection.onclose = socketonclose
-
-        return true
-    } catch (error) {
-        console.log(error)
-        setInterval(connect, 7000)
-        return false
-    }
-}
-function socketonopen(e: any) {
-    console.log("Connected Websocket")
-}
-function socketonerror(e: any) {
-    console.log("Websocket Error " + e.message)
+const appId = "6UL65YECYS-100"
+const accessToken =
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzM0OTY1OTEsImV4cCI6MTY3MzU2OTg1MSwibmJmIjoxNjczNDk2NTkxLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCanY0Z1B5U0QwRUI2bDBCTkZwX0ZWeTJPelJMblZlbml1b0Q4VDNBVzA1SEVVcHZOS0Y4T0dJUFk4Z2ctZWo1eDRGSy05Ri1UV3ptWWc4X1V2UTlOeThLeHJGTWJtSUcyU0VDdXVEd0FsVDZNc016Zz0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOm51bGwsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.asF3Oew2H3prbQpXyjejYC3lrqwaxqIghJxuwuRlbXM"
+const symbol = "NSE:NIFTYBANK-INDEX"
+const resolution = "5"
+const dateFormat = 0
+const from = 1673428500
+const to = 1673451000
+var config = {
+    method: "get",
+    url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=1`,
+    // url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=`,
+    headers: {
+        Authorization: appId + ":" + accessToken,
+    },
 }
 
-function socketonmessage(e: any) {
-    var jsonObj = JSON.parse(e.data)
-    if (jsonObj.success) {
-        switch (jsonObj.message) {
-            case "TrueData Real Time Data Service":
-                console.log("Symbols:" + jsonObj.maxsymbols + " Data:" + jsonObj.subscription + " Valid Upto: " + jsonObj.validity)
-                var jsonRequest = {
-                    method: "addsymbol",
-                    symbols: ["NIFTY 50", "NIFTY BANK"],
-                    // symbols: ["NIFTY BANK"],
-                }
-                let s = JSON.stringify(jsonRequest)
-                connection.send(s)
-                break
-            case "symbols added":
-                console.log("Added Symbols:" + jsonObj.symbolsadded)
-                break
-            case "HeartBeat":
-                // console.log("Message " + jsonObj.message + " Time: " + jsonObj.timestamp)
-                break
-            default:
-                console.log(jsonObj)
-        }
-    }
-    if (jsonObj.success == false) {
-        console.log("Not connected")
-    }
-    if (jsonObj.trade != null) {
-        //console.log(jsonObj.trade)
-        // console.clear()
-        var tradeArray = jsonObj.trade
-        const changePercent = ((tradeArray[2] - previousClose) / previousClose) * 100
-        console.log("\nSymbolId: " + tradeArray[0] + "\nTime: " + tradeArray[1] + "\nLTP:" + tradeArray[2] + "\nPrevious Close:" + previousClose + "\nChange Percentage:" + changePercent + "\nVolume:" + tradeArray[3])
-        previousClose = tradeArray[2]
-    }
-    if (jsonObj.bidask != null) {
-        var bidaskArray = jsonObj.bidask
-        console.log("SymbolId: " + bidaskArray[0] + " Time: " + bidaskArray[1] + " Bid:" + bidaskArray[2] + " BidQty:" + bidaskArray[3] + " Ask:" + bidaskArray[4] + " AskQty:" + bidaskArray[5])
-    }
-    //setTimeout(closeConnection, 2000);
-}
-
-function closeConnection() {
-    connection.close()
-}
-
-function socketonclose() {
-    console.log("Disconnected Websocket")
-    //process.exit(0);
-
-    setTimeout(connect, 7000)
-}
+axios(config).then((response) => {
+    const data = response.data
+    const candles: Array<[number]> = data.candles
+    const period = 5
+    const multiplier = 2 / (period + 1)
+    let prevEma = 0
+    let prevClose = 0
+    candles.forEach((candle: Array<number>, index) => {
+        const ts = candle[0]
+        const open = candle[1]
+        const high = candle[2]
+        const low = candle[3]
+        const close = candle[4]
+        const volume = candle[5]
+        const thisCandleDate = new Date(ts * 1000).toISOString() //.split("T")[0]
+        //-------
+        const ema = (close - prevEma) * multiplier + prevEma
+        prevEma = ema
+        prevClose = close
+        console.log({ ema, open, high, low, close, thisCandleDate })
+    })
+})
