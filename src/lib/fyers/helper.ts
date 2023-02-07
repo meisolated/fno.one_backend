@@ -6,12 +6,11 @@ import logger from "../../logger"
 const api = "https://api.fyers.in/api/v2/"
 const dataApi = "https://api.fyers.in/data-rest/v2/"
 const WS_URL = (appId: string, token: string, update: string) => `wss://api.fyers.in/socket/v2/dataSock?access_token=${appId}:${token}&user-agent=fyers-api&type=${update}`
+const generateAccessTokenUrl = (authToken: string, appId: string) => api + "genrateToken?authorization_code=" + authToken.authorization_code + "&app_id=" + appId
 var _globalFyersDict: any = {}
 
-const generateAccessTokenUrl = (authToken: string, appId: string) => api + "genrateToken?authorization_code=" + authToken.authorization_code + "&app_id=" + appId
-
 // ------| Helper functions |------
-export async function sha256(s: any) {
+async function sha256(s: any) {
     var chrsz = 8
     var hexcase = 0
     function safe_add(x, y) {
@@ -550,7 +549,7 @@ class marketDataUpdateHelper {
                 return callback(data.data)
             }
             let unpackedData = unPackUDP(data)
-            callback(JSON.stringify(unpackedData))
+            callback(unpackedData)
         })
     }
     async unsubscribe() {
@@ -591,7 +590,6 @@ class orderUpdateHelper {
         }
     }
 }
-
 
 const getQuotes = async (symbol: any, token: any) => {
     try {

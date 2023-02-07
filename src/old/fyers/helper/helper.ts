@@ -357,7 +357,6 @@ async function onSymbolUpdate(symbol: any, tokenValue: any, callback2: any, isUn
     // let url = `${WS_URL}?access_token=${tokenValue}&user-agent=fyers-api&type=symbolUpdate`
     let url = `wss://api.fyers.in/socket/v2/dataSock?access_token=${tokenValue}&user-agent=fyers-api&type=symbolUpdate`
 
-
     if (isUnsub && onSymbolUpdateInstance) {
         dataToSend.SUB_T = 0
         onSymbolUpdateInstance.send(JSON.stringify(dataToSend))

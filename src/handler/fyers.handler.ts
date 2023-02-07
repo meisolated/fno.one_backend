@@ -1,115 +1,82 @@
-import moment from "moment"
-import config from "../config"
-import chatter from "../events"
-import { MarketData } from "../model"
-import fyers from "../old/fyers"
-import { user, User } from "./user.handler"
+import { EventEmitter } from 'events'
+import localDB from "../db/localdb"
+import * as fyers from "../lib/fyers"
+import logger from "../logger"
+import { Session, User } from "../model"
+import { generateSymbolStrikePrices } from './../manager/strikePrice.manager'
+import marketDataUpdateHandler from './marketDataUpdate.handler'
+import orderUpdateHandler from "./orderUpdate.handler"
+const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
+const connectionToMarketDataSocket = new fyers.marketDataSocket()
+let primaryAccessToken: string
 
-export default class fyersHandler {
-    private appId: string = config.fyers.appId
-    private redirect: string = config.fyers.redirectUrl
-    private fyers: any
-    private token: any
-    user: user
-    constructor() {
-        this.user = new User()
-        this.fyers = fyers
-        this.fyers.setAppId(this.appId)
-        this.fyers.setRedirectUrl(this.redirect)
-    }
-    setAccessToken(token: any) {
-        if (!token) return console.log("Invalid token")
-        this.token = token
-        this.fyers.setAccessToken(token)
-    }
-    generateLoginUrl() {
-        return this.fyers.generateAuthCode()
-    }
-    async generateAccessToken(authCode: any) {
-        const req = { auth_code: authCode, secret_key: config.fyers.secretId }
-        const res = await this.fyers.generate_access_token(req)
-        return res
-    }
-    async getUserProfile() {
-        const res = await this.fyers.get_profile()
-        return res
-    }
-    async getTradeBook() {
-        const tradebook = await this.fyers.get_tradebook()
-        return tradebook
-    }
-    async connectToMarketDataSocket() {
-        chatter.on("marketDataSymbolUpdate", (symbols: Array<string>) => {
-            this.fyers.fyers_unsubscribe()
-            const reqBody = { symbols, dataType: "symbolUpdate" }
-            this.fyers.fyers_connect(reqBody, (res: any) => {
-                const data = JSON.parse(res)
-                if (data.s == "ok") {
-                    data.d["7208"].forEach((e: any) => {
-                        // TODO: Maybe we will use it some other time
-                        // MarketData.create(e.v)
-                        chatter.emit("symbolMarketDataUpdate", e.v)
-                    })
+
+export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
+    const users = await User.find()
+    const activeUsersSocketConnection: Array<any> = []
+
+    function connectSocket(user: any) {
+        if (user.connectedApps.includes("fyers")) {
+            logger.info("User connected to fyers " + user.email)
+            fyers.getProfile(user.fyAccessToken).then(async (profile) => {
+                if (profile.code === 200) {
+                    if (user.email == "fisolatedx@gmail.com") primaryAccessToken = user.fyAccessToken
+                    const userSession = await Session.findOne({ userId: user._id })
+                    if (userSession) {
+                        activeUsersSocketConnection.push(userSession.userId)
+                        connectionToOrderUpdateSocket.onOrderUpdate(user.fyAccessToken, (data: any) => {
+                            const letData = JSON.parse(data)
+                            if (letData.s == "ok") {
+                                orderUpdateHandler(userSession.userId, letData.d, chatter)
+                                chatter.emit(userSession.userId, letData.d)
+                            } else {
+                                connectionToOrderUpdateSocket.unsubscribe()
+                                activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(userSession.userId), 1)
+                                logger.info("Error in order update socket " + letData)
+                            }
+                        })
+                    }
+                } else {
+                    logger.info("User disconnected from fyers " + user.email)
+                    user.connectedApps = user.connectedApps.filter((app: any) => app !== "fyers")
+                    user.save()
                 }
             })
-        })
-        const reqBody = {
-            symbol: ["NSE:HDFCBANK-EQ", "NSE:SBIN-EQ", "NSE:ICICIBANK-EQ", "NSE:KOTAKBANK-EQ", "NSE:AXISBANK-EQ", "NSE:INDUSINDBK-EQ", "NSE:AUBANK-EQ", "NSE:BANKBARODA-EQ", "NSE:FEDERALBNK-EQ", "NSE:BANDHANBNK-EQ", "NSE:NIFTYBANK-INDEX"],
-            dataType: "symbolUpdate",
         }
-        this.fyers.fyers_connect(reqBody, (res: any) => {
-            const data = JSON.parse(res)
-            if (data.s == "ok") {
-                data.d["7208"].forEach((e: any) => {
-                    // TODO: Maybe we will use it some other time
-                    // MarketData.create(e.v)
-                    chatter.emit("symbolMarketDataUpdate", e.v)
-                })
+    }
+    for (const user of users) {
+        connectSocket(user)
+    }
+    setInterval(async () => {
+        const users = await User.find()
+        for (const user of users) {
+            const userIDString = user._id.toString()
+            if (!activeUsersSocketConnection.includes(userIDString)) {
+                connectSocket(user)
             }
-        })
-    }
-    async getHistory() {
-        let from: any = new Date(2022, 1, 1)
-        from = moment(from)
-        from = from.unix()
-        let to = moment().format("X")
-        let history = new this.fyers.history()
-        let result = await history.setSymbol("NSE:HDFCBANK-EQ").setResolution("D").setDateFormat(0).setRangeFrom(from).setRangeTo(to).getHistory()
-        console.log(result)
-    }
-    async connectToOrderSocket() {
-        const reqBody = {
-            dataType: "orderUpdate",
         }
-        this.fyers.fyers_connect(reqBody, (res: any) => {
-            const data = JSON.parse(res)
-            if (data.s == "ok") {
-                console.log(data.d)
-            }
+    }, 10000)
+}
+
+export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
+    chatter.on("symbolUpdate", async (data: any) => {
+        connectionToMarketDataSocket.unsubscribe()
+        connectionToMarketDataSocket.onMarketDataUpdate(data, primaryAccessToken, async (data: any) => {
+            marketDataUpdateHandler(data, chatter)
         })
-    }
-    async placeTestOrder() {
-        const reqBody = {
-            data: {
-                symbol: "NSE:BANKNIFTY22N1041500PE",
-                qty: 25,
-                type: 1,
-                side: 1,
-                productType: "INTRADAY",
-                limitPrice: 200,
-                stopPrice: 0,
-                disclosedQty: 0,
-                validity: "DAY",
-                offlineOrder: "false",
-                stopLoss: 0,
-                takeProfit: 0,
-            },
-
-            app_id: config.fyers.appId,
-
-            token: this.token,
-        }
-        const res = await this.fyers.place_order(reqBody)
-        console.log(res)
+    })
+    if (primaryAccessToken) {
+        const symbol = [localDB.mainSymbol, localDB.secondarySymbol, ...localDB.o5BanksSymbol, ...localDB.t5BanksSymbol]
+        const { symbolsArray, currentExpiry }: any = await generateSymbolStrikePrices("NIFTY BANK").catch((err) => {
+            logger.error(err)
+        })
+        connectionToMarketDataSocket.onMarketDataUpdate([...symbol, ...symbolsArray[currentExpiry]], primaryAccessToken, async (data: any) => {
+            marketDataUpdateHandler(data, chatter)
+        })
+    } else {
+        setTimeout(() => {
+            logger.info("Retrying to connect to market data socket")
+            subscribeToMarketDataSocket(chatter)
+        }, 10000)
     }
 }
