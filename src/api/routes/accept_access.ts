@@ -9,6 +9,9 @@ import { Session, User } from "../../model"
 export default async function (app: Express, path: string) {
     logger.info("Loaded route: " + path)
     app.get(path, async (req: Request, res: Response) => {
+        console.log(req.headers.referer)
+        console.log(req.headers.host)
+        console.log(req.query)
         const cookie = req.cookies["fno.one"]
         if (cookie && cookie.includes("ily") && cookie.includes("fno.one-")) {
             //@ts-ignore

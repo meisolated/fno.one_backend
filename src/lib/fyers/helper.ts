@@ -215,13 +215,13 @@ async function socketWrapper(url: string, data: string, callback: Function, user
     }
     let interValInstant = setInterval(() => {
         if (!isAlive) {
-            logger.info("trying to reconnect", user ? true : false, user ? user : "null")
+            logger.warn("trying to reconnect", user ? true : false, user ? user : "null")
             reconnectCount++
             clearInterval(interValInstant)
             if (reconnectCount <= maxReconnectTimes) {
                 socketWrapper(url, data, callback, user)
             } else {
-                logger.error("Error : Connection Error unable to connect to socket", user ? true : false, user ? user : "null")
+                logger.warn("Error : Connection Error unable to connect to socket", user ? true : false, user ? user : "null")
             }
         }
     }, pingFrequency)
@@ -538,19 +538,24 @@ class marketDataUpdateHelper {
     private marketDataUpdateInstance: any
     private data = { T: "SUB_DATA", TLIST: null, SUB_T: 1 }
     private connected = false
-    async onMarketDataUpdate(symbol: Array<string>, accessToken: string, callback: Function) {
+    async onMarketDataUpdate(symbol: Array<string>, accessToken: string, callback: Function, user: string) {
         this.data.TLIST = symbol
         await getQuotes(symbol, `${config.fyers.appId}:${accessToken}`)
         const dataString = JSON.stringify(this.data)
         const url = WS_URL(config.fyers.appId, accessToken, "symbolUpdate")
-        this.marketDataUpdateInstance = socketWrapper(url, dataString, async (data: any) => {
-            if (!this.connected) {
-                this.connected = true
-                return callback(data.data)
-            }
-            let unpackedData = unPackUDP(data)
-            callback(unpackedData)
-        })
+        this.marketDataUpdateInstance = socketWrapper(
+            url,
+            dataString,
+            async (data: any) => {
+                if (!this.connected) {
+                    this.connected = true
+                    return callback(data.data)
+                }
+                let unpackedData = unPackUDP(data)
+                callback(unpackedData)
+            },
+            user
+        )
     }
     async unsubscribe() {
         if (this.marketDataUpdateInstance) {
@@ -567,7 +572,7 @@ class orderUpdateHelper {
     private orderUpdateInstance: any
     private data = { T: "SUB_ORD", SLIST: ["orderUpdate"], SUB_T: 1 }
 
-    async onOrderUpdate(accessToken: string, callback: Function) {
+    async onOrderUpdate(accessToken: string, callback: Function, user: string) {
         const dataString = JSON.stringify(this.data)
         const url = WS_URL(config.fyers.appId, accessToken, "orderUpdate")
         this.orderUpdateInstance = socketWrapper(
@@ -576,7 +581,7 @@ class orderUpdateHelper {
             (data: any) => {
                 return callback(data.data)
             },
-            accessToken
+            user
         )
     }
     async unsubscribe() {
@@ -590,7 +595,6 @@ class orderUpdateHelper {
         }
     }
 }
-
 const getQuotes = async (symbol: any, token: any) => {
     try {
         const quotes = await axios.get(`${api}quotes?symbols=${symbol.toString()}`, {

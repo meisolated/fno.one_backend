@@ -51,7 +51,7 @@ export default async () =>
                 return resolve({ status: "success", message: "Settings created" })
             })
             .catch((err) => {
-                logger.info("Settings already exists, So updating them", false)
+                logger.warn("Settings already exists, So updating them", false)
                 Settings.updateOne(settingsData)
                     .then((data) => {
                         logger.info("Settings updated", false)

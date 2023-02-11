@@ -24,7 +24,7 @@ const findAllRoutes = (routesDir: string, routePrefix: string) =>
                     if (fs.lstatSync(dir + "/" + file).isDirectory()) {
                         findInThisDir(dir + "/" + file)
                     } else {
-                        logger.info(`Skipping this file ${dir + file}`)
+                        logger.warn(`Skipping this file ${dir + file}`)
                     }
                 }
             })

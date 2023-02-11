@@ -1,15 +1,22 @@
-import { EventEmitter } from 'events'
+import { EventEmitter } from "events"
 import localDB from "../db/localdb"
 import * as fyers from "../lib/fyers"
 import logger from "../logger"
 import { Session, User } from "../model"
-import { generateSymbolStrikePrices } from './../manager/strikePrice.manager'
-import marketDataUpdateHandler from './marketDataUpdate.handler'
+import { generateSymbolStrikePrices } from "./../manager/strikePrice.manager"
+import marketDataUpdateHandler from "./marketDataUpdate.handler"
 import orderUpdateHandler from "./orderUpdate.handler"
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
 const connectionToMarketDataSocket = new fyers.marketDataSocket()
-let primaryAccessToken: string
 
+interface AccessToken {
+    accessToken: string
+    email: string
+}
+let primaryAccessToken: AccessToken = {
+    accessToken: "",
+    email: "",
+}
 
 export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
     const users = await User.find()
@@ -17,24 +24,31 @@ export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
 
     function connectSocket(user: any) {
         if (user.connectedApps.includes("fyers")) {
-            logger.info("User connected to fyers " + user.email)
+            logger.info("We were able to connect this user to fyers api with access token " + user.email)
             fyers.getProfile(user.fyAccessToken).then(async (profile) => {
                 if (profile.code === 200) {
-                    if (user.email == "fisolatedx@gmail.com") primaryAccessToken = user.fyAccessToken
+                    if (user.roles.includes("admin")) {
+                        primaryAccessToken.accessToken = user.fyAccessToken
+                        primaryAccessToken.email = user.email
+                    }
                     const userSession = await Session.findOne({ userId: user._id })
                     if (userSession) {
                         activeUsersSocketConnection.push(userSession.userId)
-                        connectionToOrderUpdateSocket.onOrderUpdate(user.fyAccessToken, (data: any) => {
-                            const letData = JSON.parse(data)
-                            if (letData.s == "ok") {
-                                orderUpdateHandler(userSession.userId, letData.d, chatter)
-                                chatter.emit(userSession.userId, letData.d)
-                            } else {
-                                connectionToOrderUpdateSocket.unsubscribe()
-                                activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(userSession.userId), 1)
-                                logger.info("Error in order update socket " + letData)
-                            }
-                        })
+                        connectionToOrderUpdateSocket.onOrderUpdate(
+                            user.fyAccessToken,
+                            (data: any) => {
+                                const letData = JSON.parse(data)
+                                if (letData.s == "ok") {
+                                    orderUpdateHandler(userSession.userId, letData.d, chatter)
+                                    chatter.emit(userSession.userId, letData.d)
+                                } else {
+                                    connectionToOrderUpdateSocket.unsubscribe()
+                                    activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(userSession.userId), 1)
+                                    logger.error("Error in order update socket " + letData)
+                                }
+                            },
+                            primaryAccessToken.email
+                        )
                     }
                 } else {
                     logger.info("User disconnected from fyers " + user.email)
@@ -61,21 +75,33 @@ export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
 export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
     chatter.on("symbolUpdate", async (data: any) => {
         connectionToMarketDataSocket.unsubscribe()
-        connectionToMarketDataSocket.onMarketDataUpdate(data, primaryAccessToken, async (data: any) => {
-            marketDataUpdateHandler(data, chatter)
-        })
+        connectionToMarketDataSocket.onMarketDataUpdate(
+            data,
+            primaryAccessToken.accessToken,
+            async (data: any) => {
+                marketDataUpdateHandler(data, chatter)
+            },
+            primaryAccessToken.email
+        )
     })
-    if (primaryAccessToken) {
+    if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
         const symbol = [localDB.mainSymbol, localDB.secondarySymbol, ...localDB.o5BanksSymbol, ...localDB.t5BanksSymbol]
-        const { symbolsArray, currentExpiry }: any = await generateSymbolStrikePrices("NIFTY BANK").catch((err) => {
-            logger.error(err)
-        })
-        connectionToMarketDataSocket.onMarketDataUpdate([...symbol, ...symbolsArray[currentExpiry]], primaryAccessToken, async (data: any) => {
-            marketDataUpdateHandler(data, chatter)
-        })
+        const strikePrices: any = await generateSymbolStrikePrices("NIFTY BANK")
+        if (!strikePrices) return retry()
+        connectionToMarketDataSocket.onMarketDataUpdate(
+            [...symbol, ...strikePrices.symbolsArray[strikePrices.currentExpiry]],
+            primaryAccessToken.accessToken,
+            async (data: any) => {
+                marketDataUpdateHandler(data, chatter)
+            },
+            primaryAccessToken.email
+        )
     } else {
+        retry()
+    }
+    function retry() {
         setTimeout(() => {
-            logger.info("Retrying to connect to market data socket")
+            logger.warn("Retrying to connect to market data socket")
             subscribeToMarketDataSocket(chatter)
         }, 10000)
     }

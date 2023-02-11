@@ -2,10 +2,10 @@ import axios from "axios"
 
 const appId = "6UL65YECYS-100"
 const accessToken =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzM0OTY1OTEsImV4cCI6MTY3MzU2OTg1MSwibmJmIjoxNjczNDk2NTkxLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCanY0Z1B5U0QwRUI2bDBCTkZwX0ZWeTJPelJMblZlbml1b0Q4VDNBVzA1SEVVcHZOS0Y4T0dJUFk4Z2ctZWo1eDRGSy05Ri1UV3ptWWc4X1V2UTlOeThLeHJGTWJtSUcyU0VDdXVEd0FsVDZNc016Zz0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOm51bGwsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.asF3Oew2H3prbQpXyjejYC3lrqwaxqIghJxuwuRlbXM"
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzU5MTI1NDEsImV4cCI6MTY3NTk4OTA0MSwibmJmIjoxNjc1OTEyNTQxLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCajVHVmRYalZVMGtZMTdIVko1YmNJSmhsQ3Z0UFdYOExNNC0wQTQ1ZVJkcWJaSV92S0dWWWlTSEJBdWhpbE1lVFR3S2F5ZFZFN3M3dnR3TjBxWmQxY0V5SFk3emRXWW54LXpoSkYyQzAwRE8xOTBHYz0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOm51bGwsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.XUUjblf8hqndYW6zBB4VEbUNql2p7VFdL6TtL_sPG4g"
+
 const symbol = "NSE:NIFTYBANK-INDEX"
 const lastYearUnixTime = new Date().getTime() - 365 * 24 * 60 * 60 * 1000
-const currentUnixTimestamp = new Date().getTime()
 const resolution = "5"
 const dateFormat = 0
 
@@ -38,42 +38,92 @@ const monthOnMonthPair = convertMonthOnMonthToPair(monthOnMonth)
 const sleep = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
+const FirstCandleData: any = []
 
-monthOnMonthPair.forEach(async (month: number[], index) => {
-    var config = {
-        method: "get",
-        url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${month[0]}&range_to=${month[1]}&cont_flag=`,
-        // url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=`,
-        headers: {
-            Authorization: appId + ":" + accessToken,
-        },
-    }
-    const period = 5
-    const multiplier = 2 / (period + 1)
-    let prevEma = 0
-    let prevClose = 0
-    await sleep(2000)
-    axios(config)
-        .then((response) => {
-            const data = response.data
-            const candles: Array<[number]> = data.candles
-            candles.forEach((candle: Array<number>, index) => {
-                const ts = candle[0]
-                const open = candle[1]
-                const high = candle[2]
-                const low = candle[3]
-                const close = candle[4]
-                const volume = candle[5]
-                const thisCandleDate = new Date(ts * 1000).toISOString().split("T")[0]
-                const ema = (close - prevEma) * multiplier + prevEma
-                if ((ema > prevClose && prevEma < prevClose) || (ema < prevClose && prevEma > prevClose)) {
-                    console.log("Crossed over at Candle: ", index)
-                }
-                prevEma = ema
-                prevClose = close
-            })
-        })
-        .catch((error) => {
+const averagePositiveMove: Array<number> = []
+const averageNegativeMove: Array<number> = []
+const averagePositiveSideLow: Array<number> = []
+const averageNegativeSideHigh: Array<number> = []
+async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Function) {
+    for (let index = 0; index < monthsUnixPair.length; index++) {
+        var config = {
+            method: "get",
+            url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${monthsUnixPair[index][0]}&range_to=${monthsUnixPair[index][1]}&cont_flag=`,
+            // url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=`,
+            headers: {
+                Authorization: appId + ":" + accessToken,
+            },
+        }
+
+        await sleep(2000)
+        const { data }: any = await axios(config).catch((error) => {
             console.log(error)
         })
+        const candles: Array<[number]> = data.candles
+        var yesterdayDate: any = 0
+        var firstCandlePassed = false
+        candles.forEach((candle: Array<number>, index) => {
+            const ts = candle[0]
+            const open = candle[1]
+            const high = candle[2]
+            const low = candle[3]
+            const close = candle[4]
+            const volume = candle[5]
+            const thisCandleDate = new Date(ts * 1000).toISOString().split("T")[0]
+
+            if (yesterdayDate !== thisCandleDate) {
+                firstCandlePassed = true
+                const move: number = close - open
+                const positiveMove: number = move > 0 ? move : 0
+                const negativeMove: number = move < 0 ? move : 0
+                if (positiveMove != 0) averagePositiveMove.push(positiveMove)
+                if (negativeMove != 0) averageNegativeMove.push(negativeMove)
+
+                if (positiveMove != 0) averagePositiveSideLow.push(open - low)
+                if (negativeMove != 0) averageNegativeSideHigh.push(open - high)
+                FirstCandleData.push([ts, open, high, low, close, volume, negativeMove, positiveMove])
+            }
+            yesterdayDate = thisCandleDate
+        })
+        await callback()
+    }
+}
+function getAverage(array: Array<number>) {
+    let sum = 0
+    for (let i = 0; i < array.length; i++) {
+        sum += array[i]
+    }
+    //heigh and low
+    const high = Math.max(...array)
+    const low = Math.min(...array)
+    return { average: sum / array.length, high, low }
+}
+
+asyncForEach(monthOnMonthPair, () => {
+    // console.log(FirstCandleData)
+
+    const firstCandleAverageNegativeMovement = getAverage(averageNegativeMove)
+    const firstCandleAveragePositiveMovement = getAverage(averagePositiveMove)
+    const firstCandleAveragePositiveSideLow = getAverage(averagePositiveSideLow)
+    const firstCandleAverageNegativeSideHigh = getAverage(averageNegativeSideHigh)
+
+    const firstCandleGreen = FirstCandleData.filter((candle: any) => {
+        return candle[4] - candle[1] > 0 && candle[4] > candle[1]
+    })
+    const firstCandleRed = FirstCandleData.filter((candle: any) => {
+        return candle[4] - candle[1] < 0 && candle[4] < candle[1]
+    })
+    const firstCandleGreenProbability = firstCandleGreen.length / FirstCandleData.length
+    const firstCandleRedProbability = firstCandleRed.length / FirstCandleData.length
+    console.log("------------------------------------_------------------------------------")
+    console.log({
+        firstCandleAverageNegativeMovement,
+        firstCandleAveragePositiveMovement,
+        firstCandleAveragePositiveSideLow,
+        firstCandleAverageNegativeSideHigh,
+        firstCandleGreen: firstCandleGreen.length,
+        firstCandleRed: firstCandleRed.length,
+        firstCandleGreenProbability,
+        firstCandleRedProbability,
+    })
 })

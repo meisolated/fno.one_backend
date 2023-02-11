@@ -19,7 +19,6 @@ const socketPort: number = config.socketPort
 const io = new Server(socketPort)
 const routesDirPath = path.join(__dirname, "/api/routes")
 
-
 app.use(compression({ level: 9 }))
 app.use(middleware)
 app.use(json())
@@ -31,7 +30,7 @@ app.get("/", (_req: Request, res: Response) => {
 })
 
 chatter.on("marketDataUpdate", async (data: any) => {
-    console.log(data)
+    // console.log(data)
 })
 chatter.on("orderUpdate", async (data: any) => {
     // console.log(data)
@@ -50,6 +49,7 @@ LoadRoutes(app, routesDirPath, "", true).then(async () => {
     subscribeToMarketDataSocket(chatter)
     // -----------| Starting server |-----------
     logger.info("Starting server...")
+
     server.listen(APIport, () => {
         logger.info(`Server started on port ${APIport}`)
     })

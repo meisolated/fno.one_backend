@@ -32,29 +32,41 @@ const SingleMForMonth = (month: string) => {
 
 export const generateSymbolStrikePrices = async (option: string) => {
     if (option === "NIFTY BANK") {
-        const { data } = await axios.get(config.NSEApi.NSEOptionChainDataAPIUrl)
-        const { records } = data
-        const currentPrice = records.underlyingValue
-        const expiries = records.expiryDates
-        const strikePrices = records.strikePrices
-        const symbolsArray: any = {}
+        try {
+            const response = await axios.get(config.NSEApi.NSEOptionChainDataAPIUrl)
+            if (response.status !== 200) return null
+            const { records } = response.data
+            const currentPrice = records.underlyingValue
+            const expiries = records.expiryDates
+            const strikePrices = records.strikePrices
+            const symbolsArray: any = {}
 
-        const filteredStrikePrices = strikePrices.filter((strikePrice: number) => {
-            return strikePrice >= currentPrice - 1000 && strikePrice <= currentPrice + 1000
-        })
+            const filteredStrikePrices = strikePrices.filter((strikePrice: number) => {
+                return strikePrice >= currentPrice - 500 && strikePrice <= currentPrice + 500
+            })
 
-        for (const expiry of expiries) {
-            symbolsArray[expiry] = []
-            for (const strikePrice of filteredStrikePrices) {
-                const M = SingleMForMonth(expiry.split("-")[1])
-                const YY = 23
-                const DD = expiry.split("-")[0]
-                const symbolCE = `NSE:BANKNIFTY${YY}${M}${DD}${strikePrice}CE`
-                const symbolPE = `NSE:BANKNIFTY${YY}${M}${DD}${strikePrice}PE`
-                symbolsArray[expiry].push(symbolCE)
-                symbolsArray[expiry].push(symbolPE)
+            for (const expiry of expiries) {
+                symbolsArray[expiry] = []
+                for (const strikePrice of filteredStrikePrices) {
+                    const M = SingleMForMonth(expiry.split("-")[1])
+                    const YY = 23
+                    const DD = expiry.split("-")[0]
+                    const symbolCE = `NSE:BANKNIFTY${YY}${M}${DD}${strikePrice}CE`
+                    const symbolPE = `NSE:BANKNIFTY${YY}${M}${DD}${strikePrice}PE`
+                    symbolsArray[expiry].push(symbolCE)
+                    symbolsArray[expiry].push(symbolPE)
+                }
             }
+            return { symbolsArray, currentExpiry: expiries[0] }
+        } catch (error) {
+            return null
         }
-        return { symbolsArray, currentExpiry: expiries[0] }
+
     }
+}
+
+
+export const strikePriceProvider = async (zone: string) => {
+
+
 }

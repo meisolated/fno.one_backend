@@ -8,7 +8,7 @@
     "bnr": "tsc && node ./dist/index.js",
     "start": "node ./dist/index.js",
     "format": "prettier --write \"{src,test}/**/*.{js,ts}\"",
-    "testFile": "yarn build && node dist/tester.js",
+    "testFile": "yarn build && node dist/tempStrategyTest.js",
     "prettier": "prettier"
   },
   "keywords": [],

@@ -7,7 +7,7 @@ interface user {
     image: string
     pan: string
     status: string
-    role: string[]
+    roles: string[]
     settings: {
         stopLoss: number
         takeProfit: number
@@ -42,7 +42,7 @@ export default new Schema<user>(
         image: { type: String, required: false },
         pan: { type: String, required: false },
         status: { type: String, required: true },
-        role: [{ type: String, required: true }],
+        roles: [{ type: String, required: true }],
         settings: {
             stopLoss: { type: Number, required: false },
             takeProfit: { type: Number, required: false },

@@ -9,10 +9,10 @@ export default function userSocketNamespace(socket: Namespace, chatter: EventEmi
         const userId = _socket.data.userId
         _socket.on("disconnect", () => {
             chatter.removeAllListeners(userId)
-            logger.info("user disconnected")
+            // logger.info("user disconnected")
         })
         _socket.on("ping", () => {
-            logger.info("ping " + id, false)
+            // logger.info("ping " + id, false)
             _socket.emit("pong", "pong")
         })
         _socket.on("subscribeOrderUpdate", async (data) => {

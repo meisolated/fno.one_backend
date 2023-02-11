@@ -1,16 +1,16 @@
 import axios from "axios"
-
+import moment from "moment"
 const appId = "6UL65YECYS-100"
 const accessToken =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzM0OTY1OTEsImV4cCI6MTY3MzU2OTg1MSwibmJmIjoxNjczNDk2NTkxLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCanY0Z1B5U0QwRUI2bDBCTkZwX0ZWeTJPelJMblZlbml1b0Q4VDNBVzA1SEVVcHZOS0Y4T0dJUFk4Z2ctZWo1eDRGSy05Ri1UV3ptWWc4X1V2UTlOeThLeHJGTWJtSUcyU0VDdXVEd0FsVDZNc016Zz0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOm51bGwsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.asF3Oew2H3prbQpXyjejYC3lrqwaxqIghJxuwuRlbXM"
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzU3NzM5MTUsImV4cCI6MTY3NTgxNjIxNSwibmJmIjoxNjc1NzczOTE1LCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCajRrZmI5TUlBb19MVlJrOFpiZld3VEVPY0xEUW52VE5zdGhtVVo3RmxnZjFUZTljSy1SYWtVeE1Xb2ZwancyN3JyU2YzMTU1bHdsMUdiREU1ekpzaVp4VTNobkcwcEprMlZZTUt0TVFOSjllQnB3WT0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOm51bGwsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.vCN4WYWGjoJ185ZoIrA3WH8JG1aUsFcXni27B612UFE"
 const symbol = "NSE:NIFTYBANK-INDEX"
-const resolution = "5"
+const resolution = "1"
 const dateFormat = 0
-const from = 1673428500
-const to = 1673451000
+const _from = moment("07-11-2022", "DD-MM-YYYY").unix()
+const _to = moment("06-02-2023", "DD-MM-YYYY").unix()
 var config = {
     method: "get",
-    url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=1`,
+    url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${_from}&range_to=${_to}&cont_flag=1`,
     // url: `https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=`,
     headers: {
         Authorization: appId + ":" + accessToken,
