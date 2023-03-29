@@ -6,28 +6,14 @@ export default async function (chatter: EventEmitter) {
         strategyVersion: "1.0.0",
         strategyAuthor: "Vivek",
         strategyParameters: {
-            symbol: {
-                type: "string",
-                description: "Symbol for which you want to take profit and loss",
-                default: "NSE:NIFTYBANK-INDEX",
-            },
-            quantity: {
+            maxProfit: {
                 type: "number",
-                description: "Quantity of the symbol",
-                default: 1,
-            },
-            takeProfit: {
-                type: "number",
-                description: "Take profit at this price",
-                default: 10,
-            },
-            stopLoss: {
-                type: "number",
-                description: "Stop loss at this price",
-                default: 10,
+                description: "Max profit in percentage",
+                default: 0.5,
             },
         },
     }
+
     chatter.on("orderUpdate", (data: any) => {})
     chatter.on("marketDataUpdate", (data: any) => {})
 }

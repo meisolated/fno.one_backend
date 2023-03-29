@@ -2,16 +2,14 @@ import axios from "axios"
 
 const appId = "6UL65YECYS-100"
 const accessToken =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzU5MTI1NDEsImV4cCI6MTY3NTk4OTA0MSwibmJmIjoxNjc1OTEyNTQxLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCajVHVmRYalZVMGtZMTdIVko1YmNJSmhsQ3Z0UFdYOExNNC0wQTQ1ZVJkcWJaSV92S0dWWWlTSEJBdWhpbE1lVFR3S2F5ZFZFN3M3dnR3TjBxWmQxY0V5SFk3emRXWW54LXpoSkYyQzAwRE8xOTBHYz0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOm51bGwsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.XUUjblf8hqndYW6zBB4VEbUNql2p7VFdL6TtL_sPG4g"
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzkzNzgwOTMsImV4cCI6MTY3OTQ0NTA1MywibmJmIjoxNjc5Mzc4MDkzLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCa0dVYXQ5YUxaVElWR01ONDJtMWZwV3NGQ0YzeFRDNUZGclM5cE9NSjJwVDRQVk9fTExUMnAzbUhnbUV2MDktd19lMkoyaDM2Z1M1YmEtLTlnVVVQNEpsOEdVTV9YN0RDRktVSl9pZTZqcXYzMEQzST0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOiJLMSIsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.EIKy_LKpImSRayDMSzfdMHjstvH3kUE35IHvNW4yHvM"
 
 const symbol = "NSE:NIFTYBANK-INDEX"
 const lastYearUnixTime = new Date().getTime() - 365 * 24 * 60 * 60 * 1000
-const resolution = "5"
+const resolution = "1"
 const dateFormat = 0
 
 // Analyze the data
-const trades: Array<Object> = []
-var profit = 0
 
 const lastOneYearMontlyTimestampGenerator = () => {
     const lastOneYearMontlyTimestamp = []
@@ -38,12 +36,39 @@ const monthOnMonthPair = convertMonthOnMonthToPair(monthOnMonth)
 const sleep = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
-const FirstCandleData: any = []
 
-const averagePositiveMove: Array<number> = []
-const averageNegativeMove: Array<number> = []
-const averagePositiveSideLow: Array<number> = []
-const averageNegativeSideHigh: Array<number> = []
+// setup settings
+const dailyAllowedTrades = 3
+const maxSL = 40
+const targetRatio = 3
+
+// setup data
+let totalNumberOfTradesOfTheDay = 0
+let yesterdayDate = ""
+let lastCandleData = {
+    open: 0,
+    close: 0,
+    high: 0,
+    low: 0,
+}
+const activeTrade = {
+    breakoutRange: [0, 0],
+    breakoutSide: "nill",
+    status: false,
+    tradeActive: false,
+    stoploss: 0,
+    target: 0,
+    entryPrice: 0,
+    SLInPoints: 0,
+}
+let totalSL = 0
+let totalTarget = 0
+let pointsCaptured = 0
+let todayPointsCaptured = 0
+let totalPostiveDays = 0
+let totalNegativeDays = 0
+
+
 async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Function) {
     for (let index = 0; index < monthsUnixPair.length; index++) {
         var config = {
@@ -60,8 +85,6 @@ async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Func
             console.log(error)
         })
         const candles: Array<[number]> = data.candles
-        var yesterdayDate: any = 0
-        var firstCandlePassed = false
         candles.forEach((candle: Array<number>, index) => {
             const ts = candle[0]
             const open = candle[1]
@@ -71,59 +94,143 @@ async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Func
             const volume = candle[5]
             const thisCandleDate = new Date(ts * 1000).toISOString().split("T")[0]
 
-            if (yesterdayDate !== thisCandleDate) {
-                firstCandlePassed = true
-                const move: number = close - open
-                const positiveMove: number = move > 0 ? move : 0
-                const negativeMove: number = move < 0 ? move : 0
-                if (positiveMove != 0) averagePositiveMove.push(positiveMove)
-                if (negativeMove != 0) averageNegativeMove.push(negativeMove)
+            // ignore first candle if day is different
+            if (thisCandleDate !== yesterdayDate) {
+                yesterdayDate = thisCandleDate
+                totalNumberOfTradesOfTheDay = 0
+                lastCandleData = {
+                    open: 0,
+                    close: 0,
+                    high: 0,
+                    low: 0,
+                }
+                activeTrade.breakoutRange = [0, 0]
+                activeTrade.breakoutSide = "nill"
+                activeTrade.status = false
+                activeTrade.tradeActive = false
+                activeTrade.stoploss = 0
+                activeTrade.target = 0
+                activeTrade.entryPrice = 0
+                activeTrade.SLInPoints = 0
+                if (todayPointsCaptured > 0) {
+                    totalPostiveDays++
+                } else {
+                    totalNegativeDays++
+                }
+                todayPointsCaptured = 0
+            } else {
+                if (thisCandleDate == yesterdayDate) {
+                    if (lastCandleData.close == 0 && lastCandleData.open == 0) {
+                        return
+                    } else {
+                        if (activeTrade.status) {
+                            if (activeTrade.tradeActive) {
+                                if (close < activeTrade.stoploss) {
+                                    activeTrade.tradeActive = false
+                                    activeTrade.status = false
+                                    pointsCaptured -= activeTrade.SLInPoints
+                                    totalNumberOfTradesOfTheDay++
+                                    todayPointsCaptured += pointsCaptured
+                                    totalSL++
+                                } else if (close > activeTrade.target) {
+                                    activeTrade.tradeActive = false
+                                    activeTrade.status = false
+                                    pointsCaptured += activeTrade.SLInPoints * targetRatio
+                                    totalTarget++
+                                    todayPointsCaptured += pointsCaptured
+                                    totalNumberOfTradesOfTheDay++
+                                }
+                                if (activeTrade.breakoutSide == "buy") {
+                                    if (high >= activeTrade.target) {
+                                        activeTrade.tradeActive = false
+                                        activeTrade.status = false
+                                        pointsCaptured += activeTrade.SLInPoints * targetRatio
+                                        totalTarget++
+                                        totalNumberOfTradesOfTheDay++
+                                    }
+                                    if (low <= activeTrade.stoploss) {
+                                        activeTrade.tradeActive = false
+                                        activeTrade.status = false
+                                        pointsCaptured -= activeTrade.SLInPoints
+                                        totalNumberOfTradesOfTheDay++
+                                        totalSL++
+                                    }
+                                } else if (activeTrade.breakoutSide == "sell") {
+                                    if (low <= activeTrade.target) {
+                                        activeTrade.tradeActive = false
+                                        activeTrade.status = false
+                                        pointsCaptured += activeTrade.SLInPoints * targetRatio
+                                        totalTarget++
+                                        totalNumberOfTradesOfTheDay++
+                                    }
+                                    if (high >= activeTrade.stoploss) {
+                                        activeTrade.tradeActive = false
+                                        activeTrade.status = false
+                                        pointsCaptured -= activeTrade.SLInPoints
+                                        totalNumberOfTradesOfTheDay++
+                                        totalSL++
+                                    }
+                                }
 
-                if (positiveMove != 0) averagePositiveSideLow.push(open - low)
-                if (negativeMove != 0) averageNegativeSideHigh.push(open - high)
-                FirstCandleData.push([ts, open, high, low, close, volume, negativeMove, positiveMove])
+                            } else {
+                                // check for breakout
+                                if (totalNumberOfTradesOfTheDay >= dailyAllowedTrades) {
+                                    return
+                                } else {
+                                    // random true false
+                                    if (Math.random() > 0.5) {
+                                        if (close > activeTrade.breakoutRange[0]) {
+                                            let SLInPoints = activeTrade.breakoutRange[0] - activeTrade.breakoutRange[1]
+                                            if (SLInPoints > maxSL) return
+                                            activeTrade.breakoutSide = "buy"
+                                            activeTrade.tradeActive = true
+                                            activeTrade.SLInPoints = SLInPoints
+                                            activeTrade.stoploss = activeTrade.breakoutRange[1]
+                                            activeTrade.target = SLInPoints * targetRatio + activeTrade.breakoutRange[0]
+                                            activeTrade.entryPrice = activeTrade.breakoutRange[0]
+
+                                        }
+                                        else if (close < activeTrade.breakoutRange[1]) {
+                                            let SLInPoints = activeTrade.breakoutRange[0] - activeTrade.breakoutRange[1]
+                                            if (SLInPoints > maxSL) return
+                                            activeTrade.breakoutSide = "sell"
+                                            activeTrade.tradeActive = true
+                                            activeTrade.SLInPoints = SLInPoints
+                                            activeTrade.stoploss = activeTrade.breakoutRange[0]
+                                            activeTrade.target = activeTrade.breakoutRange[1] - SLInPoints * targetRatio
+                                            activeTrade.entryPrice = activeTrade.breakoutRange[1]
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            if (lastCandleData.close < lastCandleData.open && close > open) {
+                                activeTrade.status = true
+                                activeTrade.breakoutRange = [high, low]
+                            } else if (lastCandleData.close > lastCandleData.open && close < open) {
+                                activeTrade.status = true
+                                activeTrade.breakoutRange = [high, low]
+                            }
+                        }
+                    }
+                }
             }
-            yesterdayDate = thisCandleDate
+            lastCandleData = {
+                open,
+                close,
+                high,
+                low,
+            }
         })
         await callback()
     }
 }
-function getAverage(array: Array<number>) {
-    let sum = 0
-    for (let i = 0; i < array.length; i++) {
-        sum += array[i]
-    }
-    //heigh and low
-    const high = Math.max(...array)
-    const low = Math.min(...array)
-    return { average: sum / array.length, high, low }
-}
 
 asyncForEach(monthOnMonthPair, () => {
     // console.log(FirstCandleData)
-
-    const firstCandleAverageNegativeMovement = getAverage(averageNegativeMove)
-    const firstCandleAveragePositiveMovement = getAverage(averagePositiveMove)
-    const firstCandleAveragePositiveSideLow = getAverage(averagePositiveSideLow)
-    const firstCandleAverageNegativeSideHigh = getAverage(averageNegativeSideHigh)
-
-    const firstCandleGreen = FirstCandleData.filter((candle: any) => {
-        return candle[4] - candle[1] > 0 && candle[4] > candle[1]
-    })
-    const firstCandleRed = FirstCandleData.filter((candle: any) => {
-        return candle[4] - candle[1] < 0 && candle[4] < candle[1]
-    })
-    const firstCandleGreenProbability = firstCandleGreen.length / FirstCandleData.length
-    const firstCandleRedProbability = firstCandleRed.length / FirstCandleData.length
-    console.log("------------------------------------_------------------------------------")
-    console.log({
-        firstCandleAverageNegativeMovement,
-        firstCandleAveragePositiveMovement,
-        firstCandleAveragePositiveSideLow,
-        firstCandleAverageNegativeSideHigh,
-        firstCandleGreen: firstCandleGreen.length,
-        firstCandleRed: firstCandleRed.length,
-        firstCandleGreenProbability,
-        firstCandleRedProbability,
-    })
+    console.log("pointsCaptured", pointsCaptured)
+    console.log("totalSL", totalSL)
+    console.log("totalTarget", totalTarget)
+    console.log("totalPostiveDays", totalPostiveDays)
+    console.log("totalNegativeDays", totalNegativeDays)
 })

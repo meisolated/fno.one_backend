@@ -1,9 +1,9 @@
 import { Schema } from "mongoose"
 
 interface openInterest {
-    _id: string
     symbol: string
-    timestamp: Date
+    timestamp: number
+    strikePrice: number
     CE: {
         askPrice: number
         askQty: number
@@ -50,51 +50,51 @@ interface openInterest {
 
 export default new Schema<openInterest>(
     {
-        _id: { type: String, required: true },
         symbol: { type: String, required: true },
-        timestamp: { type: Date, required: true },
+        strikePrice: { type: Number, required: true },
+        timestamp: { type: Number, required: true },
         CE: {
-            askPrice: { type: Number, required: true },
-            askQty: { type: Number, required: true },
-            bidPrice: { type: Number, required: true },
-            bidQty: { type: Number, required: true },
-            change: { type: Number, required: true },
-            changeInOpenInterest: { type: Number, required: true },
-            expiryDate: { type: Date, required: true },
-            identifier: { type: String, required: true },
-            impliedVolatility: { type: Number, required: true },
-            lastPrice: { type: Number, required: true },
-            openInterest: { type: Number, required: true },
-            pChange: { type: Number, required: true },
-            pChangeInOpenInterest: { type: Number, required: true },
-            strikePrice: { type: Number, required: true },
-            totalBuyQuantity: { type: Number, required: true },
-            totalSellQuantity: { type: Number, required: true },
-            totalTradedVolume: { type: Number, required: true },
-            underlyingValue: { type: Number, required: true },
-            underlying: { type: String, required: true },
+            askPrice: { type: Number, required: false },
+            askQty: { type: Number, required: false },
+            bidPrice: { type: Number, required: false },
+            bidQty: { type: Number, required: false },
+            change: { type: Number, required: false },
+            changeInOpenInterest: { type: Number, required: false },
+            expiryDate: { type: Date, required: false },
+            identifier: { type: String, required: false },
+            impliedVolatility: { type: Number, required: false },
+            lastPrice: { type: Number, required: false },
+            openInterest: { type: Number, required: false },
+            pChange: { type: Number, required: false },
+            pChangeInOpenInterest: { type: Number, required: false },
+            strikePrice: { type: Number, required: false },
+            totalBuyQuantity: { type: Number, required: false },
+            totalSellQuantity: { type: Number, required: false },
+            totalTradedVolume: { type: Number, required: false },
+            underlyingValue: { type: Number, required: false },
+            underlying: { type: String, required: false },
         },
         PE: {
-            askPrice: { type: Number, required: true },
-            askQty: { type: Number, required: true },
-            bidPrice: { type: Number, required: true },
-            bidQty: { type: Number, required: true },
-            change: { type: Number, required: true },
-            changeInOpenInterest: { type: Number, required: true },
-            expiryDate: { type: Date, required: true },
-            identifier: { type: String, required: true },
-            impliedVolatility: { type: Number, required: true },
-            lastPrice: { type: Number, required: true },
-            openInterest: { type: Number, required: true },
-            pChange: { type: Number, required: true },
-            pChangeInOpenInterest: { type: Number, required: true },
-            strikePrice: { type: Number, required: true },
-            totalBuyQuantity: { type: Number, required: true },
-            totalSellQuantity: { type: Number, required: true },
-            totalTradedVolume: { type: Number, required: true },
-            underlyingValue: { type: Number, required: true },
-            underlying: { type: String, required: true },
+            askPrice: { type: Number, required: false },
+            askQty: { type: Number, required: false },
+            bidPrice: { type: Number, required: false },
+            bidQty: { type: Number, required: false },
+            change: { type: Number, required: false },
+            changeInOpenInterest: { type: Number, required: false },
+            expiryDate: { type: Date, required: false },
+            identifier: { type: String, required: false },
+            impliedVolatility: { type: Number, required: false },
+            lastPrice: { type: Number, required: false },
+            openInterest: { type: Number, required: false },
+            pChange: { type: Number, required: false },
+            pChangeInOpenInterest: { type: Number, required: false },
+            strikePrice: { type: Number, required: false },
+            totalBuyQuantity: { type: Number, required: false },
+            totalSellQuantity: { type: Number, required: false },
+            totalTradedVolume: { type: Number, required: false },
+            underlyingValue: { type: Number, required: false },
+            underlying: { type: String, required: false },
         },
     },
-    { timestamps: true }
+    { timestamps: false }
 )

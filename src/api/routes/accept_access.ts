@@ -9,9 +9,6 @@ import { Session, User } from "../../model"
 export default async function (app: Express, path: string) {
     logger.info("Loaded route: " + path)
     app.get(path, async (req: Request, res: Response) => {
-        console.log(req.headers.referer)
-        console.log(req.headers.host)
-        console.log(req.query)
         const cookie = req.cookies["fno.one"]
         if (cookie && cookie.includes("ily") && cookie.includes("fno.one-")) {
             //@ts-ignore
@@ -42,7 +39,7 @@ export default async function (app: Express, path: string) {
                 //return res.send({ message: "Session not found", code: 404 })
             }
         } else {
-            if (req.headers.referer !== "https://api.fyers.in/") return res.redirect("https://api.fyers.in/")
+            if (req.headers.referer !== "https://api.fyers.in/") return res.redirect("/error/invalidRequest")
             if (req.query.auth_code || req.query.s == "ok") {
                 const maxAge = 1000 * 60 * 60 * 24 * 30 // 30 days
                 const currentTimeUnixMs = Date.now()
@@ -54,6 +51,13 @@ export default async function (app: Express, path: string) {
                         .update(cookie + currentTimeUnixMs)
                         .digest("hex") +
                     "ily"
+
+                // const cookieHash = `fno.one-
+                //     ${crypto
+                //         .createHash("sha256")
+                //         .update(cookie + currentTimeUnixMs)
+                //         .digest("hex")}
+                //     ily`
                 res.cookie("fno.one", cookieHash, { maxAge })
                 const accessToken = await fyers.generateAccessToken(req.query.auth_code)
                 if (accessToken.code != 200) return res.send({ message: accessToken.message, code: accessToken.code })

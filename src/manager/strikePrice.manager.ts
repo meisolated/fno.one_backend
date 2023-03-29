@@ -1,6 +1,8 @@
 import axios from "axios"
 import config from "../config"
 
+export const defaultExchange = "NSE"
+
 const SingleMForMonth = (month: string) => {
     switch (month) {
         case "Jan":
@@ -30,8 +32,27 @@ const SingleMForMonth = (month: string) => {
     }
 }
 
+const symbolPrefixSelector = (symbol: string) => {
+    if (symbol.includes("BankNifty")) return "NSE:BANKNIFTY"
+}
+
+export const generateStrikePrices = (symbol: string, currentPrice: number, gap: number, range: number) => {
+    const currentPriceRoundFigure = Math.round(currentPrice / 100) * 100
+    const strikePrices = []
+    const strikePriceWithSymbol = []
+    const numberOfStrikePrices = range * 2 + 1
+    for (let i = 0; i < numberOfStrikePrices; i++) {
+        strikePrices.push(currentPriceRoundFigure + (i - range) * gap)
+    }
+    for (const strikePrice of strikePrices) {
+        strikePriceWithSymbol.push({ symbol: `NSE:BANKNIFTY${strikePrice}CE`, strikePrice })
+    }
+
+    return strikePrices
+}
+
 export const generateSymbolStrikePrices = async (option: string) => {
-    if (option === "NIFTY BANK") {
+    if (option === "NSE:NIFTYBANK-INDEX") {
         try {
             const response = await axios.get(config.NSEApi.NSEOptionChainDataAPIUrl)
             if (response.status !== 200) return null
@@ -61,12 +82,7 @@ export const generateSymbolStrikePrices = async (option: string) => {
         } catch (error) {
             return null
         }
-
     }
 }
 
-
-export const strikePriceProvider = async (zone: string) => {
-
-
-}
+export const strikePriceProvider = async (zone: string) => {}

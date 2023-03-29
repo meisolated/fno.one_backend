@@ -8,6 +8,11 @@ export default async function (data: any, chatter: EventEmitter) {
             const marketDataArray = data.d["7208"]
             marketDataArray.forEach((marketData: any) => {
                 chatter.emit("marketDataUpdate", marketData.v)
+                // start saving this data after 9:10 AM
+                const currentTime = new Date().getTime()
+                const currentHour = new Date(currentTime).getHours()
+                const currentMinute = new Date(currentTime).getMinutes()
+                if (currentHour < 9 || (currentHour == 9 && currentMinute < 10)) return
                 MarketData.insertMany(marketData.v).catch((err) => {
                     logger.error(err)
                 })

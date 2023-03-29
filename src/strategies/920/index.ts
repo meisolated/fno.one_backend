@@ -25,4 +25,6 @@ export default {
         allowModifyTakeProfit: true,
         allowModifyTrailingStop: true,
     },
+
+
 }

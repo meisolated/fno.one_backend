@@ -17,7 +17,6 @@ let primaryAccessToken: AccessToken = {
     accessToken: "",
     email: "",
 }
-
 export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
     const users = await User.find()
     const activeUsersSocketConnection: Array<any> = []
@@ -71,7 +70,6 @@ export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
         }
     }, 10000)
 }
-
 export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
     chatter.on("symbolUpdate", async (data: any) => {
         connectionToMarketDataSocket.unsubscribe()
@@ -86,7 +84,7 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
     })
     if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
         const symbol = [localDB.mainSymbol, localDB.secondarySymbol, ...localDB.o5BanksSymbol, ...localDB.t5BanksSymbol]
-        const strikePrices: any = await generateSymbolStrikePrices("NIFTY BANK")
+        const strikePrices: any = await generateSymbolStrikePrices("NSE:NIFTYBANK-INDEX")
         if (!strikePrices) return retry()
         connectionToMarketDataSocket.onMarketDataUpdate(
             [...symbol, ...strikePrices.symbolsArray[strikePrices.currentExpiry]],

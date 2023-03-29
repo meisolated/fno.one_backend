@@ -1,7 +1,4 @@
-import { generateSymbolStrikePrices } from "./manager/strikePrice.manager"
+// import { generateStrikePrices } from "./manager/strikePrice.manager"
 
-async function test() {
-    const test = await generateSymbolStrikePrices("NIFTY BANK")
-    console.log(test)
-}
-test()
+// const data = generateStrikePrices(40500, 100, 10)
+// console.log(data)

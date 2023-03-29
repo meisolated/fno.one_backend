@@ -18,20 +18,30 @@ interface user {
     fyAccessToken: string
     fyRefreshToken: string
     connectedApps: string[]
-    lastLogin: Date
-    loggedIn: boolean
-    socketId: string
-    socket: {
-        marketData: {
-            socket: any
-            subscribed: boolean
-            subscribedSymbols: string[]
-        }
-        order: {
-            socket: any
-            subscribed: boolean
+    apps: string[]
+    userAppsData: {
+        fyers: {
+            accessToken: string
+            refreshToken: string
+            Id: string
+            loggedIn: boolean
+            loggedInTime: Date
+            lastUpdates: {
+                orders: Date
+                trades: Date
+                positions: Date
+                holdings: Date
+                margins: Date
+                profile: Date
+                marketStatus: Date
+                marketDepth: Date
+                marketFeed: Date
+            }
         }
     }
+    lastLogin: Date
+    loggedIn: boolean
+
 }
 
 export default new Schema<user>(
@@ -54,19 +64,31 @@ export default new Schema<user>(
         fyRefreshToken: { type: String, required: true },
         lastLogin: { type: Date, required: true },
         loggedIn: { type: Boolean, required: true },
-        socketId: { type: String, required: false },
         connectedApps: [{ type: String, required: false }],
-        socket: {
-            marketData: {
-                socket: { type: Object, required: false },
-                subscribed: { type: Boolean, required: false },
-                subscribedSymbols: [{ type: String, required: false }],
-            },
-            order: {
-                socket: { type: Object, required: false },
-                subscribed: { type: Boolean, required: false },
-            },
+        apps: [{ type: String, required: false }],
+        userAppsData: {
+            fyers: {
+                accessToken: { type: String, required: true },
+                refreshToken: { type: String, required: true },
+                Id: { type: String, required: true },
+                loggedIn: { type: Boolean, required: true },
+                loggedInTime: { type: Date, required: true },
+                lastUpdates: {
+                    orders: { type: Date, required: true },
+                    trades: { type: Date, required: true },
+                    positions: { type: Date, required: true },
+                    holdings: { type: Date, required: true },
+                    margins: { type: Date, required: true },
+                    profile: { type: Date, required: true },
+                    marketStatus: { type: Date, required: true },
+                    marketDepth: { type: Date, required: true },
+                    marketFeed: { type: Date, required: true },
+
+                },
+            }
+
         },
+
     },
     { timestamps: true }
 )
