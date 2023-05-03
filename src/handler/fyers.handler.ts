@@ -24,17 +24,17 @@ export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
     function connectSocket(user: any) {
         if (user.connectedApps.includes("fyers")) {
             logger.info("We were able to connect this user to fyers api with access token " + user.email)
-            fyers.getProfile(user.fyAccessToken).then(async (profile) => {
+            fyers.getProfile(user.userAppsData.fyers.accessToken).then(async (profile) => {
                 if (profile.code === 200) {
                     if (user.roles.includes("admin")) {
-                        primaryAccessToken.accessToken = user.fyAccessToken
+                        primaryAccessToken.accessToken = user.userAppsData.fyers.accessToken
                         primaryAccessToken.email = user.email
                     }
                     const userSession = await Session.findOne({ userId: user._id })
                     if (userSession) {
                         activeUsersSocketConnection.push(userSession.userId)
                         connectionToOrderUpdateSocket.onOrderUpdate(
-                            user.fyAccessToken,
+                            user.userAppsData.fyers.accessToken,
                             (data: any) => {
                                 const letData = JSON.parse(data)
                                 if (letData.s == "ok") {

@@ -14,9 +14,9 @@ interface user {
         activeStrategies: string[]
         dailyTrades: number
     }
-    fyId: string
-    fyAccessToken: string
-    fyRefreshToken: string
+    // fyId: string
+    // fyAccessToken: string
+    // fyRefreshToken: string
     connectedApps: string[]
     apps: string[]
     userAppsData: {
@@ -41,7 +41,6 @@ interface user {
     }
     lastLogin: Date
     loggedIn: boolean
-
 }
 
 export default new Schema<user>(
@@ -59,36 +58,33 @@ export default new Schema<user>(
             activeStrategies: [{ type: String, required: false }],
             dailyTrades: { type: Number, required: false },
         },
-        fyId: { type: String, required: true },
-        fyAccessToken: { type: String, required: true },
-        fyRefreshToken: { type: String, required: true },
+        // fyId: { type: String, required: true },
+        // fyAccessToken: { type: String, required: true },
+        // fyRefreshToken: { type: String, required: true },
         lastLogin: { type: Date, required: true },
         loggedIn: { type: Boolean, required: true },
         connectedApps: [{ type: String, required: false }],
         apps: [{ type: String, required: false }],
         userAppsData: {
             fyers: {
-                accessToken: { type: String, required: true },
-                refreshToken: { type: String, required: true },
-                Id: { type: String, required: true },
-                loggedIn: { type: Boolean, required: true },
-                loggedInTime: { type: Date, required: true },
+                accessToken: { type: String, required: false },
+                refreshToken: { type: String, required: false },
+                Id: { type: String, required: false },
+                loggedIn: { type: Boolean, required: false },
+                loggedInTime: { type: Date, required: false },
                 lastUpdates: {
-                    orders: { type: Date, required: true },
-                    trades: { type: Date, required: true },
-                    positions: { type: Date, required: true },
-                    holdings: { type: Date, required: true },
-                    margins: { type: Date, required: true },
-                    profile: { type: Date, required: true },
-                    marketStatus: { type: Date, required: true },
-                    marketDepth: { type: Date, required: true },
-                    marketFeed: { type: Date, required: true },
-
+                    orders: { type: Date, required: false },
+                    trades: { type: Date, required: false },
+                    positions: { type: Date, required: false },
+                    holdings: { type: Date, required: false },
+                    margins: { type: Date, required: false },
+                    profile: { type: Date, required: false },
+                    marketStatus: { type: Date, required: false },
+                    marketDepth: { type: Date, required: false },
+                    marketFeed: { type: Date, required: false },
                 },
-            }
-
+            },
         },
-
     },
     { timestamps: true }
 )

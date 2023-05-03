@@ -51,7 +51,6 @@ const LoadRoute = (routesList: Array<Object>, app: any, logging: boolean) =>
         resolve(true)
     })
 
-
 /**
  * @description Load Express Routes Dynamically
  * @author meisolated

@@ -68,7 +68,6 @@ let todayPointsCaptured = 0
 let totalPostiveDays = 0
 let totalNegativeDays = 0
 
-
 async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Function) {
     for (let index = 0; index < monthsUnixPair.length; index++) {
         var config = {
@@ -171,7 +170,6 @@ async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Func
                                         totalSL++
                                     }
                                 }
-
                             } else {
                                 // check for breakout
                                 if (totalNumberOfTradesOfTheDay >= dailyAllowedTrades) {
@@ -188,9 +186,7 @@ async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Func
                                             activeTrade.stoploss = activeTrade.breakoutRange[1]
                                             activeTrade.target = SLInPoints * targetRatio + activeTrade.breakoutRange[0]
                                             activeTrade.entryPrice = activeTrade.breakoutRange[0]
-
-                                        }
-                                        else if (close < activeTrade.breakoutRange[1]) {
+                                        } else if (close < activeTrade.breakoutRange[1]) {
                                             let SLInPoints = activeTrade.breakoutRange[0] - activeTrade.breakoutRange[1]
                                             if (SLInPoints > maxSL) return
                                             activeTrade.breakoutSide = "sell"

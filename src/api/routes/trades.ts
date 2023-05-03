@@ -11,7 +11,7 @@ export default async function (app: Express, path: string) {
             if (userId) {
                 const user = await User.findOne({ _id: userId.userId })
                 if (user) {
-                    const trades = await getTrades(user.fyAccessToken)
+                    const trades = await getTrades(user.userAppsData.fyers.accessToken)
                     if (trades.code == 200) {
                         return res.send({ message: "Success", code: 200, trades: trades.tradeBook })
                     } else {

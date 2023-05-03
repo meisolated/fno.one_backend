@@ -40,8 +40,6 @@ const TradesSchema: Schema = new Schema<trades>({
     tradedQty: { type: Number, required: true },
 })
 
-
-
 // clientId: "XV19818"
 
 // exchange: "10"

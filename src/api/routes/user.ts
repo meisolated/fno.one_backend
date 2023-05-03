@@ -16,7 +16,7 @@ export default async function (app: Express, path: string) {
                     } else {
                         User.findOne({ _id: session.userId }).then(async (user) => {
                             if (user) {
-                                const userProfile = await fyers.getProfile(user.fyAccessToken)
+                                const userProfile = await fyers.getProfile(user.userAppsData.fyers.accessToken)
                                 if (userProfile.code !== 200) {
                                     res.clearCookie("fno.one")
                                     return res.redirect("/error/sessionTimeout")

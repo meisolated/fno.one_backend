@@ -16,7 +16,7 @@ export default async function (app: Express, path: string) {
             if (session) {
                 const user = await User.findOne({ _id: session.userId })
                 if (user) {
-                    const userProfile = await fyers.getProfile(user.fyAccessToken)
+                    const userProfile = await fyers.getProfile(user.userAppsData.fyers.accessToken)
                     if (userProfile.code == 200) {
                         user.lastLogin = new Date()
                         if (user.connectedApps.includes("fyers") == false) user.connectedApps.push("fyers")
@@ -65,8 +65,8 @@ export default async function (app: Express, path: string) {
                 if (userProfile.code != 200) return res.send({ message: userProfile.message, code: userProfile.code })
                 let user = await User.findOne({ email: userProfile.data.email_id })
                 if (user) {
-                    user.fyAccessToken = accessToken.access_token
-                    user.fyRefreshToken = accessToken.refresh_token
+                    user.userAppsData.fyers.accessToken = accessToken.access_token
+                    user.userAppsData.fyers.refreshToken = accessToken.refresh_token
                     user.loggedIn = true
                     user.pan = userProfile.data.pan
                     user.image = userProfile.data.image
@@ -77,9 +77,13 @@ export default async function (app: Express, path: string) {
                     user = new User({
                         email: userProfile.data.email_id,
                         pan: userProfile.data.pan,
-                        fyId: userProfile.data.fy_id,
-                        fyAccessToken: accessToken.access_token,
-                        fyRefreshToken: accessToken.refresh_token,
+                        userAppsData: {
+                            fyers: {
+                                accessToken: accessToken.access_token,
+                                refreshToken: accessToken.refresh_token,
+                                Id: userProfile.data.fy_id,
+                            }
+                        },
                         name: userProfile.data.name,
                         image: userProfile.data.image,
                         status: "1",
