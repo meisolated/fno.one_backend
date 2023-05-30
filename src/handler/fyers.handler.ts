@@ -82,25 +82,27 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
             primaryAccessToken.email
         )
     })
-    if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
-        const symbol = [localDB.mainSymbol, localDB.secondarySymbol, ...localDB.o5BanksSymbol, ...localDB.t5BanksSymbol]
-        const strikePrices: any = await generateSymbolStrikePrices("NSE:NIFTYBANK-INDEX")
-        if (!strikePrices) return retry()
-        connectionToMarketDataSocket.onMarketDataUpdate(
-            [...symbol, ...strikePrices.symbolsArray[strikePrices.currentExpiry]],
-            primaryAccessToken.accessToken,
-            async (data: any) => {
-                marketDataUpdateHandler(data, chatter)
-            },
-            primaryAccessToken.email
-        )
-    } else {
-        retry()
+    async function retrythis(chatter: EventEmitter) {
+        if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
+            const symbol = [localDB.mainSymbol, localDB.secondarySymbol, ...localDB.o5BanksSymbol, ...localDB.t5BanksSymbol]
+            const strikePrices: any = await generateSymbolStrikePrices("NSE:NIFTYBANK-INDEX")
+            if (!strikePrices) return retry()
+            connectionToMarketDataSocket.onMarketDataUpdate(
+                [...symbol, ...strikePrices.symbolsArray[strikePrices.currentExpiry]],
+                primaryAccessToken.accessToken,
+                async (data: any) => {
+                    marketDataUpdateHandler(data, chatter)
+                },
+                primaryAccessToken.email
+            )
+        } else {
+            retry()
+        }
     }
     function retry() {
         setTimeout(() => {
             logger.warn("Retrying to connect to market data socket")
-            subscribeToMarketDataSocket(chatter)
+            retrythis(chatter)
         }, 10000)
     }
 }
