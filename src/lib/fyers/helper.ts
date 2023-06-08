@@ -609,7 +609,6 @@ const getQuotes = async (symbol: any, token: any) => {
                 _globalFyersDict[result.d[i].v.fyToken] = result.d[i].n
             }
         }
-
         return quotes.data
     } catch (e: any) {
         return e.response.data

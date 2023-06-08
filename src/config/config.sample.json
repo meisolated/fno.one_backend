@@ -1,0 +1,42 @@
+{
+    "APIPort": 3011,
+    "socketPort": 3012,
+    "fyers": {
+        "appId": "",
+        "secretId": "",
+        "redirectUrl": "",
+        "callbackSecret": "",
+        "apiUrl": "https://api.fyers.in/api/v2/",
+        "dataApiUrl": "https://api.fyers.in/data-rest/v2/",
+        "webSocketUrl": "https://api.fyers.in/socket/v2/dataSock",
+        "status": true
+    },
+    "zerodhaKite": {
+        "apiKey": "",
+        "apiSecret": "",
+        "redirectUrl": "",
+        "apiUrl": "https://api.kite.trade/",
+        "status": true
+    },
+    "fyersTrueData": {
+        "username": "",
+        "password": "",
+        "status": false
+    },
+    "NSEApi": {
+        "NSEOptionQuoteDerivativeAPIUrl": "https://www.nseindia.com/api/quote-derivative?symbol=BANKNIFTY",
+        "NSEOptionChainDataAPIUrl": "https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY"
+    },
+    "SMTP": {
+        "host": "",
+        "port": 465,
+        "secure": true,
+        "auth": {
+            "user": "",
+            "pass": ""
+        }
+    },
+    "database": {
+        "mongoUri": "mongodb://10.69.69.201:27017/fno"
+    }
+}

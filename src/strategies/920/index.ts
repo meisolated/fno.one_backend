@@ -1,7 +1,8 @@
+import { EventEmitter } from "ws"
+
 export default {
     version: 1,
     name: "920",
-    marketDataInterval: 3 * 60, // 3 minutes
     market: "NSE:NIFTYBANK-INDEX",
     backtest: {
         from: "2021-01-01",
@@ -25,4 +26,5 @@ export default {
         allowModifyTakeProfit: true,
         allowModifyTrailingStop: true,
     },
+    start(chatter: EventEmitter) {},
 }

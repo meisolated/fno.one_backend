@@ -82,7 +82,7 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
             primaryAccessToken.email
         )
     })
-    async function retrythis(chatter: EventEmitter) {
+    async function connectToSocket(chatter: EventEmitter) {
         if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
             const symbol = [localDB.mainSymbol, localDB.secondarySymbol, ...localDB.o5BanksSymbol, ...localDB.t5BanksSymbol]
             const strikePrices: any = await generateSymbolStrikePrices("NSE:NIFTYBANK-INDEX")
@@ -99,10 +99,11 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
             retry()
         }
     }
+
     function retry() {
         setTimeout(() => {
             logger.warn("Retrying to connect to market data socket")
-            retrythis(chatter)
+            connectToSocket(chatter)
         }, 10000)
     }
 }

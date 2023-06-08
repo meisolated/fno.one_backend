@@ -1,48 +1,5 @@
 import { Schema } from "mongoose"
 
-interface user {
-    email: string
-    name: string
-    displayName: string
-    image: string
-    pan: string
-    status: string
-    roles: string[]
-    settings: {
-        stopLoss: number
-        takeProfit: number
-        activeStrategies: string[]
-        dailyTrades: number
-    }
-    // fyId: string
-    // fyAccessToken: string
-    // fyRefreshToken: string
-    connectedApps: string[]
-    apps: string[]
-    userAppsData: {
-        fyers: {
-            accessToken: string
-            refreshToken: string
-            Id: string
-            loggedIn: boolean
-            loggedInTime: Date
-            lastUpdates: {
-                orders: Date
-                trades: Date
-                positions: Date
-                holdings: Date
-                margins: Date
-                profile: Date
-                marketStatus: Date
-                marketDepth: Date
-                marketFeed: Date
-            }
-        }
-    }
-    lastLogin: Date
-    loggedIn: boolean
-}
-
 export default new Schema<user>(
     {
         email: { type: String, required: true },
@@ -58,9 +15,6 @@ export default new Schema<user>(
             activeStrategies: [{ type: String, required: false }],
             dailyTrades: { type: Number, required: false },
         },
-        // fyId: { type: String, required: true },
-        // fyAccessToken: { type: String, required: true },
-        // fyRefreshToken: { type: String, required: true },
         lastLogin: { type: Date, required: true },
         loggedIn: { type: Boolean, required: true },
         connectedApps: [{ type: String, required: false }],

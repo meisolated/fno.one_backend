@@ -1,13 +1,5 @@
 import { Schema } from "mongoose"
 
-interface logger {
-    message: string
-    type: string
-    by: string //[user, server]
-    user: string //[null or userId]
-    date: Date
-}
-
 export default new Schema<logger>({
     message: { type: String, required: true },
     type: { type: String, required: true },

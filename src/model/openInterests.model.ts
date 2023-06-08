@@ -1,53 +1,5 @@
 import { Schema } from "mongoose"
 
-interface openInterest {
-    symbol: string
-    timestamp: number
-    strikePrice: number
-    CE: {
-        askPrice: number
-        askQty: number
-        bidPrice: number
-        bidQty: number
-        change: number
-        changeInOpenInterest: number
-        expiryDate: Date
-        identifier: string
-        impliedVolatility: number
-        lastPrice: number
-        openInterest: number
-        pChange: number
-        pChangeInOpenInterest: number
-        strikePrice: number
-        totalBuyQuantity: number
-        totalSellQuantity: number
-        totalTradedVolume: number
-        underlyingValue: number
-        underlying: string
-    }
-    PE: {
-        askPrice: number
-        askQty: number
-        bidPrice: number
-        bidQty: number
-        change: number
-        changeInOpenInterest: number
-        expiryDate: Date
-        identifier: string
-        impliedVolatility: number
-        lastPrice: number
-        openInterest: number
-        pChange: number
-        pChangeInOpenInterest: number
-        strikePrice: number
-        totalBuyQuantity: number
-        totalSellQuantity: number
-        totalTradedVolume: number
-        underlyingValue: number
-        underlying: string
-    }
-}
-
 export default new Schema<openInterest>(
     {
         symbol: { type: String, required: true },

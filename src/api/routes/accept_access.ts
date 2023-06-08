@@ -82,7 +82,7 @@ export default async function (app: Express, path: string) {
                                 accessToken: accessToken.access_token,
                                 refreshToken: accessToken.refresh_token,
                                 Id: userProfile.data.fy_id,
-                            }
+                            },
                         },
                         name: userProfile.data.name,
                         image: userProfile.data.image,

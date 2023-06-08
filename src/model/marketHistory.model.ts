@@ -1,16 +1,5 @@
 import { Schema } from "mongoose"
 
-interface marketHistory {
-    symbol: string
-    resolution: string
-    t: number // timestamp
-    o: number // candle open
-    h: number // candle high
-    l: number // candle low
-    c: number // candle close
-    v: number // candle volume
-}
-
 export default new Schema<marketHistory>(
     {
         symbol: { type: String, require: true },
