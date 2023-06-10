@@ -49,7 +49,7 @@ LoadRoutes(app, routesDirPath, "", true).then(async () => {
     // ----------| Subscribe to market data socket |----------
     subscribeToMarketDataSocket(chatter)
     // ----------| Updating open Interest |----------
-    await updateOpenInterests()
+    // await updateOpenInterests()
     // -----------| Starting server |-----------
     logger.info("Starting server...")
 

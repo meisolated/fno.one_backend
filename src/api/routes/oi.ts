@@ -1,7 +1,7 @@
 import { Express, Request, Response } from "express"
 import { getMarketCurrentPrice } from "../../helper"
-import { generateSymbolStrikePrices } from "../../manager/strikePrice.manager"
 import logger from "../../logger"
+import { generateSymbolOptionChain } from "../../manager/strikePrice.manager"
 import { Session, User } from "../../model"
 
 export default async function (app: Express, path: string) {
@@ -13,7 +13,7 @@ export default async function (app: Express, path: string) {
             const market: string = String(req.query.market) || "NSE:NIFTYBANK-INDEX"
             if (userId) {
                 const marketCurrentPrice = await getMarketCurrentPrice(market)
-                const strikePrices = await generateSymbolStrikePrices(market)
+                const strikePrices = await generateSymbolOptionChain(market)
             }
         } else {
             return res.json({ message: "Invalid cookie", code: 401 })

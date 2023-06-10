@@ -4,6 +4,7 @@ export default new Schema<openInterest>(
     {
         symbol: { type: String, required: true },
         strikePrice: { type: Number, required: true },
+        expiryDate: { type: Date, required: true },
         timestamp: { type: Number, required: true },
         CE: {
             askPrice: { type: Number, required: false },

@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
     interface rateLimitData {
@@ -64,6 +64,7 @@ declare global {
         symbol: string
         timestamp: number
         strikePrice: number
+        expiryDate: Date
         CE: {
             askPrice: number
             askQty: number
@@ -241,5 +242,11 @@ declare global {
         lp: string
         ex_sym: string
         description: string
+    }
+
+    // general interfaces
+    interface AccessToken {
+        accessToken: string
+        email: string
     }
 }

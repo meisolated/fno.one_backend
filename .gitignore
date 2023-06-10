@@ -5,3 +5,4 @@ src/config/index.ts
 yarn.lock
 yarn-error.log
 ignore.md
+coverage

@@ -1,18 +1,15 @@
 import { EventEmitter } from "events"
-import localDB from "../db/localdb"
+import config from "../config"
 import * as fyers from "../lib/fyers"
 import logger from "../logger"
 import { Session, User } from "../model"
-import { generateSymbolStrikePrices } from "./../manager/strikePrice.manager"
+import { generateSymbolOptionChain } from "./../manager/strikePrice.manager"
 import marketDataUpdateHandler from "./marketDataUpdate.handler"
 import orderUpdateHandler from "./orderUpdate.handler"
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
 const connectionToMarketDataSocket = new fyers.marketDataSocket()
 
-interface AccessToken {
-    accessToken: string
-    email: string
-}
+
 let primaryAccessToken: AccessToken = {
     accessToken: "",
     email: "",
@@ -84,11 +81,15 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
     })
     async function connectToSocket(chatter: EventEmitter) {
         if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
-            const symbol = [localDB.mainSymbol, localDB.secondarySymbol, ...localDB.o5BanksSymbol, ...localDB.t5BanksSymbol]
-            const strikePrices: any = await generateSymbolStrikePrices("NSE:NIFTYBANK-INDEX")
-            if (!strikePrices) return retry()
+            const symbol = [config.mainSymbol, config.secondarySymbol, ...config.o5BanksSymbol, ...config.t5BanksSymbol]
+            var symbolOptionChain: any = await generateSymbolOptionChain("NSE:NIFTYBANK-INDEX")
+            const optionIdentifiers = []
+            if (!symbolOptionChain) return retry()
+            for (const expiry of symbolOptionChain.expiryListWithStrikePrices[symbolOptionChain.currentExpiry]) {
+                optionIdentifiers.push(expiry.identifier)
+            }
             connectionToMarketDataSocket.onMarketDataUpdate(
-                [...symbol, ...strikePrices.symbolsArray[strikePrices.currentExpiry]],
+                [...symbol, ...optionIdentifiers],
                 primaryAccessToken.accessToken,
                 async (data: any) => {
                     marketDataUpdateHandler(data, chatter)
@@ -99,7 +100,7 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
             retry()
         }
     }
-
+    connectToSocket(chatter)
     function retry() {
         setTimeout(() => {
             logger.warn("Retrying to connect to market data socket")
