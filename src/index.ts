@@ -11,7 +11,7 @@ import chatter from "./events"
 import { subscribeToAllUsersSockets, subscribeToMarketDataSocket } from "./handler/fyers.handler"
 import LoadRoutes from "./lib/routesLoader"
 import logger from "./logger"
-import { updateOpenInterests } from "./manager/oi.manager"
+// import { updateOpenInterests } from "./manager/oi.manager"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -48,9 +48,14 @@ LoadRoutes(app, routesDirPath, "", true).then(async () => {
     subscribeToAllUsersSockets(chatter)
     // ----------| Subscribe to market data socket |----------
     subscribeToMarketDataSocket(chatter)
+
+    //--------------------------------------------------------------------------------
+    //currently not using this as its not the right way to do it
     // ----------| Updating open Interest |----------
     // await updateOpenInterests()
     // -----------| Starting server |-----------
+    //--------------------------------------------------------------------------------
+
     logger.info("Starting server...")
 
     server.listen(APIport, () => {

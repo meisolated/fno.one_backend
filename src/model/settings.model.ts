@@ -3,6 +3,12 @@ import { Schema } from "mongoose"
 export default new Schema<settings>(
     {
         id: { type: Number, required: true, unique: true },
+        // serverSettings: {
+        //     port: { type: Number, required: true },
+        //     socketPort: { type: Number, required: true },
+
+        // },
+
         realTimeMarketsToWatch: [{ type: String, required: true }],
         keepRealTimeMarketsData: { type: Boolean, required: true },
         activeStrategies: [{ type: String, required: false }],

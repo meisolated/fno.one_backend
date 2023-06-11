@@ -30,7 +30,6 @@ const dayToNumber = (day: string) => {
     }
 }
 const generateUpcomingExpiryList = (expiryDay: string, howMany: number) => {
-
     const today = new Date()
     const todayDay = today.getDay()
     const todayDate = today.getDate()

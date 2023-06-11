@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "bnr": "tsc && node ./dist/index.js",
+    "bnr": "rm -rf ./dist && tsc && node ./dist/index.js",
     "start": "node ./dist/index.js",
     "format": "prettier --write \"{src,test}/**/*.{js,ts}\"",
     "testFile": "yarn build && node dist/tempStrategyTest.js",

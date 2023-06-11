@@ -9,7 +9,6 @@ import orderUpdateHandler from "./orderUpdate.handler"
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
 const connectionToMarketDataSocket = new fyers.marketDataSocket()
 
-
 let primaryAccessToken: AccessToken = {
     accessToken: "",
     email: "",
@@ -100,7 +99,7 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
             retry()
         }
     }
-    connectToSocket(chatter)
+    // connectToSocket(chatter)
     function retry() {
         setTimeout(() => {
             logger.warn("Retrying to connect to market data socket")
