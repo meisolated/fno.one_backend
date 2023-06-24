@@ -10,6 +10,7 @@ import config from "./config"
 import chatter from "./events"
 import { subscribeToAllUsersSockets, subscribeToMarketDataSocket } from "./handler/fyers.handler"
 import LoadRoutes from "./lib/routesLoader"
+import TrueData from "./lib/trueData"
 import logger from "./logger"
 // import { updateOpenInterests } from "./manager/oi.manager"
 
@@ -30,10 +31,10 @@ app.get("/", (_req: Request, res: Response) => {
     res.send({ message: "Something is missing over here", code: 200 })
 })
 
-chatter.on("marketDataUpdate", async (data: any) => {
+chatter.on("fyersMarketDataUpdates-", "marketDataUpdate", async (data: any) => {
     // console.log(data)
 })
-chatter.on("orderUpdate", async (data: any) => {
+chatter.on("fyersOrderHandler-", "orderUpdate", async (data: any) => {
     // console.log(data)
 })
 // ------------| Loading Routes |------------
@@ -42,12 +43,13 @@ LoadRoutes(app, routesDirPath, "", true).then(async () => {
     logger.info("Routes loaded!")
     // -----------| Initializing Socket |-----------
     logger.info("Loading socket.io events...")
-    socketLoader(io, chatter)
+    socketLoader(io)
     logger.info("Socket.io events loaded!")
     // ----------| Subscribe to all users sockets |----------
-    subscribeToAllUsersSockets(chatter)
+    subscribeToAllUsersSockets()
     // ----------| Subscribe to market data socket |----------
-    subscribeToMarketDataSocket(chatter)
+    subscribeToMarketDataSocket()
+
 
     //--------------------------------------------------------------------------------
     //currently not using this as its not the right way to do it

@@ -1,5 +1,6 @@
 import { EventEmitter } from "events"
-export default async function (userId: string, data: any, chatter: EventEmitter) {
+import chatter from "../events"
+export default async function (userId: string, data: any) {
     if (typeof data == "undefined") return
     if (data.message == "TRADE_CONFIRMED") {
         const preparedData = {
@@ -22,6 +23,6 @@ export default async function (userId: string, data: any, chatter: EventEmitter)
                 tradedPrice: data.tradedPrice,
             },
         }
-        chatter.emit("orderUpdate", preparedData)
+        chatter.emit("fyersOrderHandler-", "orderUpdate", preparedData)
     }
 }

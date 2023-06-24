@@ -1,5 +1,6 @@
 import { EventEmitter } from "events"
 import config from "../config"
+import chatter from "../events"
 import * as fyers from "../lib/fyers"
 import logger from "../logger"
 import { Session, User } from "../model"
@@ -13,7 +14,7 @@ let primaryAccessToken: AccessToken = {
     accessToken: "",
     email: "",
 }
-export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
+export const subscribeToAllUsersSockets = async () => {
     const users = await User.find()
     const activeUsersSocketConnection: Array<any> = []
 
@@ -34,13 +35,14 @@ export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
                             (data: any) => {
                                 const letData = JSON.parse(data)
                                 if (letData.s == "ok") {
-                                    orderUpdateHandler(userSession.userId, letData.d, chatter)
-                                    chatter.emit(userSession.userId, letData.d)
+                                    orderUpdateHandler(userSession.userId, letData.d)
+                                    chatter.emit("fyersOrderUpdateSocket-", userSession.userId, letData.d)
                                 } else {
                                     connectionToOrderUpdateSocket.unsubscribe()
                                     activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(userSession.userId), 1)
                                     logger.error("Error in order update socket " + letData)
                                 }
+
                             },
                             primaryAccessToken.email
                         )
@@ -66,22 +68,16 @@ export const subscribeToAllUsersSockets = async (chatter: EventEmitter) => {
         }
     }, 10000)
 }
-export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
-    chatter.on("symbolUpdate", async (data: any) => {
-        connectionToMarketDataSocket.unsubscribe()
-        connectionToMarketDataSocket.onMarketDataUpdate(
-            data,
-            primaryAccessToken.accessToken,
-            async (data: any) => {
-                marketDataUpdateHandler(data, chatter)
-            },
-            primaryAccessToken.email
-        )
-    })
-    async function connectToSocket(chatter: EventEmitter) {
+export const subscribeToMarketDataSocket = async () => {
+
+}
+
+
+const connectFyersMarketDataSocket = async (user: any) => {
+    async function connectToSocket() {
         if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
             const symbol = [config.mainSymbol, config.secondarySymbol, ...config.o5BanksSymbol, ...config.t5BanksSymbol]
-            var symbolOptionChain: any = await generateSymbolOptionChain("NSE:NIFTYBANK-INDEX")
+            var symbolOptionChain: any = await generateSymbolOptionChain("BANKNIFTY")
             const optionIdentifiers = []
             if (!symbolOptionChain) return retry()
             for (const expiry of symbolOptionChain.expiryListWithStrikePrices[symbolOptionChain.currentExpiry]) {
@@ -91,7 +87,7 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
                 [...symbol, ...optionIdentifiers],
                 primaryAccessToken.accessToken,
                 async (data: any) => {
-                    marketDataUpdateHandler(data, chatter)
+                    marketDataUpdateHandler(data)
                 },
                 primaryAccessToken.email
             )
@@ -99,11 +95,11 @@ export const subscribeToMarketDataSocket = async (chatter: EventEmitter) => {
             retry()
         }
     }
-    // connectToSocket(chatter)
+    connectToSocket()
     function retry() {
         setTimeout(() => {
             logger.warn("Retrying to connect to market data socket")
-            connectToSocket(chatter)
+            connectToSocket()
         }, 10000)
     }
 }

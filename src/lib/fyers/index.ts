@@ -54,7 +54,6 @@ const rateLimit = (token: string) => {
         return true
     }
 }
-
 const getAuthToken = async (token: string) => {
     return `${config.fyers.appId}:${token}`
 }
