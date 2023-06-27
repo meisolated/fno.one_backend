@@ -2,6 +2,7 @@ import { EventEmitter } from "events"
 import config from "../config"
 import chatter from "../events"
 import * as fyers from "../lib/fyers"
+import trueData from "../lib/trueData"
 import logger from "../logger"
 import { Session, User } from "../model"
 import { generateSymbolOptionChain } from "./../manager/strikePrice.manager"
@@ -42,7 +43,6 @@ export const subscribeToAllUsersSockets = async () => {
                                     activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(userSession.userId), 1)
                                     logger.error("Error in order update socket " + letData)
                                 }
-
                             },
                             primaryAccessToken.email
                         )
@@ -68,23 +68,28 @@ export const subscribeToAllUsersSockets = async () => {
         }
     }, 10000)
 }
-export const subscribeToMarketDataSocket = async () => {
 
+export const subscribeToMarketDataSocket = async () => {
+    if (config.serverSettings.enableFyersMarketDataSocket) {
+        connectFyersMarketDataSocket() // connect to fyers market data socket
+    }
+    if (config.serverSettings.enableTrueDataMarketDataSocket) {
+        connectTrueDataMarketDataSocket() // connect to true data market data socket
+    }
 }
 
-
-const connectFyersMarketDataSocket = async (user: any) => {
+const connectFyersMarketDataSocket = async () => {
     async function connectToSocket() {
         if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
             const symbol = [config.mainSymbol, config.secondarySymbol, ...config.o5BanksSymbol, ...config.t5BanksSymbol]
-            var symbolOptionChain: any = await generateSymbolOptionChain("BANKNIFTY")
-            const optionIdentifiers = []
-            if (!symbolOptionChain) return retry()
-            for (const expiry of symbolOptionChain.expiryListWithStrikePrices[symbolOptionChain.currentExpiry]) {
-                optionIdentifiers.push(expiry.identifier)
-            }
+            // var symbolOptionChain: any = await generateSymbolOptionChain("BANKNIFTY")
+            // const optionIdentifiers = []
+            // if (!symbolOptionChain) return retry()
+            // for (const expiry of symbolOptionChain.expiryListWithStrikePrices[symbolOptionChain.currentExpiry]) {
+            //     optionIdentifiers.push(expiry.identifier)
+            // }
             connectionToMarketDataSocket.onMarketDataUpdate(
-                [...symbol, ...optionIdentifiers],
+                [...symbol],
                 primaryAccessToken.accessToken,
                 async (data: any) => {
                     marketDataUpdateHandler(data)
@@ -102,4 +107,20 @@ const connectFyersMarketDataSocket = async (user: any) => {
             connectToSocket()
         }, 10000)
     }
+}
+
+const connectTrueDataMarketDataSocket = async () => {
+    const symbols = await generateSymbolOptionChain("BANKNIFTY")
+    const _sym = []
+    if (!symbols) return logger.error("Error in connecting to true data socket", false, "", "trueData")
+    for (const expiry of symbols.expiryListWithStrikePrices[symbols.currentExpiry]) {
+        _sym.push(expiry.identifier)
+    }
+    const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK", ..._sym], "live", true, false)
+    chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
+        trueDataConnection.closeConnection()
+        trueDataConnection.connect()
+    })
+    // chatter.on("trueDataLibMarketDataUpdates-", "tick", async (data: any) => {
+    // })
 }

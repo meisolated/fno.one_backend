@@ -3,8 +3,7 @@ const chatter = new events.EventEmitter()
 
 class Chatter {
     chatter: events.EventEmitter = chatter
-    constructor() {
-    }
+    constructor() {}
     emit(eventPrefix: string, event: string, data: any) {
         this.chatter.emit(eventPrefix + event, data)
     }
@@ -17,7 +16,6 @@ class Chatter {
     removeAllListeners(eventPrefix: string, event: string) {
         this.chatter.removeAllListeners(eventPrefix + event)
     }
-
 }
 
 export default new Chatter()

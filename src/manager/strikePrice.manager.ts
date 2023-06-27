@@ -3,7 +3,6 @@ import config from "../config"
 import { SingleMForMonth, datePassedOrNot } from "../helper"
 
 export const generateSymbolOptionChain = async (option: string) => {
-
     try {
         const response = await axios.get(config.NSEApi.NSEOptionChainDataAPIUrl(option))
         if (response.status !== 200) return null
@@ -36,7 +35,6 @@ export const generateSymbolOptionChain = async (option: string) => {
     } catch (_error) {
         return { error: "Unable to fetch data from NSE API" }
     }
-
 }
 
 export const strikePriceProvider = async (zone: string) => { }

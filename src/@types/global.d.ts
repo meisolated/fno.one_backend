@@ -15,6 +15,7 @@ declare global {
         by: string //[user, server]
         user: string //[null or userId]
         date: Date
+        loggedFrom: string
     }
     interface marketData {
         high_price: number

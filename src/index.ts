@@ -10,7 +10,6 @@ import config from "./config"
 import chatter from "./events"
 import { subscribeToAllUsersSockets, subscribeToMarketDataSocket } from "./handler/fyers.handler"
 import LoadRoutes from "./lib/routesLoader"
-import TrueData from "./lib/trueData"
 import logger from "./logger"
 // import { updateOpenInterests } from "./manager/oi.manager"
 
@@ -32,10 +31,8 @@ app.get("/", (_req: Request, res: Response) => {
 })
 
 chatter.on("fyersMarketDataUpdates-", "marketDataUpdate", async (data: any) => {
-    // console.log(data)
 })
 chatter.on("fyersOrderHandler-", "orderUpdate", async (data: any) => {
-    // console.log(data)
 })
 // ------------| Loading Routes |------------
 logger.info("Loading routes...")
@@ -49,7 +46,6 @@ LoadRoutes(app, routesDirPath, "", true).then(async () => {
     subscribeToAllUsersSockets()
     // ----------| Subscribe to market data socket |----------
     subscribeToMarketDataSocket()
-
 
     //--------------------------------------------------------------------------------
     //currently not using this as its not the right way to do it

@@ -22,6 +22,7 @@ function log(message: string, type: string, by: string, user?: string, from?: st
         by: by,
         user: user,
         date: new Date(),
+        loggedFrom: from,
     })
     if (user) {
         if (type === "error") _log(red(`[${type.toUpperCase()}] [${dateNTime()}] [${by}] [${from}] [${user}] - ${message}`))
@@ -30,8 +31,7 @@ function log(message: string, type: string, by: string, user?: string, from?: st
         else if (type === "debug") _log(green(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] [${user}] - ${message}`))
         else _log(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] [${user}] - ${message}`)
         return
-    }
-    else {
+    } else {
         if (type === "error") _log(red(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`))
         else if (type === "warn") _log(magenta(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`))
         else if (type === "info") _log(blue(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`))
@@ -41,14 +41,13 @@ function log(message: string, type: string, by: string, user?: string, from?: st
     }
 }
 
-
 export default class logger {
     static log(message: string, user?: boolean, userId?: string, server?: string) {
-        const stackTrace = new Error().stack || ''
-        const stackLines = stackTrace.split('\n').slice(2)
+        const stackTrace = new Error().stack || ""
+        const stackLines = stackTrace.split("\n").slice(2)
         const callerLine = stackLines[0]
-        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || '0', 10)
-        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ''
+        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
+        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
         const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
@@ -56,11 +55,11 @@ export default class logger {
     }
 
     static error(message: string, user?: boolean, userId?: string, server?: string) {
-        const stackTrace = new Error().stack || ''
-        const stackLines = stackTrace.split('\n').slice(2)
+        const stackTrace = new Error().stack || ""
+        const stackLines = stackTrace.split("\n").slice(2)
         const callerLine = stackLines[0]
-        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || '0', 10)
-        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ''
+        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
+        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
         const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
@@ -68,11 +67,11 @@ export default class logger {
     }
 
     static warn(message: string, user?: boolean, userId?: string, server?: string) {
-        const stackTrace = new Error().stack || ''
-        const stackLines = stackTrace.split('\n').slice(2)
+        const stackTrace = new Error().stack || ""
+        const stackLines = stackTrace.split("\n").slice(2)
         const callerLine = stackLines[0]
-        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || '0', 10)
-        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ''
+        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
+        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
         const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
@@ -80,11 +79,11 @@ export default class logger {
     }
 
     static info(message: string, user?: boolean, userId?: string, server?: string) {
-        const stackTrace = new Error().stack || ''
-        const stackLines = stackTrace.split('\n').slice(2)
+        const stackTrace = new Error().stack || ""
+        const stackLines = stackTrace.split("\n").slice(2)
         const callerLine = stackLines[0]
-        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || '0', 10)
-        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ''
+        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
+        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
         const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
@@ -92,15 +91,14 @@ export default class logger {
     }
 
     static debug(message: string, user?: boolean, userId?: string, server?: string) {
-        const stackTrace = new Error().stack || ''
-        const stackLines = stackTrace.split('\n').slice(2)
+        const stackTrace = new Error().stack || ""
+        const stackLines = stackTrace.split("\n").slice(2)
         const callerLine = stackLines[0]
-        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || '0', 10)
-        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ''
+        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
+        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
         const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "debug", by, userId, from)
     }
 }
-

@@ -68,10 +68,10 @@ class MarketFeeds {
                     var jsonObj = JSON.parse(data.toString())
                     if (jsonObj.trade != null) {
                         const tradeArray = jsonObj.trade
-                        chatter.emit("trueDataLib-", "tick", this.handleRealTimeData(tradeArray))
+                        chatter.emit("trueDataLibMarketDataUpdates-", "tick", this.handleRealTimeData(tradeArray))
                     } else if (this.bidAskData && jsonObj.bidask != null) {
                         const bidAskArray = jsonObj.bidask
-                        chatter.emit("trueDataLib-", "bigAsk", this.handleBidAskData(bidAskArray))
+                        chatter.emit("trueDataLibMarketDataUpdates-", "bigAsk", this.handleBidAskData(bidAskArray))
                     } else if (jsonObj.success) {
                         switch (jsonObj.message) {
                             case "TrueData Real Time Data Service":
@@ -86,7 +86,7 @@ class MarketFeeds {
                                     this.touchlineData[symbol[1]] = this.handleTouchline(symbol)
                                     this.touchlineMap[symbol[1]] = symbol[0]
                                 })
-                                chatter.emit("trueDataLib-", "touchline", this.touchlineData)
+                                chatter.emit("trueDataLibMarketDataUpdates-", "touchline", this.touchlineData)
                                 break
                             // -------------------> touchline <-------------------
                             case "touchline":
@@ -94,7 +94,7 @@ class MarketFeeds {
                                 jsonObj.symbollist.forEach((touchline: string[]) => {
                                     this.touchlineData[touchline[1]] = this.handleTouchline(touchline)
                                 })
-                                chatter.emit("trueDataLib-", "touchline", this.touchlineData)
+                                chatter.emit("trueDataLibMarketDataUpdates-", "touchline", this.touchlineData)
                                 break
                             // -------------------> HeartBeat <-------------------
                             case "HeartBeat":
@@ -106,7 +106,7 @@ class MarketFeeds {
                                 logger.info(`Market Status: ${jsonObj.data}`, false, undefined, "TrueData")
                                 break
                             case "symbols removed":
-                                console.log(`Removed Symbols:${jsonObj.symbolsremoved}, Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`)
+                                logger.info(`Removed Symbols:${jsonObj.symbolsremoved}, Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, "TrueData")
                                 break
                             default:
                                 logger.info(jsonObj.message, false, undefined, "TrueData")
@@ -157,6 +157,19 @@ class MarketFeeds {
         }
     }
 
+    subscribe(symbols: string[]) {
+        logger.info(`Subscribing Symbols: ${symbols}`, false, undefined, "TrueData")
+        //for-loop to override max 65000 characters
+        for (let i = 0; i <= symbols.length; i += 1500) {
+            const jsonRequest = {
+                method: "addsymbol",
+                symbols: symbols.slice(i, i + 1500),
+            }
+            let s = JSON.stringify(jsonRequest)
+            this.connection?.send(s)
+        }
+    }
+
     private heartbeatChecker() {
         logger.info("Heartbeat Checker Initiated", false, undefined, "TrueData")
         if (!this.logHeartbeat) logger.warn("Heartbeat logging disabled by default or disabled by you!", false, undefined, "TrueData")
@@ -169,19 +182,6 @@ class MarketFeeds {
                 clearInterval(this._heartBeatCheckerInterval as NodeJS.Timeout)
             }
         }, 20000)
-    }
-
-    private subscribe(symbols: string[]) {
-        logger.info(`Subscribing Symbols: ${symbols}`, false, undefined, "TrueData")
-        //for-loop to override max 65000 characters
-        for (let i = 0; i <= symbols.length; i += 1500) {
-            const jsonRequest = {
-                method: "addsymbol",
-                symbols: symbols.slice(i, i + 1500),
-            }
-            let s = JSON.stringify(jsonRequest)
-            this.connection?.send(s)
-        }
     }
 
     private reconnectIntervalMethod() {

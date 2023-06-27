@@ -1,20 +1,20 @@
 import { EventEmitter } from "events"
-import logger from "../logger"
-import { MarketData } from "../model"
 import chatter from "../events"
+import logger from "../logger"
+import { SymbolTicks } from "../model"
 export default async function (data: any) {
     if (typeof data == "undefined") return logger.warn("Undefined data in market data socket")
     if (data.s == "ok") {
         if (data.d["7208"].length > 0) {
             const marketDataArray = data.d["7208"]
             marketDataArray.forEach((marketData: any) => {
-                chatter.emit("fyersMarketDataUpdates-","marketDataUpdate", marketData.v)
+                chatter.emit("fyersMarketDataUpdates-", "marketDataUpdate", marketData.v)
                 // start saving this data after 9:10 AM
                 const currentTime = new Date().getTime()
                 const currentHour = new Date(currentTime).getHours()
                 const currentMinute = new Date(currentTime).getMinutes()
                 if (currentHour < 9 || (currentHour == 9 && currentMinute < 10)) return
-                MarketData.insertMany(marketData.v).catch((err) => {
+                SymbolTicks.insertMany(marketData.v).catch((err) => {
                     logger.error(err)
                 })
             })
