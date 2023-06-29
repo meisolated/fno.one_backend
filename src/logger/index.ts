@@ -48,7 +48,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
+        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "log", by, userId, from)
@@ -60,7 +60,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
+        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "error", by, userId, from)
@@ -72,7 +72,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
+        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "warn", by, userId, from)
@@ -84,7 +84,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
+        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "info", by, userId, from)
@@ -96,7 +96,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}:${lineNumber}`
+        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "debug", by, userId, from)

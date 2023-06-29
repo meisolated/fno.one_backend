@@ -37,4 +37,4 @@ export const generateSymbolOptionChain = async (option: string) => {
     }
 }
 
-export const strikePriceProvider = async (zone: string) => { }
+export const strikePriceProvider = async (zone: string) => {}

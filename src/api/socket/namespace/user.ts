@@ -1,7 +1,7 @@
 import { Namespace } from "socket.io"
+import chatter from "../../../events"
 import logger from "../../../logger"
 import middleware from "../middleware"
-import chatter from "../../../events"
 export default function userSocketNamespace(socket: Namespace) {
     socket.use(middleware)
     socket.on("connection", async (_socket) => {
@@ -9,14 +9,12 @@ export default function userSocketNamespace(socket: Namespace) {
         const userId = _socket.data.userId
         _socket.on("disconnect", () => {
             chatter.removeAllListeners("fyersOrderUpdateSocket-", userId)
-            // logger.info("user disconnected")
         })
         _socket.on("ping", () => {
-            // logger.info("ping " + id, false)
             _socket.emit("pong", "pong")
         })
         _socket.on("subscribeOrderUpdate", async (data) => {
-            logger.info("subscribeOrderUpdate " + id, false)
+            logger.info("subscribeOrderUpdate " + id, false, " ", "Socket.io User Namespace")
             chatter.on("fyersOrderUpdateSocket-", userId, (data) => {
                 _socket.to(userId).emit("orderUpdate", JSON.stringify(data))
             })

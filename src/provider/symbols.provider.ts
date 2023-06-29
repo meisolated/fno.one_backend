@@ -1,7 +1,4 @@
-const symbolsProvider = () => {
-
-}
-
+const symbolsProvider = () => {}
 
 //---------------------------------------------
 //<-----------------UTILS--------------------->
@@ -118,4 +115,3 @@ const generateStrikePrices = (symbol: string, currentPrice: number, gap: number,
 }
 
 export { SingleMForMonth, datePassedOrNot, dayToNumber, generateStrikePrices, generateUpcomingExpiryList, symbolPrefixSelector }
-
