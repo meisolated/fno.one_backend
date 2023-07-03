@@ -82,12 +82,12 @@ const connectFyersMarketDataSocket = async () => {
     async function connectToSocket() {
         if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
             const symbol = [config.mainSymbol, config.secondarySymbol, ...config.o5BanksSymbol, ...config.t5BanksSymbol]
-            var symbolOptionChain: any = await generateSymbolOptionChain("BANKNIFTY")
-            const optionIdentifiers = []
-            if (!symbolOptionChain) return retry()
-            for (const expiry of symbolOptionChain.expiryListWithStrikePrices[symbolOptionChain.currentExpiry]) {
-                optionIdentifiers.push(expiry.identifier)
-            }
+            // var symbolOptionChain: any = await generateSymbolOptionChain("BANKNIFTY")
+            // const optionIdentifiers = []
+            // if (!symbolOptionChain) return retry()
+            // for (const expiry of symbolOptionChain.expiryListWithStrikePrices[symbolOptionChain.currentExpiry]) {
+            //     optionIdentifiers.push(expiry.identifier)
+            // }
             connectionToMarketDataSocket.onMarketDataUpdate(
                 [...symbol],
                 primaryAccessToken.accessToken,
