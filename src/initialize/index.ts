@@ -1,12 +1,24 @@
 import axios from "axios"
 import config from "../config"
-import chatter from "../events"
+import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
 import logger from "../logger"
 const maxTries = 5
 
 const commonAxiosGet = async (url: string) => {
+    const googleChromeUserAgent = "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36"
+    const headers = {
+        "User-Agent": googleChromeUserAgent,
+        Accept: "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        Connection: "keep-alive",
+        Host: "www.nseindia.com",
+        Referer: "https://www.nseindia.com/",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+    }
     try {
-        const response = await axios.get(url)
+        const response = await axios.get(url, { headers })
         if (response.status === 200) {
             return response.data
         } else {
@@ -14,6 +26,7 @@ const commonAxiosGet = async (url: string) => {
             return false
         }
     } catch (error) {
+        logger.doNotLog(JSON.stringify(error), false, "", "axios error in commonAxiosGet")
         return false
     }
 }
@@ -72,7 +85,7 @@ var tasks = [
             } else {
                 return false
             }
-        }
+        },
     },
     {
         name: "IsTodayHoliday",
@@ -87,39 +100,56 @@ var tasks = [
             } else {
                 return { holiday: false }
             }
+        },
+    },
+    {
+        name: "Initialize Config",
+        status: false,
+        tries: 0,
+        data: {},
+        execute: async () => {
+            await initializeConfig()
+            await getConfig()
+            const conf = getConfigData()
+            return {
+                config: conf,
+            }
         }
-    }
+    },
 ]
 
 export default () =>
     new Promise(async (resolve, reject) => {
         logger.info(`Found ${tasks.length} tasks to execute`)
         const int = setInterval(async () => {
-            tasks.forEach(async (task) => {
-                if (task.tries >= maxTries) {
-                    clearInterval(int)
-                    return reject(`Task ${task.name} failed to execute`)
-                }
-                if (task.status === false) {
-                    const data = await task.execute()
-                    if (data) {
-                        task.data = data
-                        task.status = true
-                        task.tries = 0
-                        logger.info(`Task ${task.name} executed successfully`)
-                    } else {
-                        task.tries = task.tries + 1
-                        return logger.error(`Error while executing task ${task.name}`)
+            tasks.forEach(async (task, index) => {
+                const isPreviousTaskCompleted = tasks.slice(0, index).every((task) => task.status === true)
+                if (isPreviousTaskCompleted) {
+                    if (task.tries >= maxTries) {
+                        clearInterval(int)
+                        return reject(`Task ${task.name} failed to execute`)
+                    }
+                    if (task.status === false) {
+                        const data = await task.execute()
+                        if (data) {
+                            task.data = data
+                            task.status = true
+                            task.tries = 0
+                            logger.info(`Task ${task.name} executed successfully`)
+                        } else {
+                            task.tries = task.tries + 1
+                            return logger.error(`Error while executing task ${task.name} will make ${maxTries - task.tries} more attempts`)
+                        }
                     }
                 }
             })
             const allTrue = tasks.every((task) => task.status === true)
             if (allTrue) {
                 tasks.forEach((task) => {
-                    console.log(task.data)
+                    logger.info(`Task ${task.name} is completed`)
                 })
                 clearInterval(int)
                 return resolve(true)
             }
-        }, 5000)
+        }, 1000)
     })

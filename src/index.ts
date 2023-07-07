@@ -12,7 +12,6 @@ import { subscribeToAllUsersSockets, subscribeToMarketDataSocket } from "./handl
 import initialize from "./initialize"
 import LoadRoutes from "./lib/routesLoader"
 import logger from "./logger"
-// import { updateOpenInterests } from "./manager/oi.manager"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -31,8 +30,8 @@ app.get("/", (_req: Request, res: Response) => {
     res.send({ message: "Something is missing over here", code: 200 })
 })
 
-chatter.on("fyersMarketDataUpdates-", "marketDataUpdate", async (data: any) => { })
-chatter.on("fyersOrderHandler-", "orderUpdate", async (data: any) => { })
+chatter.on("fyersMarketDataUpdates-", "marketDataUpdate", async (data: any) => {})
+chatter.on("fyersOrderHandler-", "orderUpdate", async (data: any) => {})
 // ------------| Loading Routes |------------
 logger.info("Loading routes...")
 LoadRoutes(app, routesDirPath, "", true).then(async () => {
@@ -67,5 +66,6 @@ LoadRoutes(app, routesDirPath, "", true).then(async () => {
         .catch((err) => {
             logger.error("Error while initializing")
             logger.error("Exiting...")
+            process.exit(1)
         })
 })

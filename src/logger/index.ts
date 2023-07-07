@@ -15,7 +15,8 @@ const gray = chalk.gray
 function dateNTime() {
     return new Date().toLocaleString()
 }
-function log(message: string, type: string, by: string, user?: string, from?: string) {
+
+function store(message: string, type: string, by: string, user?: string, from?: string) {
     Logger.create({
         message: message,
         type: type,
@@ -24,6 +25,10 @@ function log(message: string, type: string, by: string, user?: string, from?: st
         date: new Date(),
         loggedFrom: from,
     })
+}
+
+function log(message: string, type: string, by: string, user?: string, from?: string) {
+    store(message, type, by, user, from)
     if (user) {
         if (type === "error") _log(red(`[${type.toUpperCase()}] [${dateNTime()}] [${by}] [${from}] [${user}] - ${message}`))
         else if (type === "warn") _log(magenta(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] [${user}] - ${message}`))
@@ -48,7 +53,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
+        const from = `${path.relative(process.cwd(), fileName)}` || "♡"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "log", by, userId, from)
@@ -60,7 +65,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
+        const from = `${path.relative(process.cwd(), fileName)}` || "♡"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "error", by, userId, from)
@@ -72,7 +77,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
+        const from = `${path.relative(process.cwd(), fileName)}` || "♡"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "warn", by, userId, from)
@@ -84,7 +89,7 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
+        const from = `${path.relative(process.cwd(), fileName)}` || "♡"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "info", by, userId, from)
@@ -96,9 +101,20 @@ export default class logger {
         const callerLine = stackLines[0]
         const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
         const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-        const from = `${path.relative(process.cwd(), fileName)}` || "idk"
+        const from = `${path.relative(process.cwd(), fileName)}` || "♡"
 
         const by = user ? "user-" + userId : server ? "server-" + server : "server"
         log(message, "debug", by, userId, from)
+    }
+    static doNotLog(message: string, user?: boolean, userId?: string, server?: string) {
+        const stackTrace = new Error().stack || ""
+        const stackLines = stackTrace.split("\n").slice(2)
+        const callerLine = stackLines[0]
+        const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
+        const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
+        const from = `${path.relative(process.cwd(), fileName)}` || "♡"
+
+        const by = user ? "user-" + userId : server ? "server-" + server : "server"
+        store(message, "doNotLog", by, userId, from)
     }
 }

@@ -2,41 +2,40 @@ import { Schema } from "mongoose"
 
 export default new Schema<settings>(
     {
-        id: { type: Number, required: true, unique: true },
+        id: { type: Number, required: false, unique: true },
         // serverSettings: {
-        //     port: { type: Number, required: true },
-        //     socketPort: { type: Number, required: true },
-
+        //     port: { type: Number, required: false },
+        //     socketPort: { type: Number, required: false },
         // },
 
-        realTimeMarketsToWatch: [{ type: String, required: true }],
-        keepRealTimeMarketsData: { type: Boolean, required: true },
+        realTimeMarketsToWatch: [{ type: String, required: false }],
+        keepRealTimeMarketsData: { type: Boolean, required: false },
         activeStrategies: [{ type: String, required: false }],
         global: {
-            maxProfit: { type: Number, required: true },
-            maxLoss: { type: Number, required: true },
-            maxTradesPerDay: { type: Number, required: true },
-            enableRiskManager: { type: Boolean, required: true },
-            enableMoneyManager: { type: Boolean, required: true },
+            maxProfit: { type: Number, required: false },
+            maxLoss: { type: Number, required: false },
+            maxTradesPerDay: { type: Number, required: false },
+            enableRiskManager: { type: Boolean, required: false },
+            enableMoneyManager: { type: Boolean, required: false },
         },
         fyers: {
-            appId: { type: String, required: true },
-            secretId: { type: String, required: true },
-            redirectUrl: { type: String, required: true },
-            callbackSecret: { type: String, required: true },
-            apiUrl: { type: String, required: true },
-            dataApiUrl: { type: String, required: true },
-            webSocketUrl: { type: String, required: true },
+            appId: { type: String, required: false },
+            secretId: { type: String, required: false },
+            redirectUrl: { type: String, required: false },
+            callbackSecret: { type: String, required: false },
+            apiUrl: { type: String, required: false },
+            dataApiUrl: { type: String, required: false },
+            webSocketUrl: { type: String, required: false },
         },
         fyersTrueData: {
-            username: { type: String, required: true },
-            password: { type: String, required: true },
+            username: { type: String, required: false },
+            password: { type: String, required: false },
         },
         NSEApi: {
-            NSEOptionQuoteDerivativeAPIUrl: { type: String, required: true },
-            NSEOptionChainDataAPIUrl: { type: String, required: true },
+            NSEOptionQuoteDerivativeAPIUrl: { type: String, required: false },
+            NSEOptionChainDataAPIUrl: { type: String, required: false },
         },
-        lastUpdated: { type: Date, required: true },
+        lastUpdated: { type: Date, required: false },
     },
     { timestamps: true }
 )

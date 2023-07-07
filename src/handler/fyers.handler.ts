@@ -113,14 +113,20 @@ const connectTrueDataMarketDataSocket = async () => {
     const symbols = await generateSymbolOptionChain("BANKNIFTY")
     const _sym = []
     if (!symbols) return logger.error("Error in connecting to true data socket", false, "", "trueData")
-    for (const expiry of symbols.expiryListWithStrikePrices[symbols.currentExpiry]) {
-        _sym.push(expiry.identifier)
+
+    try {
+        for (const expiry of symbols.expiryListWithStrikePrices[symbols.currentExpiry]) {
+            _sym.push(expiry.identifier)
+        }
+        const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK", ..._sym], "live", true, false)
+        chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
+            trueDataConnection.closeConnection()
+            trueDataConnection.connect()
+        })
+    } catch (err: any) {
+        logger.error("Error in connecting to true data socket", false, "", "trueData")
     }
-    const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK", ..._sym], "live", true, false)
-    chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
-        trueDataConnection.closeConnection()
-        trueDataConnection.connect()
-    })
+
     // chatter.on("trueDataLibMarketDataUpdates-", "tick", async (data: any) => {
     // })
 }

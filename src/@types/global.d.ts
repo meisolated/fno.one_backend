@@ -1,5 +1,12 @@
 export {}
 
+declare namespace NodeJS {
+    interface Global {
+        something: string
+        // Add other global variables here if needed
+    }
+}
+
 declare global {
     interface rateLimitData {
         [key: string]: {
