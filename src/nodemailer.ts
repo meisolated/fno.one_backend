@@ -1,6 +1,6 @@
 //@ts-ignore
-import nodemailer from "nodemailer"
-import config from "./config"
+import nodemailer from 'nodemailer';
+import config from './config';
 
 const template = `<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -662,7 +662,7 @@ const template = `<!doctype html>
   </div>
 </body>
 
-</html>`
+</html>`;
 
 function main() {
     const mailer = nodemailer.createTransport({
@@ -673,26 +673,26 @@ function main() {
             user: config.SMTP.auth.user,
             pass: config.SMTP.auth.pass,
         },
-    })
+    });
 
     var message = {
         from: config.SMTP.auth.user,
-        to: "isolatedbot@gmail.com",
-        subject: "Message title",
+        to: 'isolatedbot@gmail.com',
+        subject: 'Message title',
         envelope: {
             from: `Vivek Mudgal <${config.SMTP.auth.user}>`, // used as MAIL FROM: address for SMTP
-            to: "isolatedbot@gmail.com", // used as RCPT TO: address for SMTP
+            to: 'isolatedbot@gmail.com', // used as RCPT TO: address for SMTP
         },
-        text: "Plaintext version of the message",
+        text: 'Plaintext version of the message',
         html: template,
-    }
+    };
     mailer.sendMail(message, function (err: any, info: any) {
         if (err) {
-            console.log(err)
+            console.log(err);
         } else {
-            console.log(info)
+            console.log(info);
         }
-    })
+    });
 }
 
-main()
+main();

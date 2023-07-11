@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<marketHistory>(
     {
@@ -11,5 +11,5 @@ export default new Schema<marketHistory>(
         c: { type: Number, required: true },
         v: { type: Number, required: true },
     },
-    { timestamps: true }
-)
+    { timestamps: true },
+);

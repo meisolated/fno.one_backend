@@ -1,3 +1,3 @@
-import MarketFeeds from "./marketFeeds"
+import MarketFeeds from './marketFeeds';
 
-export default { MarketFeeds }
+export default { MarketFeeds };

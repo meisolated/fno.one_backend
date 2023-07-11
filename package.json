@@ -1,6 +1,7 @@
 {
-  "name": "backend",
-  "version": "1.0.1",
+  "name": "FnO Backend | Vedus",
+  "version": "0.0.2",
+  "displayName": "FnO Backend | Vedus",
   "description": "",
   "main": "index.js",
   "scripts": {

@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<order>({
     id: { type: String, required: true },
@@ -36,4 +36,4 @@ export default new Schema<order>({
     lp: { type: String, required: false },
     ex_sym: { type: String, required: false },
     description: { type: String, required: false },
-})
+});

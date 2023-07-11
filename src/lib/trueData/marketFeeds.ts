@@ -1,6 +1,6 @@
-import ws from "ws"
-import chatter from "../../events"
-import logger from "../../logger"
+import ws from 'ws';
+import chatter from '../../events';
+import logger from '../../logger';
 
 /**
  * @description MarketFeeds class to connect to TrueData
@@ -10,189 +10,189 @@ import logger from "../../logger"
  * @constructor {username:string,password:string,symbols:string[],mode:string="live",autoConnect:boolean=true}
  */
 class MarketFeeds {
-    connection: ws | null = null
-    selfConnectionClosed = false
-    heartbeatStatus = false
-    heartbeatInterval = 20000
-    lastHeartBeatTime = Date.now()
-    logHeartbeat = false
-    totalSymbols = 0
+    connection: ws | null = null;
+    selfConnectionClosed = false;
+    heartbeatStatus = false;
+    heartbeatInterval = 20000;
+    lastHeartBeatTime = Date.now();
+    logHeartbeat = false;
+    totalSymbols = 0;
     // auth params
     auth = {
-        username: "",
-        password: "",
-    }
-    allSymbols: string[] = []
-    userPort = 8082
-    websocketUrl = "wss://push.truedata.in"
-    replayWebsocketUrl = "wss://replay.truedata.in"
-    mode = "live"
-    reconnectInterval = 1000 * 10
-    _reconnectInterval: NodeJS.Timeout | null = null
-    _heartBeatCheckerInterval: NodeJS.Timeout | null = null
+        username: '',
+        password: '',
+    };
+    allSymbols: string[] = [];
+    userPort = 8082;
+    websocketUrl = 'wss://push.truedata.in';
+    replayWebsocketUrl = 'wss://replay.truedata.in';
+    mode = 'live';
+    reconnectInterval = 1000 * 10;
+    _reconnectInterval: NodeJS.Timeout | null = null;
+    _heartBeatCheckerInterval: NodeJS.Timeout | null = null;
 
     // data
-    touchlineData: any = {}
-    touchlineMap: any = {}
-    bidAskData: any = {}
+    touchlineData: any = {};
+    touchlineMap: any = {};
+    bidAskData: any = {};
 
-    constructor(username: string, password: string, symbols: string[], mode: string = "live", autoConnect: boolean = true, logHeartbeat: boolean = false) {
-        this.auth.username = username
-        this.auth.password = password
-        this.allSymbols = symbols
-        this.totalSymbols = symbols.length
-        this.mode = mode
-        this.logHeartbeat = logHeartbeat
+    constructor(username: string, password: string, symbols: string[], mode: string = 'live', autoConnect: boolean = true, logHeartbeat: boolean = false) {
+        this.auth.username = username;
+        this.auth.password = password;
+        this.allSymbols = symbols;
+        this.totalSymbols = symbols.length;
+        this.mode = mode;
+        this.logHeartbeat = logHeartbeat;
         if (autoConnect) {
-            this.connect()
+            this.connect();
         }
     }
 
     connect() {
         if (!this.connection) {
-            logger.info("Connecting to TrueData...", false, undefined, "TrueData")
-            let websocketUrl = this.mode === "live" ? this.websocketUrl : this.replayWebsocketUrl
-            let url = `${websocketUrl}:${this.userPort}/?user=${this.auth.username}&password=${this.auth.password}`
+            logger.info('Connecting to TrueData...', false, undefined, 'TrueData');
+            let websocketUrl = this.mode === 'live' ? this.websocketUrl : this.replayWebsocketUrl;
+            let url = `${websocketUrl}:${this.userPort}/?user=${this.auth.username}&password=${this.auth.password}`;
 
             try {
-                this.connection = new ws(url)
-                this.connection.on("open", () => {
-                    logger.info("Connected to TrueData", false, undefined, "TrueData")
-                })
+                this.connection = new ws(url);
+                this.connection.on('open', () => {
+                    logger.info('Connected to TrueData', false, undefined, 'TrueData');
+                });
 
-                this.connection.on("message", (data) => {
+                this.connection.on('message', (data) => {
                     if (this._reconnectInterval) {
-                        clearInterval(this._reconnectInterval)
-                        this._reconnectInterval = null
+                        clearInterval(this._reconnectInterval);
+                        this._reconnectInterval = null;
                     }
-                    var jsonObj = JSON.parse(data.toString())
+                    var jsonObj = JSON.parse(data.toString());
                     if (jsonObj.trade != null) {
-                        const tradeArray = jsonObj.trade
-                        chatter.emit("trueDataLibMarketDataUpdates-", "tick", this.handleRealTimeData(tradeArray))
+                        const tradeArray = jsonObj.trade;
+                        chatter.emit('trueDataLibMarketDataUpdates-', 'tick', this.handleRealTimeData(tradeArray));
                     } else if (this.bidAskData && jsonObj.bidask != null) {
-                        const bidAskArray = jsonObj.bidask
-                        chatter.emit("trueDataLibMarketDataUpdates-", "bigAsk", this.handleBidAskData(bidAskArray))
+                        const bidAskArray = jsonObj.bidask;
+                        chatter.emit('trueDataLibMarketDataUpdates-', 'bigAsk', this.handleBidAskData(bidAskArray));
                     } else if (jsonObj.success) {
                         switch (jsonObj.message) {
-                            case "TrueData Real Time Data Service":
-                                logger.info("TrueData Real Time Data Service", false, undefined, "TrueData")
-                                this.heartbeatChecker()
-                                this.subscribe(this.allSymbols)
-                                break
+                            case 'TrueData Real Time Data Service':
+                                logger.info('TrueData Real Time Data Service', false, undefined, 'TrueData');
+                                this.heartbeatChecker();
+                                this.subscribe(this.allSymbols);
+                                break;
                             // -------------------> symbol added <-------------------
-                            case "symbols added":
-                                logger.info(`Added Symbols:${jsonObj.symbolsadded}, Total Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, "TrueData")
+                            case 'symbols added':
+                                logger.info(`Added Symbols:${jsonObj.symbolsadded}, Total Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, 'TrueData');
                                 jsonObj.symbollist.forEach((symbol: string[]) => {
-                                    this.touchlineData[symbol[1]] = this.handleTouchline(symbol)
-                                    this.touchlineMap[symbol[1]] = symbol[0]
-                                })
-                                chatter.emit("trueDataLibMarketDataUpdates-", "touchline", this.touchlineData)
-                                break
+                                    this.touchlineData[symbol[1]] = this.handleTouchline(symbol);
+                                    this.touchlineMap[symbol[1]] = symbol[0];
+                                });
+                                chatter.emit('trueDataLibMarketDataUpdates-', 'touchline', this.touchlineData);
+                                break;
                             // -------------------> touchline <-------------------
-                            case "touchline":
-                                logger.info("Touchline touched", false, undefined, "TrueData")
+                            case 'touchline':
+                                logger.info('Touchline touched', false, undefined, 'TrueData');
                                 jsonObj.symbollist.forEach((touchline: string[]) => {
-                                    this.touchlineData[touchline[1]] = this.handleTouchline(touchline)
-                                })
-                                chatter.emit("trueDataLibMarketDataUpdates-", "touchline", this.touchlineData)
-                                break
+                                    this.touchlineData[touchline[1]] = this.handleTouchline(touchline);
+                                });
+                                chatter.emit('trueDataLibMarketDataUpdates-', 'touchline', this.touchlineData);
+                                break;
                             // -------------------> HeartBeat <-------------------
-                            case "HeartBeat":
-                                this.heartbeatStatus = true
-                                this.lastHeartBeatTime = Date.now()
-                                if (this.logHeartbeat) logger.info("HeartBeat", false, undefined, "TrueData")
-                                break
-                            case "marketstatus":
-                                logger.info(`Market Status: ${jsonObj.data}`, false, undefined, "TrueData")
-                                break
-                            case "symbols removed":
-                                logger.info(`Removed Symbols:${jsonObj.symbolsremoved}, Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, "TrueData")
-                                break
+                            case 'HeartBeat':
+                                this.heartbeatStatus = true;
+                                this.lastHeartBeatTime = Date.now();
+                                if (this.logHeartbeat) logger.info('HeartBeat', false, undefined, 'TrueData');
+                                break;
+                            case 'marketstatus':
+                                logger.info(`Market Status: ${jsonObj.data}`, false, undefined, 'TrueData');
+                                break;
+                            case 'symbols removed':
+                                logger.info(`Removed Symbols:${jsonObj.symbolsremoved}, Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, 'TrueData');
+                                break;
                             default:
-                                logger.info(jsonObj.message, false, undefined, "TrueData")
+                                logger.info(jsonObj.message, false, undefined, 'TrueData');
                         }
                     } else if (jsonObj.success == false) {
-                        console.log(jsonObj)
-                        logger.error(jsonObj.message, false, undefined, "TrueData")
+                        console.log(jsonObj);
+                        logger.error(jsonObj.message, false, undefined, 'TrueData');
                     }
-                })
+                });
 
-                this.connection.on("close", () => {
-                    logger.info("Connection closed", false, undefined, "TrueData")
-                    this.reconnectIntervalMethod()
-                })
+                this.connection.on('close', () => {
+                    logger.info('Connection closed', false, undefined, 'TrueData');
+                    this.reconnectIntervalMethod();
+                });
 
-                this.connection.on("error", (err) => {
-                    logger.error(err.message, false, undefined, "TrueData")
-                })
+                this.connection.on('error', (err) => {
+                    logger.error(err.message, false, undefined, 'TrueData');
+                });
                 // this.websocketEvents()
             } catch (err: any) {
-                logger.error(err.message, false, undefined, "TrueData")
+                logger.error(err.message, false, undefined, 'TrueData');
             }
         }
     }
 
     closeConnection() {
         if (this.connection) {
-            logger.info("Closing connection", false, undefined, "TrueData")
-            this.connection.close()
-            this.connection = null
+            logger.info('Closing connection', false, undefined, 'TrueData');
+            this.connection.close();
+            this.connection = null;
         } else {
-            logger.error("Why are you trying to close something not open", false, undefined, "TrueData")
+            logger.error('Why are you trying to close something not open', false, undefined, 'TrueData');
             return {
-                status: "error",
-                message: "Connection not established",
-            }
+                status: 'error',
+                message: 'Connection not established',
+            };
         }
     }
 
     unSubscribe(symbols: string[]) {
-        logger.info(`Unsubscribing Symbols: ${symbols}`, false, undefined, "TrueData")
+        logger.info(`Unsubscribing Symbols: ${symbols}`, false, undefined, 'TrueData');
         for (let i = 0; i <= symbols.length; i += 1500) {
             const jsonRequest = {
-                method: "removesymbol",
+                method: 'removesymbol',
                 symbols: symbols.slice(i, i + 1500),
-            }
-            let s = JSON.stringify(jsonRequest)
-            this.connection?.send(s)
+            };
+            let s = JSON.stringify(jsonRequest);
+            this.connection?.send(s);
         }
     }
 
     subscribe(symbols: string[]) {
-        logger.info(`Subscribing Symbols: ${symbols}`, false, undefined, "TrueData")
+        logger.info(`Subscribing Symbols: ${symbols}`, false, undefined, 'TrueData');
         //for-loop to override max 65000 characters
         for (let i = 0; i <= symbols.length; i += 1500) {
             const jsonRequest = {
-                method: "addsymbol",
+                method: 'addsymbol',
                 symbols: symbols.slice(i, i + 1500),
-            }
-            let s = JSON.stringify(jsonRequest)
-            this.connection?.send(s)
+            };
+            let s = JSON.stringify(jsonRequest);
+            this.connection?.send(s);
         }
     }
 
     private heartbeatChecker() {
-        logger.info("Heartbeat Checker Initiated", false, undefined, "TrueData")
-        if (!this.logHeartbeat) logger.warn("Heartbeat logging disabled by default or disabled by you!", false, undefined, "TrueData")
+        logger.info('Heartbeat Checker Initiated', false, undefined, 'TrueData');
+        if (!this.logHeartbeat) logger.warn('Heartbeat logging disabled by default or disabled by you!', false, undefined, 'TrueData');
         this._heartBeatCheckerInterval = setInterval(() => {
-            const checkerHeartBeat = Date.now() - this.lastHeartBeatTime
+            const checkerHeartBeat = Date.now() - this.lastHeartBeatTime;
             if (checkerHeartBeat > 15000) {
-                this.closeConnection()
-                this.heartbeatStatus = false
-                logger.info(`Auto Reconnect Initiated @ ${new Date().toLocaleTimeString()}`, false, undefined, "TrueData")
-                clearInterval(this._heartBeatCheckerInterval as NodeJS.Timeout)
+                this.closeConnection();
+                this.heartbeatStatus = false;
+                logger.info(`Auto Reconnect Initiated @ ${new Date().toLocaleTimeString()}`, false, undefined, 'TrueData');
+                clearInterval(this._heartBeatCheckerInterval as NodeJS.Timeout);
             }
-        }, 20000)
+        }, 20000);
     }
 
     private reconnectIntervalMethod() {
-        logger.info("Reconnect interval to TrueData started", false, undefined, "TrueData")
-        if (this._reconnectInterval) clearInterval(this._reconnectInterval)
+        logger.info('Reconnect interval to TrueData started', false, undefined, 'TrueData');
+        if (this._reconnectInterval) clearInterval(this._reconnectInterval);
         this._reconnectInterval = setInterval(() => {
-            logger.info("Reconnecting to TrueData...", false, undefined, "TrueData")
-            this.closeConnection()
-            this.connect()
-        }, this.reconnectInterval)
+            logger.info('Reconnecting to TrueData...', false, undefined, 'TrueData');
+            this.closeConnection();
+            this.connect();
+        }, this.reconnectInterval);
     }
 
     private handleTouchline(touchline: string[]) {
@@ -214,7 +214,7 @@ class MarketFeeds {
             BidQty: +touchline[15] || 0,
             Ask: +touchline[16] || 0,
             AskQty: +touchline[17] || 0,
-        }
+        };
     }
 
     private handleRealTimeData(tradeArray: string[]) {
@@ -235,11 +235,11 @@ class MarketFeeds {
             Day_Turnover: +tradeArray[12],
             Special: tradeArray[13],
             Tick_Sequence_No: +tradeArray[14],
-            Bid: tradeArray[15] !== undefined ? +tradeArray[15] : "bidDeactivatedMessage",
-            Bid_Qty: tradeArray[16] !== undefined ? +tradeArray[16] : "bidDeactivatedMessage",
-            Ask: tradeArray[17] !== undefined ? +tradeArray[17] : "bidDeactivatedMessage",
-            Ask_Qty: tradeArray[18] !== undefined ? +tradeArray[18] : "bidDeactivatedMessage",
-        }
+            Bid: tradeArray[15] !== undefined ? +tradeArray[15] : 'bidDeactivatedMessage',
+            Bid_Qty: tradeArray[16] !== undefined ? +tradeArray[16] : 'bidDeactivatedMessage',
+            Ask: tradeArray[17] !== undefined ? +tradeArray[17] : 'bidDeactivatedMessage',
+            Ask_Qty: tradeArray[18] !== undefined ? +tradeArray[18] : 'bidDeactivatedMessage',
+        };
     }
 
     private handleBidAskData(bidaskArray: string[]) {
@@ -251,7 +251,7 @@ class MarketFeeds {
             BidQty: +bidaskArray[3],
             Ask: +bidaskArray[4],
             AskQty: +bidaskArray[5],
-        }
+        };
     }
 
     private handleBarData(barArray: string[], bar: string) {
@@ -266,8 +266,8 @@ class MarketFeeds {
             Close: +barArray[5],
             Volume: +barArray[6],
             OI: +barArray[7],
-        }
+        };
     }
 }
 
-export default MarketFeeds
+export default MarketFeeds;

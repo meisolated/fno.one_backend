@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<symbolTicks>(
     {
@@ -35,5 +35,5 @@ export default new Schema<symbolTicks>(
         spread: { type: Number },
         marketStat: { type: Number },
     },
-    { timestamps: true }
-)
+    { timestamps: true },
+);

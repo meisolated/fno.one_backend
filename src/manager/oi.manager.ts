@@ -1,7 +1,7 @@
-import axios from "axios"
-import config from "../config"
-import logger from "../logger"
-import { OpenInterest } from "../model"
+import axios from 'axios';
+import config from '../config';
+import logger from '../logger';
+import { OpenInterest } from '../model';
 
 /**
  * @deprecated

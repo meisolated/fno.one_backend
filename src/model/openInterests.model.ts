@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<openInterest>(
     {
@@ -49,5 +49,5 @@ export default new Schema<openInterest>(
             underlying: { type: String, required: false },
         },
     },
-    { timestamps: false }
-)
+    { timestamps: false },
+);

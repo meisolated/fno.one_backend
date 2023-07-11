@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<settings>(
     {
@@ -61,5 +61,5 @@ export default new Schema<settings>(
         },
         lastUpdated: { type: Date, required: false },
     },
-    { timestamps: true }
-)
+    { timestamps: true },
+);

@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<trades>({
     id: { type: String, required: true },
@@ -22,4 +22,4 @@ export default new Schema<trades>({
     strategyName: { type: String, required: false },
     createdAt: { type: Date, required: true },
     updatedAt: { type: Date, required: true },
-})
+});

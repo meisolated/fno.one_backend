@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<marketData>({
     id: { type: String, required: true, unique: true },
@@ -28,4 +28,4 @@ export default new Schema<marketData>({
         },
     ],
     lastUpdated: { type: String, required: true },
-})
+});

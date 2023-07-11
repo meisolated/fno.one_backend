@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<logger>({
     message: { type: String, required: true },
@@ -7,4 +7,4 @@ export default new Schema<logger>({
     user: { type: String, required: false },
     date: { type: Date, required: true },
     loggedFrom: { type: String, required: true },
-})
+});

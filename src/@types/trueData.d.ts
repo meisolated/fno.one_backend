@@ -1,1 +1,1 @@
-declare module "truedate-nodejs"
+declare module 'truedate-nodejs';

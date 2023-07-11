@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<user>(
     {
@@ -40,5 +40,5 @@ export default new Schema<user>(
             },
         },
     },
-    { timestamps: true }
-)
+    { timestamps: true },
+);

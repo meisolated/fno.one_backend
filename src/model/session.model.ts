@@ -1,4 +1,4 @@
-import { Schema } from "mongoose"
+import { Schema } from 'mongoose';
 
 export default new Schema<session>(
     {
@@ -6,5 +6,5 @@ export default new Schema<session>(
         expires: { type: Number, required: true },
         userId: { type: String, required: true },
     },
-    { timestamps: true }
-)
+    { timestamps: true },
+);

@@ -1,15 +1,15 @@
-import logger from "../logger"
-import { Settings } from "../model"
+import logger from '../logger';
+import { Settings } from '../model';
 
-let settings: settings
+let settings: settings;
 
 const checkIsConfigured = async () => {
-    const settings = await Settings.findOne({ id: 1 })
+    const settings = await Settings.findOne({ id: 1 });
     if (!settings) {
-        return false
+        return false;
     }
-    return true
-}
+    return true;
+};
 const initializeEmptySettings = async () => {
     const settings: settings = {
         id: 1,
@@ -26,80 +26,80 @@ const initializeEmptySettings = async () => {
             APIPort: 0,
             socketPort: 0,
             SMTP: {
-                host: "",
+                host: '',
                 port: 0,
                 secure: false,
                 auth: {
-                    user: "",
-                    pass: "",
+                    user: '',
+                    pass: '',
                 },
             },
         },
         apis: {
             fyers: {
-                appId: "",
-                secretId: "",
-                redirectUrl: "",
-                callbackSecret: "",
-                apiUrl: "",
-                webSocketUrl: "",
-                dataApiUrl: "",
+                appId: '',
+                secretId: '',
+                redirectUrl: '',
+                callbackSecret: '',
+                apiUrl: '',
+                webSocketUrl: '',
+                dataApiUrl: '',
                 status: false,
             },
             kite: {
-                apiKey: "",
-                apiSecret: "",
-                redirectUrl: "",
-                apiUrl: "",
-                webSocketUrl: "",
-                dataApiUrl: "",
+                apiKey: '',
+                apiSecret: '',
+                redirectUrl: '',
+                apiUrl: '',
+                webSocketUrl: '',
+                dataApiUrl: '',
                 status: false,
             },
             trueData: {
-                userId: "",
-                password: "",
+                userId: '',
+                password: '',
                 status: false,
-                socketUrl: "",
-                replySocketUrl: "",
+                socketUrl: '',
+                replySocketUrl: '',
             },
             NSE: {
-                OptionQuoteDerivativeAPIUrl: "",
-                OptionChainDataAPIUrl: "",
-                HolidaysAPIUrl: "",
+                OptionQuoteDerivativeAPIUrl: '',
+                OptionChainDataAPIUrl: '',
+                HolidaysAPIUrl: '',
             },
         },
 
         lastUpdated: new Date(),
-    }
+    };
 
     try {
-        await Settings.create(settings)
-        logger.info("Empty Settings Initialized")
-        return true
+        await Settings.create(settings);
+        logger.info('Empty Settings Initialized');
+        return true;
     } catch (error) {
-        logger.error(JSON.stringify(error))
-        return false
+        logger.error(JSON.stringify(error));
+        return false;
     }
-}
+};
 const initializeConfig = async () => {
-    const isConfigured = await checkIsConfigured()
+    const isConfigured = await checkIsConfigured();
     if (!isConfigured) {
-        const isInitialized = await initializeEmptySettings()
+        const isInitialized = await initializeEmptySettings();
         if (!isInitialized) {
-            logger.error("Failed to initialize empty settings")
-            return false
+            logger.error('Failed to initialize empty settings');
+            return false;
         }
-        return true
+        return true;
     }
-}
+};
 const getConfig = async () => {
-    const _settings = await Settings.findOne({ id: 1 })
+    const _settings = await Settings.findOne({ id: 1 });
     if (!_settings) {
-        logger.error("Settings not found")
-        return
+        logger.error('Settings not found');
+        return;
     }
-    settings = _settings.toObject()
-}
-const getConfigData = () => settings
+    settings = _settings.toObject();
+};
+const getConfigData = () => settings;
 
-export { getConfig, getConfigData, initializeConfig }
+export { getConfig, getConfigData, initializeConfig };
