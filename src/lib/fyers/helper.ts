@@ -538,6 +538,7 @@ class marketDataUpdateHelper {
     private marketDataUpdateInstance: any
     private data = { T: "SUB_DATA", TLIST: null, SUB_T: 1 }
     private connected = false
+
     async onMarketDataUpdate(symbol: Array<string>, accessToken: string, callback: Function, user: string) {
         this.data.TLIST = symbol
         await getQuotes(symbol, `${config.fyers.appId}:${accessToken}`)

@@ -2,14 +2,15 @@ import axios from "axios"
 
 const appId = "6UL65YECYS-100"
 const accessToken =
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2NzkzNzgwOTMsImV4cCI6MTY3OTQ0NTA1MywibmJmIjoxNjc5Mzc4MDkzLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCa0dVYXQ5YUxaVElWR01ONDJtMWZwV3NGQ0YzeFRDNUZGclM5cE9NSjJwVDRQVk9fTExUMnAzbUhnbUV2MDktd19lMkoyaDM2Z1M1YmEtLTlnVVVQNEpsOEdVTV9YN0RDRktVSl9pZTZqcXYzMEQzST0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOiJLMSIsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.EIKy_LKpImSRayDMSzfdMHjstvH3kUE35IHvNW4yHvM"
+    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGkuZnllcnMuaW4iLCJpYXQiOjE2ODg3OTI1OTIsImV4cCI6MTY4ODg2MjYxMiwibmJmIjoxNjg4NzkyNTkyLCJhdWQiOlsieDowIiwieDoxIiwieDoyIiwiZDoxIiwiZDoyIiwieDoxIiwieDowIl0sInN1YiI6ImFjY2Vzc190b2tlbiIsImF0X2hhc2giOiJnQUFBQUFCa3FPNFF0TktudjZmTE8wT2dBZXF5MDZsY2g3azZLWHlWd0M1NWMzclpuVVFxaHBfMmFQYlRYUkJFMnR3d25kV3ZQS2w3a2NHc1VJUXJVV2NWSURhTnk3S0tqNVZZLXpwd0hFUW8wTXFmWkd2Q1FrWT0iLCJkaXNwbGF5X25hbWUiOiJWSVZFSyBLVU1BUiBNVURHQUwiLCJvbXMiOiJLMSIsImZ5X2lkIjoiWFYxOTgxOCIsImFwcFR5cGUiOjEwMCwicG9hX2ZsYWciOiJOIn0.rVVVjBnh-mGS3QcoDlestzl9_-CGVSJ7NkVTLP-gSyg"
 
 const symbol = "NSE:NIFTYBANK-INDEX"
 const lastYearUnixTime = new Date().getTime() - 365 * 24 * 60 * 60 * 1000
-const resolution = "1"
+const resolution = "5"
 const dateFormat = 0
 
 // Analyze the data
+const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 const lastOneYearMontlyTimestampGenerator = () => {
     const lastOneYearMontlyTimestamp = []
@@ -32,27 +33,32 @@ const convertMonthOnMonthToPair = (monthOnMonth: number[]) => {
 }
 const monthOnMonthPair = convertMonthOnMonthToPair(monthOnMonth)
 
-// sleep for 2 sec
 const sleep = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 // setup settings
-const dailyAllowedTrades = 3
-const maxSL = 40
+const maxSL = 100
 const targetRatio = 3
 
 // setup data
-let totalNumberOfTradesOfTheDay = 0
+
+const SLArray: any = []
+const targetArray = []
+const tradesArray: any = []
 let yesterdayDate = ""
+let currentMonth = ""
 let lastCandleData = {
     open: 0,
     close: 0,
     high: 0,
     low: 0,
 }
+const candlePair = {
+    high: 0,
+    low: 0,
+}
 const activeTrade = {
-    breakoutRange: [0, 0],
     breakoutSide: "nill",
     status: false,
     tradeActive: false,
@@ -61,12 +67,14 @@ const activeTrade = {
     entryPrice: 0,
     SLInPoints: 0,
 }
+let tradeDoneForTheDay = false
 let totalSL = 0
 let totalTarget = 0
 let pointsCaptured = 0
 let todayPointsCaptured = 0
 let totalPostiveDays = 0
 let totalNegativeDays = 0
+const monthOnMonthData: any = []
 
 async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Function) {
     for (let index = 0; index < monthsUnixPair.length; index++) {
@@ -91,19 +99,131 @@ async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Func
             const low = candle[3]
             const close = candle[4]
             const volume = candle[5]
+            const dt = new Date(ts * 1000)
+            const day = dt.getDay()
             const thisCandleDate = new Date(ts * 1000).toISOString().split("T")[0]
+            const currentCandleTime = new Date(ts * 1000).toISOString().split("T")[1]
+            const crntMonth = new Date(ts * 1000).toISOString().split("-")[1]
+            const crntYear = new Date(ts * 1000).toISOString().split("-")[0]
 
-            // ignore first candle if day is different
-            if (thisCandleDate !== yesterdayDate) {
-                yesterdayDate = thisCandleDate
-                totalNumberOfTradesOfTheDay = 0
-                lastCandleData = {
-                    open: 0,
-                    close: 0,
-                    high: 0,
-                    low: 0,
+            if (activeTrade.tradeActive) {
+                if (thisCandleDate != yesterdayDate && activeTrade.tradeActive == true) {
+                    activeTrade.tradeActive = false
+                    activeTrade.status = false
+                    totalSL += 0
+                    totalNegativeDays += 0
+                    pointsCaptured -= 0
+                    todayPointsCaptured -= 0
                 }
-                activeTrade.breakoutRange = [0, 0]
+                if (activeTrade.breakoutSide == "up") {
+                    if (low < activeTrade.stoploss) {
+                        // console.log("stoploss hit")
+                        activeTrade.tradeActive = false
+                        activeTrade.status = false
+                        totalSL += activeTrade.SLInPoints
+                        totalNegativeDays += 1
+                        pointsCaptured -= activeTrade.SLInPoints
+                        todayPointsCaptured -= activeTrade.SLInPoints
+                        tradesArray.push({
+                            entryPrice: activeTrade.entryPrice,
+                            stoploss: activeTrade.stoploss,
+                            target: activeTrade.target,
+                            status: "SL",
+                            points: activeTrade.SLInPoints,
+                            date: yesterdayDate,
+                            month: currentMonth,
+                            year: crntYear,
+                            day: day,
+                        })
+                        monthOnMonthData.push({
+                            month: crntMonth + "-" + crntYear,
+                            status: "SL",
+                            points: activeTrade.SLInPoints,
+                        })
+                    } else if (high > activeTrade.entryPrice + activeTrade.target) {
+                        // console.log("target hit")
+                        activeTrade.tradeActive = false
+                        activeTrade.status = false
+                        totalTarget += activeTrade.target
+                        totalPostiveDays += 1
+                        pointsCaptured += activeTrade.target
+                        todayPointsCaptured += activeTrade.target
+                        tradesArray.push({
+                            entryPrice: activeTrade.entryPrice,
+                            stoploss: activeTrade.stoploss,
+                            target: activeTrade.target,
+                            status: "Target",
+                            points: activeTrade.target,
+                            date: yesterdayDate,
+                            month: currentMonth,
+                            year: crntYear,
+                            day: day,
+                        })
+                        monthOnMonthData.push({
+                            month: crntMonth + "-" + crntYear,
+                            status: "Target",
+                            points: activeTrade.target,
+                        })
+                    }
+                } else if (activeTrade.breakoutSide == "down") {
+                    if (high > activeTrade.stoploss) {
+                        // console.log("stoploss hit")
+                        activeTrade.tradeActive = false
+                        activeTrade.status = false
+                        totalSL += activeTrade.SLInPoints
+                        totalNegativeDays += 1
+                        pointsCaptured -= activeTrade.SLInPoints
+                        todayPointsCaptured -= activeTrade.SLInPoints
+                        tradesArray.push({
+                            entryPrice: activeTrade.entryPrice,
+                            stoploss: activeTrade.stoploss,
+                            target: activeTrade.target,
+                            status: "SL",
+                            points: activeTrade.SLInPoints,
+                            date: yesterdayDate,
+                            month: currentMonth,
+                            year: crntYear,
+                            day: day,
+                        })
+                        monthOnMonthData.push({
+                            month: crntMonth + "-" + crntYear,
+                            status: "SL",
+                            points: activeTrade.SLInPoints,
+                        })
+                    } else if (low < activeTrade.entryPrice - activeTrade.target) {
+                        // console.log("target hit")
+                        activeTrade.tradeActive = false
+                        activeTrade.status = false
+                        totalTarget += activeTrade.target
+                        totalPostiveDays += 1
+                        pointsCaptured += activeTrade.target
+                        todayPointsCaptured += activeTrade.target
+                        tradesArray.push({
+                            entryPrice: activeTrade.entryPrice,
+                            stoploss: activeTrade.stoploss,
+                            target: activeTrade.target,
+                            status: "Target",
+                            points: activeTrade.target,
+                            date: yesterdayDate,
+                            month: currentMonth,
+                            year: crntYear,
+                            day: day,
+                        })
+                        monthOnMonthData.push({
+                            month: crntMonth + "-" + crntYear,
+                            status: "Target",
+                            points: activeTrade.target,
+                        })
+                    }
+                }
+            }
+
+            if (thisCandleDate == yesterdayDate && tradeDoneForTheDay == true) return
+            if (thisCandleDate != yesterdayDate) {
+                tradeDoneForTheDay = false
+                yesterdayDate = thisCandleDate
+                candlePair.high = 0
+                candlePair.low = 0
                 activeTrade.breakoutSide = "nill"
                 activeTrade.status = false
                 activeTrade.tradeActive = false
@@ -111,111 +231,65 @@ async function asyncForEach(monthsUnixPair: Array<Array<number>>, callback: Func
                 activeTrade.target = 0
                 activeTrade.entryPrice = 0
                 activeTrade.SLInPoints = 0
-                if (todayPointsCaptured > 0) {
-                    totalPostiveDays++
+            }
+
+            if (thisCandleDate == yesterdayDate && candlePair.high == 0 && candlePair.low == 0) {
+                if (currentCandleTime == "03:45:00.000Z") return
+                // search for a red and green candle pair
+                if (lastCandleData.close !== 0 && lastCandleData.open !== 0 && lastCandleData.close < lastCandleData.open && close > open) {
+                    // console.log("green and red candle pair found")
+                    candlePair.high = lastCandleData.high > high ? lastCandleData.high : high
+                    candlePair.low = lastCandleData.low < low ? lastCandleData.low : low
+                } else if (lastCandleData.close !== 0 && lastCandleData.open !== 0 && lastCandleData.close > lastCandleData.open && close < open) {
+                    // console.log("red and green candle pair found")
+                    candlePair.high = lastCandleData.high > high ? lastCandleData.high : high
+                    candlePair.low = lastCandleData.low < low ? lastCandleData.low : low
                 } else {
-                    totalNegativeDays++
-                }
-                todayPointsCaptured = 0
-            } else {
-                if (thisCandleDate == yesterdayDate) {
-                    if (lastCandleData.close == 0 && lastCandleData.open == 0) {
-                        return
-                    } else {
-                        if (activeTrade.status) {
-                            if (activeTrade.tradeActive) {
-                                if (close < activeTrade.stoploss) {
-                                    activeTrade.tradeActive = false
-                                    activeTrade.status = false
-                                    pointsCaptured -= activeTrade.SLInPoints
-                                    totalNumberOfTradesOfTheDay++
-                                    todayPointsCaptured += pointsCaptured
-                                    totalSL++
-                                } else if (close > activeTrade.target) {
-                                    activeTrade.tradeActive = false
-                                    activeTrade.status = false
-                                    pointsCaptured += activeTrade.SLInPoints * targetRatio
-                                    totalTarget++
-                                    todayPointsCaptured += pointsCaptured
-                                    totalNumberOfTradesOfTheDay++
-                                }
-                                if (activeTrade.breakoutSide == "buy") {
-                                    if (high >= activeTrade.target) {
-                                        activeTrade.tradeActive = false
-                                        activeTrade.status = false
-                                        pointsCaptured += activeTrade.SLInPoints * targetRatio
-                                        totalTarget++
-                                        totalNumberOfTradesOfTheDay++
-                                    }
-                                    if (low <= activeTrade.stoploss) {
-                                        activeTrade.tradeActive = false
-                                        activeTrade.status = false
-                                        pointsCaptured -= activeTrade.SLInPoints
-                                        totalNumberOfTradesOfTheDay++
-                                        totalSL++
-                                    }
-                                } else if (activeTrade.breakoutSide == "sell") {
-                                    if (low <= activeTrade.target) {
-                                        activeTrade.tradeActive = false
-                                        activeTrade.status = false
-                                        pointsCaptured += activeTrade.SLInPoints * targetRatio
-                                        totalTarget++
-                                        totalNumberOfTradesOfTheDay++
-                                    }
-                                    if (high >= activeTrade.stoploss) {
-                                        activeTrade.tradeActive = false
-                                        activeTrade.status = false
-                                        pointsCaptured -= activeTrade.SLInPoints
-                                        totalNumberOfTradesOfTheDay++
-                                        totalSL++
-                                    }
-                                }
-                            } else {
-                                // check for breakout
-                                if (totalNumberOfTradesOfTheDay >= dailyAllowedTrades) {
-                                    return
-                                } else {
-                                    // random true false
-                                    if (Math.random() > 0.5) {
-                                        if (close > activeTrade.breakoutRange[0]) {
-                                            let SLInPoints = activeTrade.breakoutRange[0] - activeTrade.breakoutRange[1]
-                                            if (SLInPoints > maxSL) return
-                                            activeTrade.breakoutSide = "buy"
-                                            activeTrade.tradeActive = true
-                                            activeTrade.SLInPoints = SLInPoints
-                                            activeTrade.stoploss = activeTrade.breakoutRange[1]
-                                            activeTrade.target = SLInPoints * targetRatio + activeTrade.breakoutRange[0]
-                                            activeTrade.entryPrice = activeTrade.breakoutRange[0]
-                                        } else if (close < activeTrade.breakoutRange[1]) {
-                                            let SLInPoints = activeTrade.breakoutRange[0] - activeTrade.breakoutRange[1]
-                                            if (SLInPoints > maxSL) return
-                                            activeTrade.breakoutSide = "sell"
-                                            activeTrade.tradeActive = true
-                                            activeTrade.SLInPoints = SLInPoints
-                                            activeTrade.stoploss = activeTrade.breakoutRange[0]
-                                            activeTrade.target = activeTrade.breakoutRange[1] - SLInPoints * targetRatio
-                                            activeTrade.entryPrice = activeTrade.breakoutRange[1]
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            if (lastCandleData.close < lastCandleData.open && close > open) {
-                                activeTrade.status = true
-                                activeTrade.breakoutRange = [high, low]
-                            } else if (lastCandleData.close > lastCandleData.open && close < open) {
-                                activeTrade.status = true
-                                activeTrade.breakoutRange = [high, low]
-                            }
-                        }
+                    // console.log("no candle pair found")
+                    lastCandleData = {
+                        open: open,
+                        close: close,
+                        high: high,
+                        low: low,
                     }
                 }
-            }
-            lastCandleData = {
-                open,
-                close,
-                high,
-                low,
+            } else if (candlePair.high !== 0 && candlePair.low !== 0) {
+                // we have a candle pair and we can start our analysis
+                // if current candle breaks out of the candle pair then we will take a trade
+                // if MaxSL is above 100 then we will not take the trade
+                if (candlePair.high - candlePair.low > maxSL) {
+                    candlePair.high = 0
+                    candlePair.low = 0
+                    return
+                } else {
+                    if (high > candlePair.high) {
+                        tradeDoneForTheDay = true
+                        activeTrade.breakoutSide = "up"
+                        activeTrade.status = true
+                        activeTrade.tradeActive = true
+                        activeTrade.stoploss = candlePair.low
+                        activeTrade.target = (candlePair.high - candlePair.low) * targetRatio
+                        activeTrade.entryPrice = candlePair.high
+                        activeTrade.SLInPoints = activeTrade.entryPrice - activeTrade.stoploss
+                        candlePair.high = 0
+                        candlePair.low = 0
+                        SLArray.push(activeTrade.SLInPoints)
+                        targetArray.push(activeTrade.target)
+                    } else if (low < candlePair.low) {
+                        tradeDoneForTheDay = true
+                        activeTrade.breakoutSide = "down"
+                        activeTrade.status = true
+                        activeTrade.tradeActive = true
+                        activeTrade.stoploss = candlePair.high
+                        activeTrade.target = (candlePair.high - candlePair.low) * targetRatio
+                        activeTrade.entryPrice = candlePair.low
+                        activeTrade.SLInPoints = activeTrade.stoploss - activeTrade.entryPrice
+                        candlePair.high = 0
+                        candlePair.low = 0
+                        SLArray.push(activeTrade.SLInPoints)
+                        targetArray.push(activeTrade.target)
+                    }
+                }
             }
         })
         await callback()
@@ -229,4 +303,65 @@ asyncForEach(monthOnMonthPair, () => {
     console.log("totalTarget", totalTarget)
     console.log("totalPostiveDays", totalPostiveDays)
     console.log("totalNegativeDays", totalNegativeDays)
+    console.log("Month on Month Data", monthOnMonthData)
+    let something: any = {}
+    monthOnMonthData.forEach((data: any) => {
+        const empty = {
+            SL: 0,
+            Target: 0,
+            NumberOfDays: 0,
+            NumberOfSL: 0,
+            NumberOfTarget: 0,
+        }
+        something[data.month] = something[data.month] || empty
+        something[data.month].NumberOfDays += 1
+
+        if (something[data.month]) {
+            if (data.status == "SL") {
+                something[data.month].SL += data.points
+                something[data.month].NumberOfSL += 1
+            } else if (data.status == "Target") {
+                something[data.month].Target += data.points
+                something[data.month].NumberOfTarget += 1
+            }
+        } else {
+            if (data.status == "SL") {
+                something[data.month] = {
+                    SL: data.points,
+                    Target: 0,
+                }
+                something[data.month].NumberOfSL += 1
+            } else if (data.status == "Target") {
+                something[data.month] = {
+                    SL: 0,
+                    Target: data.points,
+                }
+                something[data.month].NumberOfTarget += 1
+            }
+        }
+        something[data.month].number = something[data.month].Target - something[data.month].SL
+    })
+
+    console.log("something", something)
+    const FridayStats = tradesArray.filter((trade: any) => {
+        return trade.day == 5
+    })
+    const calculatedFridayStats = FridayStats.reduce(
+        (acc: any, trade: any) => {
+            acc.totalSL += trade.SLInPoints
+            acc.totalTarget += trade.target
+            acc.pointsCaptured += trade.pointsCaptured
+            acc.totalPostiveDays += trade.pointsCaptured > 0 ? 1 : 0
+            acc.totalNegativeDays += trade.pointsCaptured < 0 ? 1 : 0
+            return acc
+        },
+        {
+            totalSL: 0,
+            totalTarget: 0,
+            pointsCaptured: 0,
+            totalPostiveDays: 0,
+            totalNegativeDays: 0,
+        }
+    )
+    console.log(calculatedFridayStats)
 })

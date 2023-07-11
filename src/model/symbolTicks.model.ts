@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<marketData>(
+export default new Schema<symbolTicks>(
     {
         high_price: { type: Number },
         prev_close_price: { type: Number },

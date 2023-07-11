@@ -1,8 +1,10 @@
 import axios from "axios"
-import config from "../config"
 import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
 import logger from "../logger"
-const maxTries = 5
+import { MarketData } from "../model"
+
+export var marketData: any = {}
+const maxTries = 10
 
 const commonAxiosGet = async (url: string) => {
     const googleChromeUserAgent = "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36"
@@ -32,78 +34,7 @@ const commonAxiosGet = async (url: string) => {
 }
 var tasks = [
     {
-        name: "NSEBankNiftyData",
-        status: false,
-        data: {},
-        tries: 0,
-        execute: async () => {
-            const NSEBankNiftyData = await commonAxiosGet(config.NSEApi.NSEOptionChainDataAPIUrl("BANKNIFTY"))
-            if (NSEBankNiftyData) {
-                return NSEBankNiftyData.records.expiryDates
-            } else {
-                return false
-            }
-        },
-    },
-    {
-        name: "NSENiftyData",
-        status: false,
-        data: {},
-        tries: 0,
-        execute: async () => {
-            const NSENiftyData = await commonAxiosGet(config.NSEApi.NSEOptionChainDataAPIUrl("NIFTY"))
-            if (NSENiftyData) {
-                return NSENiftyData.records.expiryDates
-            } else {
-                return false
-            }
-        },
-    },
-    {
-        name: "NSEFinNiftyData",
-        status: false,
-        tries: 0,
-        data: {},
-        execute: async () => {
-            const NSEFinNiftyData = await commonAxiosGet(config.NSEApi.NSEOptionChainDataAPIUrl("FINNIFTY"))
-            if (NSEFinNiftyData) {
-                return NSEFinNiftyData.records.expiryDates
-            } else {
-                return false
-            }
-        },
-    },
-    {
-        name: "FnOTradingHoliday",
-        status: false,
-        tries: 0,
-        data: {},
-        execute: async () => {
-            const FnOTradingHoliday = await commonAxiosGet(config.NSEApi.NSEHolidaysAPIUrl("trading"))
-            if (FnOTradingHoliday) {
-                return FnOTradingHoliday
-            } else {
-                return false
-            }
-        },
-    },
-    {
-        name: "IsTodayHoliday",
-        status: false,
-        tries: 0,
-        data: {},
-        execute: async () => {
-            const todayDay = new Date().getDay()
-            // if today is sunday or saturday
-            if (todayDay === 0 || todayDay === 6) {
-                return { holiday: true }
-            } else {
-                return { holiday: false }
-            }
-        },
-    },
-    {
-        name: "Initialize Config",
+        name: "InitializeConfig",
         status: false,
         tries: 0,
         data: {},
@@ -114,7 +45,142 @@ var tasks = [
             return {
                 config: conf,
             }
-        }
+        },
+    },
+    {
+        name: "NSEBankNiftyData",
+        status: false,
+        data: {},
+        tries: 0,
+        execute: async () => {
+            const name = "BANKNIFTY"
+            const config = getConfigData()
+            const url = config.apis.NSE.OptionChainDataAPIUrl + name
+            const data = await commonAxiosGet(url)
+            if (data) {
+                marketData = {
+                    ...marketData,
+                    [name]: {
+                        derivativeName: name,
+                        expiryDates: data.records.expiryDates,
+                        strikePrices: data.records.strikePrices,
+                    },
+                }
+
+                return true
+            }
+            return false
+        },
+    },
+    {
+        name: "NSENiftyData",
+        status: false,
+        data: {},
+        tries: 0,
+        execute: async () => {
+            const name = "NIFTY"
+            const config = getConfigData()
+            const url = config.apis.NSE.OptionChainDataAPIUrl + name
+            const data = await commonAxiosGet(url)
+            if (data) {
+                marketData = {
+                    ...marketData,
+                    [name]: {
+                        derivativeName: name,
+                        expiryDates: data.records.expiryDates,
+                        strikePrices: data.records.strikePrices,
+                    },
+                }
+                return true
+            }
+            return false
+        },
+    },
+    {
+        name: "NSEFinNiftyData",
+        status: false,
+        tries: 0,
+        data: {},
+        execute: async () => {
+            const name = "FINNIFTY"
+            const config = getConfigData()
+            const url = config.apis.NSE.OptionChainDataAPIUrl + name
+            const data = await commonAxiosGet(url)
+            if (data) {
+                marketData = {
+                    ...marketData,
+                    [name]: {
+                        derivativeName: name,
+                        expiryDates: data.records.expiryDates,
+                        strikePrices: data.records.strikePrices,
+                    },
+                }
+                return true
+            }
+            return false
+        },
+    },
+    {
+        name: "FnOTradingHoliday",
+        status: false,
+        tries: 0,
+        data: {},
+        execute: async () => {
+            const config = getConfigData()
+            const url = config.apis.NSE.HolidaysAPIUrl + "trading"
+            const data = await commonAxiosGet(url)
+            if (data) {
+                marketData = {
+                    ...marketData,
+                    FnOHolidayList: data.FO,
+                }
+                return true
+            }
+            return false
+        },
+    },
+    {
+        name: "SaveMarketDataToDB",
+        status: false,
+        tries: 0,
+        data: {},
+        execute: async () => {
+            // find if data is already present in DB
+            const getDataOfMarketData = await MarketData.find({ id: 1 })
+            if (getDataOfMarketData.length > 0) {
+                // first we need to delete the existing data
+                try {
+                    await MarketData.deleteMany({ id: 1 })
+                    await MarketData.create({
+                        id: 1,
+                        BANKNIFTY: marketData.BANKNIFTY,
+                        NIFTY: marketData.NIFTY,
+                        FINNIFTY: marketData.FINNIFTY,
+                        FnOHolidayList: marketData.FnOHolidayList,
+                        lastUpdated: new Date().toString(),
+                    })
+                    return true
+                } catch (error: any) {
+                    logger.error(error.message.toString())
+                    return false
+                }
+            } else {
+                try {
+                    await MarketData.create({
+                        id: 1,
+                        BANKNIFTY: marketData.BANKNIFTY,
+                        NIFTY: marketData.NIFTY,
+                        FINNIFTY: marketData.FINNIFTY,
+                        FnOHolidayList: marketData.FnOHolidayList,
+                        lastUpdated: new Date().toString(),
+                    })
+                    return true
+                } catch (error: any) {
+                    logger.error(error.message.toString())
+                    return false
+                }
+            }
+        },
     },
 ]
 
@@ -145,11 +211,12 @@ export default () =>
             })
             const allTrue = tasks.every((task) => task.status === true)
             if (allTrue) {
-                tasks.forEach((task) => {
-                    logger.info(`Task ${task.name} is completed`)
+                tasks.forEach((task, index) => {
+                    if (tasks.length - 1 == index) {
+                    }
                 })
                 clearInterval(int)
                 return resolve(true)
             }
-        }, 1000)
+        }, 2000)
     })

@@ -1,5 +1,4 @@
 import { Express, Request, Response } from "express"
-import config from "../../config"
 import { generateLoginUrl } from "../../lib/fyers"
 import logger from "../../logger"
 export default async function (app: Express, path: string) {

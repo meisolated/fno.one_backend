@@ -9,7 +9,7 @@
  *
  */
 import axios from "axios"
-import config from "../../config"
+import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 import * as helper from "./helper"
 const orderUpdateSocket = helper.orderUpdateHelper
@@ -55,20 +55,23 @@ const rateLimit = (token: string) => {
     }
 }
 const getAuthToken = async (token: string) => {
-    return `${config.fyers.appId}:${token}`
+    const config = getConfigData()
+    return `${config.apis.fyers.appId}:${token}`
 }
 const generateLoginUrl = async () => {
-    const client_id = config.fyers.appId
-    const redirect_uri = config.fyers.redirectUrl
-    const state = config.fyers.callbackSecret
-    return `${config.fyers.apiUrl}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
+    const config = getConfigData()
+    const client_id = config.apis.fyers.appId
+    const redirect_uri = config.apis.fyers.redirectUrl
+    const state = config.apis.fyers.callbackSecret
+    return `${config.apis.fyers.apiUrl}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
 }
 const generateAccessToken = async (authCode: any) => {
-    const appId = config.fyers.appId
-    const secretId = config.fyers.secretId
+    const config = getConfigData()
+    const appId = config.apis.fyers.appId
+    const secretId = config.apis.fyers.secretId
     const sha256 = await helper.sha256(`${appId}:${secretId}`)
     try {
-        const accessToken = await axios.post(`${config.fyers.apiUrl}validate-authcode`, {
+        const accessToken = await axios.post(`${config.apis.fyers.apiUrl}validate-authcode`, {
             grant_type: "authorization_code",
             code: authCode,
             appIdHash: sha256,
@@ -80,6 +83,7 @@ const generateAccessToken = async (authCode: any) => {
     }
 }
 const getProfile = async (token: string) => {
+    const config = getConfigData()
     const rateLimitCheck = rateLimit(token)
     if (!rateLimitCheck) {
         return {
@@ -95,7 +99,7 @@ const getProfile = async (token: string) => {
             },
         }
         try {
-            const profile = await axios.get(`${config.fyers.apiUrl}profile`, reqConfig)
+            const profile = await axios.get(`${config.apis.fyers.apiUrl}profile`, reqConfig)
             return profile.data
         } catch (error: any) {
             logger.error(error, false)
@@ -104,6 +108,7 @@ const getProfile = async (token: string) => {
     }
 }
 const getFunds = async (token: string) => {
+    const config = getConfigData()
     const rateLimitCheck = rateLimit(token)
     if (!rateLimitCheck) {
         return {
@@ -119,7 +124,7 @@ const getFunds = async (token: string) => {
             },
         }
         try {
-            const funds = await axios.get(`${config.fyers.apiUrl}funds`, reqConfig)
+            const funds = await axios.get(`${config.apis.fyers.apiUrl}funds`, reqConfig)
             return funds.data
         } catch (error: any) {
             logger.error(error, false)
@@ -128,6 +133,7 @@ const getFunds = async (token: string) => {
     }
 }
 const getHoldings = async (token: string) => {
+    const config = getConfigData()
     const rateLimitCheck = rateLimit(token)
     if (!rateLimitCheck) {
         return {
@@ -143,7 +149,7 @@ const getHoldings = async (token: string) => {
             },
         }
         try {
-            const holdings = await axios.get(`${config.fyers.apiUrl}holdings`, reqConfig)
+            const holdings = await axios.get(`${config.apis.fyers.apiUrl}holdings`, reqConfig)
             return holdings.data
         } catch (error: any) {
             logger.error(error, false)
@@ -152,6 +158,7 @@ const getHoldings = async (token: string) => {
     }
 }
 const getTrades = async (token: string) => {
+    const config = getConfigData()
     const rateLimitCheck = rateLimit(token)
     if (!rateLimitCheck) {
         return {
@@ -167,7 +174,7 @@ const getTrades = async (token: string) => {
             },
         }
         try {
-            const trades = await axios.get(`${config.fyers.apiUrl}tradebook`, reqConfig)
+            const trades = await axios.get(`${config.apis.fyers.apiUrl}tradebook`, reqConfig)
             return trades.data
         } catch (error: any) {
             logger.error(error, false)
@@ -176,6 +183,7 @@ const getTrades = async (token: string) => {
     }
 }
 const getPositions = async (token: string) => {
+    const config = getConfigData()
     const rateLimitCheck = rateLimit(token)
     if (!rateLimitCheck) {
         return {
@@ -191,7 +199,7 @@ const getPositions = async (token: string) => {
             },
         }
         try {
-            const positions = await axios.get(`${config.fyers.apiUrl}positions`, reqConfig)
+            const positions = await axios.get(`${config.apis.fyers.apiUrl}positions`, reqConfig)
             return positions.data
         } catch (error: any) {
             logger.error(error, false)
@@ -200,6 +208,7 @@ const getPositions = async (token: string) => {
     }
 }
 const getOrders = async (token: string) => {
+    const config = getConfigData()
     const rateLimitCheck = rateLimit(token)
     if (!rateLimitCheck) {
         return {
@@ -215,7 +224,7 @@ const getOrders = async (token: string) => {
             },
         }
         try {
-            const orders = await axios.get(`${config.fyers.apiUrl}orders`, reqConfig)
+            const orders = await axios.get(`${config.apis.fyers.apiUrl}orders`, reqConfig)
             return orders.data
         } catch (error: any) {
             logger.error(error, false)
@@ -223,4 +232,4 @@ const getOrders = async (token: string) => {
         }
     }
 }
-export { generateLoginUrl, generateAccessToken, getProfile, getFunds, getHoldings, getTrades, getPositions, getOrders, orderUpdateSocket, marketDataSocket }
+export { generateAccessToken, generateLoginUrl, getFunds, getHoldings, getOrders, getPositions, getProfile, getTrades, marketDataSocket, orderUpdateSocket }

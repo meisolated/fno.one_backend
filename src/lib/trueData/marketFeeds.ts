@@ -112,6 +112,7 @@ class MarketFeeds {
                                 logger.info(jsonObj.message, false, undefined, "TrueData")
                         }
                     } else if (jsonObj.success == false) {
+                        console.log(jsonObj)
                         logger.error(jsonObj.message, false, undefined, "TrueData")
                     }
                 })

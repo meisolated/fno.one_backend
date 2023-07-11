@@ -1,5 +1,6 @@
 import candleHistoryModel from "./candleHistory.model"
 import loggerModel from "./logger.model"
+import marketDataModel from "./marketData.model"
 import Mongoose from "./mongoose"
 import openInterestsModel from "./openInterests.model"
 import sessionModel from "./session.model"
@@ -15,4 +16,5 @@ export const Session = connection.model("Session", sessionModel)
 export const OpenInterest = connection.model("OpenInterest", openInterestsModel)
 export const CandleHistory = connection.model("CandleHistory", candleHistoryModel)
 export const Logger = connection.model("Logger", loggerModel)
-// connection.collection("videos").createIndex({ title: "text" })
+export const MarketData = connection.model("MarketData", marketDataModel)
+// connection.collection("").createIndex({ title: "" })

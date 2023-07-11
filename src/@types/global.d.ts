@@ -24,7 +24,7 @@ declare global {
         date: Date
         loggedFrom: string
     }
-    interface marketData {
+    interface symbolTicks {
         high_price: number
         prev_close_price: number
         ch: number
@@ -126,31 +126,59 @@ declare global {
         realTimeMarketsToWatch: string[]
         keepRealTimeMarketsData: boolean
         activeStrategies: string[]
-
+        serverConf: {
+            APIPort: number
+            socketPort: number
+            SMTP: {
+                host: string
+                port: number
+                secure: boolean
+                auth: {
+                    user: string
+                    pass: string
+                }
+            }
+        }
+        apis: {
+            fyers: {
+                appId: string
+                secretId: string
+                redirectUrl: string
+                callbackSecret: string
+                apiUrl: string
+                webSocketUrl: string
+                dataApiUrl: string
+                status: boolean
+            }
+            kite: {
+                apiKey: string
+                apiSecret: string
+                redirectUrl: string
+                apiUrl: string
+                webSocketUrl: string
+                dataApiUrl: string
+                status: boolean
+            }
+            trueData: {
+                userId: string
+                password: string
+                socketUrl: string
+                replySocketUrl: string
+                status: boolean
+            }
+            NSE: {
+                OptionQuoteDerivativeAPIUrl: string
+                OptionChainDataAPIUrl: string
+                HolidaysAPIUrl: string
+            }
+        }
         global: {
             maxProfit: number
             maxLoss: number
             maxTradesPerDay: number
             enableMoneyManager: boolean
         }
-        userLimit: number
-        fyers: {
-            appId: string
-            secretId: string
-            redirectUrl: string
-            callbackSecret: string
-            apiUrl: string
-            webSocketUrl: string
-            dataApiUrl: string
-        }
-        fyersTrueData: {
-            username: string
-            password: string
-        }
-        NSEApi: {
-            NSEOptionQuoteDerivativeAPIUrl: string
-            NSEOptionChainDataAPIUrl: string
-        }
+
         lastUpdated: Date
     }
     interface trades {
@@ -250,6 +278,39 @@ declare global {
         lp: string
         ex_sym: string
         description: string
+    }
+
+    interface marketData {
+        id: string
+        BANKNIFTY: {
+            derivativeName: string
+            expiryDates: string[]
+            strikePrices: number[]
+            lastUpdateTime: string
+        }
+        FINNIFTY: {
+            derivativeName: string
+            expiryDates: string[]
+            strikePrices: number[]
+            lastUpdateTime: string
+        }
+        NIFTY: {
+            derivativeName: string
+            expiryDates: string[]
+            strikePrices: number[]
+            lastUpdateTime: string
+        }
+        FnOHolidayList: [
+            {
+                holidayDate: string
+                weekDay: string
+                description: string
+            }
+        ]
+        lastUpdated: {
+            FnODataList: Number
+            FnOHolidayList: Number
+        }
     }
 
     // general interfaces

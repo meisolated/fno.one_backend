@@ -1,11 +1,9 @@
-import { EventEmitter } from "events"
 import config from "../config"
 import chatter from "../events"
 import * as fyers from "../lib/fyers"
 import trueData from "../lib/trueData"
 import logger from "../logger"
 import { Session, User } from "../model"
-import { generateSymbolOptionChain } from "./../manager/strikePrice.manager"
 import marketDataUpdateHandler from "./marketDataUpdate.handler"
 import orderUpdateHandler from "./orderUpdate.handler"
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
@@ -82,12 +80,6 @@ const connectFyersMarketDataSocket = async () => {
     async function connectToSocket() {
         if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
             const symbol = [config.mainSymbol, config.secondarySymbol, ...config.o5BanksSymbol, ...config.t5BanksSymbol]
-            // var symbolOptionChain: any = await generateSymbolOptionChain("BANKNIFTY")
-            // const optionIdentifiers = []
-            // if (!symbolOptionChain) return retry()
-            // for (const expiry of symbolOptionChain.expiryListWithStrikePrices[symbolOptionChain.currentExpiry]) {
-            //     optionIdentifiers.push(expiry.identifier)
-            // }
             connectionToMarketDataSocket.onMarketDataUpdate(
                 [...symbol],
                 primaryAccessToken.accessToken,
@@ -110,15 +102,8 @@ const connectFyersMarketDataSocket = async () => {
 }
 
 const connectTrueDataMarketDataSocket = async () => {
-    const symbols = await generateSymbolOptionChain("BANKNIFTY")
-    const _sym = []
-    if (!symbols) return logger.error("Error in connecting to true data socket", false, "", "trueData")
-
     try {
-        for (const expiry of symbols.expiryListWithStrikePrices[symbols.currentExpiry]) {
-            _sym.push(expiry.identifier)
-        }
-        const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK", ..._sym], "live", true, false)
+        const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK"], "live", true, false)
         chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
             trueDataConnection.closeConnection()
             trueDataConnection.connect()
@@ -126,7 +111,4 @@ const connectTrueDataMarketDataSocket = async () => {
     } catch (err: any) {
         logger.error("Error in connecting to true data socket", false, "", "trueData")
     }
-
-    // chatter.on("trueDataLibMarketDataUpdates-", "tick", async (data: any) => {
-    // })
 }

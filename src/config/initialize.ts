@@ -17,29 +17,58 @@ const initializeEmptySettings = async () => {
         keepRealTimeMarketsData: false,
         activeStrategies: [],
         global: {
-            maxProfit: 0,
-            maxLoss: 0,
-            maxTradesPerDay: 0,
-            enableMoneyManager: false,
+            maxProfit: 30,
+            maxLoss: 10,
+            maxTradesPerDay: 3,
+            enableMoneyManager: true,
         },
-        userLimit: 0,
-        fyers: {
-            appId: "",
-            secretId: "",
-            redirectUrl: "",
-            callbackSecret: "",
-            apiUrl: "",
-            dataApiUrl: "",
-            webSocketUrl: "",
+        serverConf: {
+            APIPort: 0,
+            socketPort: 0,
+            SMTP: {
+                host: "",
+                port: 0,
+                secure: false,
+                auth: {
+                    user: "",
+                    pass: "",
+                },
+            },
         },
-        fyersTrueData: {
-            username: "",
-            password: "",
+        apis: {
+            fyers: {
+                appId: "",
+                secretId: "",
+                redirectUrl: "",
+                callbackSecret: "",
+                apiUrl: "",
+                webSocketUrl: "",
+                dataApiUrl: "",
+                status: false,
+            },
+            kite: {
+                apiKey: "",
+                apiSecret: "",
+                redirectUrl: "",
+                apiUrl: "",
+                webSocketUrl: "",
+                dataApiUrl: "",
+                status: false,
+            },
+            trueData: {
+                userId: "",
+                password: "",
+                status: false,
+                socketUrl: "",
+                replySocketUrl: "",
+            },
+            NSE: {
+                OptionQuoteDerivativeAPIUrl: "",
+                OptionChainDataAPIUrl: "",
+                HolidaysAPIUrl: "",
+            },
         },
-        NSEApi: {
-            NSEOptionQuoteDerivativeAPIUrl: "",
-            NSEOptionChainDataAPIUrl: "",
-        },
+
         lastUpdated: new Date(),
     }
 
@@ -71,10 +100,6 @@ const getConfig = async () => {
     }
     settings = _settings.toObject()
 }
-
-const getConfigData = () => {
-    return settings
-}
+const getConfigData = () => settings
 
 export { getConfig, getConfigData, initializeConfig }
-
