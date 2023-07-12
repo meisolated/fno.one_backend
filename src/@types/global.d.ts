@@ -160,7 +160,7 @@ declare global {
 				status: boolean
 			}
 			trueData: {
-				userId: string
+				username: string
 				password: string
 				socketUrl: string
 				replySocketUrl: string

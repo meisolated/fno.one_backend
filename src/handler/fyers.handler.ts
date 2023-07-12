@@ -1,4 +1,5 @@
-import config from "../config"
+import config from "../config/coldConf"
+import { getConfigData } from "../config/initialize"
 import chatter from "../events"
 import * as fyers from "../lib/fyers"
 import trueData from "../lib/trueData"
@@ -69,10 +70,7 @@ export const subscribeToAllUsersSockets = async () => {
 }
 
 export const subscribeToMarketDataSocket = async () => {
-	if (config.serverSettings.enableFyersMarketDataSocket) {
-		connectFyersMarketDataSocket() // connect to fyers market data socket
-	}
-	if (config.serverSettings.enableTrueDataMarketDataSocket) {
+	if (true) {
 		connectTrueDataMarketDataSocket() // connect to true data market data socket
 	}
 }
@@ -104,8 +102,9 @@ const connectFyersMarketDataSocket = async () => {
 
 const connectTrueDataMarketDataSocket = async () => {
 	try {
+		const config = getConfigData()
 		const symbolsList: any = await baseSymbolsList()
-		const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK", ...symbolsList], "live", true, false)
+		const trueDataConnection = new trueData.MarketFeeds(config.apis.trueData.username, config.apis.trueData.password, ["NIFTY BANK", ...symbolsList], "live", true, false)
 		chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
 			trueDataConnection.closeConnection()
 			trueDataConnection.connect()

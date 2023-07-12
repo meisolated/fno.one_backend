@@ -17,7 +17,7 @@ export const baseSymbolsList = async () => {
 		const config = getConfigData()
 		const marketData = await MarketData.findOne({ id: 1 })
 		if (marketData) {
-			const historical = new HistoricalData(config.apis.trueData.userId, config.apis.trueData.password)
+			const historical = new HistoricalData(config.apis.trueData.username, config.apis.trueData.password)
 			const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
 			const currentPrice = BankNiftyCurrentPrice.Records[0][4]
 			const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
@@ -63,7 +63,7 @@ export const optionChainSymbols = async (symbol: string) => {
 	const numberOfOptions = 20
 	const config = getConfigData()
 	if (symbol.includes("BANKNIFTY")) {
-		const historical = new HistoricalData(config.apis.trueData.userId, config.apis.trueData.password)
+		const historical = new HistoricalData(config.apis.trueData.username, config.apis.trueData.password)
 		const currentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
 		const roundOffCurrentPrice = Math.round(currentPrice.Records[0][4] / 100) * 100
 

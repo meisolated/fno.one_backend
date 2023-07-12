@@ -56,7 +56,7 @@ const initializeEmptySettings = async () => {
 				status: false,
 			},
 			trueData: {
-				userId: "",
+				username: "",
 				password: "",
 				status: false,
 				socketUrl: "",
@@ -75,6 +75,8 @@ const initializeEmptySettings = async () => {
 	try {
 		await Settings.create(settings)
 		logger.info("Empty Settings Initialized")
+		logger.info("Please configure the settings and restart the server")
+		process.exit(0)
 		return true
 	} catch (error) {
 		logger.error(JSON.stringify(error))

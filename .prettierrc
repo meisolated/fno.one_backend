@@ -6,7 +6,6 @@
     "trailingComma": "all",
     "arrowParens": "always",
     "bracketSpacing": true,
-    "jsxBracketSameLine": false,
     "quoteProps": "consistent",
     "useTabs": true,
     "proseWrap": "always",

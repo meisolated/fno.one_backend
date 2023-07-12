@@ -47,7 +47,7 @@ export default new Schema<settings>(
 				status: { type: Boolean, required: false },
 			},
 			trueData: {
-				userId: { type: String, required: false },
+				username: { type: String, required: false },
 				password: { type: String, required: false },
 				status: { type: Boolean, required: false },
 				socketUrl: { type: String, required: false },

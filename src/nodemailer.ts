@@ -1,6 +1,7 @@
 //@ts-ignore
 import nodemailer from "nodemailer"
-import config from "./config"
+import { getConfigData } from "./config/initialize"
+const config = getConfigData()
 
 const template = `<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -666,21 +667,21 @@ const template = `<!doctype html>
 
 function main() {
 	const mailer = nodemailer.createTransport({
-		host: config.SMTP.host,
-		port: config.SMTP.port,
-		secure: config.SMTP.secure,
+		host: config.serverConf.SMTP.host,
+		port: config.serverConf.SMTP.port,
+		secure: config.serverConf.SMTP.secure,
 		auth: {
-			user: config.SMTP.auth.user,
-			pass: config.SMTP.auth.pass,
+			user: config.serverConf.SMTP.auth.user,
+			pass: config.serverConf.SMTP.auth.pass,
 		},
 	})
 
 	var message = {
-		from: config.SMTP.auth.user,
+		from: config.serverConf.SMTP.auth.user,
 		to: "isolatedbot@gmail.com",
 		subject: "Message title",
 		envelope: {
-			from: `Vivek Mudgal <${config.SMTP.auth.user}>`, // used as MAIL FROM: address for SMTP
+			from: `Vivek Mudgal <${config.serverConf.SMTP.auth.user}>`, // used as MAIL FROM: address for SMTP
 			to: "isolatedbot@gmail.com", // used as RCPT TO: address for SMTP
 		},
 		text: "Plaintext version of the message",
