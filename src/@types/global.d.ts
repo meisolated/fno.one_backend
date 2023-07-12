@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare namespace NodeJS {
 	interface Global {
@@ -25,14 +25,17 @@ declare global {
 		loggedFrom: string
 	}
 	interface symbolTicks {
+		symbol: string
+		original_name: string
+		short_name: string
+		description: string
+		exchange: string
 		high_price: number
+		low_price: number
 		prev_close_price: number
 		ch: number
 		tt: number
-		description: string
-		short_name: string
-		exchange: string
-		low_price: number
+
 		cmd: {
 			c: number
 			h: number
@@ -42,11 +45,10 @@ declare global {
 			v: number
 			tf: string
 		}
-		original_name: string
+
 		chp: number
 		open_price: number
 		lp: number
-		symbol: string
 		LTQ: number
 		L2_LTT: number
 		ATP: number

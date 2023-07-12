@@ -218,7 +218,7 @@ class MarketFeeds {
 	}
 
 	private handleRealTimeData(tradeArray: string[]) {
-		return {
+		const data = {
 			Symbol: this.touchlineMap[tradeArray[0]],
 			Symbol_ID: +tradeArray[0],
 			Timestamp: tradeArray[1],
@@ -235,11 +235,13 @@ class MarketFeeds {
 			Day_Turnover: +tradeArray[12],
 			Special: tradeArray[13],
 			Tick_Sequence_No: +tradeArray[14],
-			Bid: tradeArray[15] !== undefined ? +tradeArray[15] : "bidDeactivatedMessage",
-			Bid_Qty: tradeArray[16] !== undefined ? +tradeArray[16] : "bidDeactivatedMessage",
-			Ask: tradeArray[17] !== undefined ? +tradeArray[17] : "bidDeactivatedMessage",
-			Ask_Qty: tradeArray[18] !== undefined ? +tradeArray[18] : "bidDeactivatedMessage",
+			Bid: +tradeArray[15] || 0,
+			Bid_Qty: +tradeArray[16] || 0,
+			Ask: +tradeArray[17] || 0,
+			Ask_Qty: +tradeArray[18] || 0,
 		}
+
+		return data
 	}
 
 	private handleBidAskData(bidaskArray: string[]) {

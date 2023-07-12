@@ -1,4 +1,3 @@
-import { EventEmitter } from "events"
 import chatter from "../events"
 import logger from "../logger"
 import { SymbolTicks } from "../model"
