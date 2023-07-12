@@ -1,10 +1,9 @@
 //@ts-nocheck
 import axios from "axios"
 import WebSocket from "ws"
-import config from "../../config"
+import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 const api = "https://api.fyers.in/api/v2/"
-const dataApi = "https://api.fyers.in/data-rest/v2/"
 const WS_URL = (appId: string, token: string, update: string) => `wss://api.fyers.in/socket/v2/dataSock?access_token=${appId}:${token}&user-agent=fyers-api&type=${update}`
 const generateAccessTokenUrl = (authToken: string, appId: string) => api + "genrateToken?authorization_code=" + authToken.authorization_code + "&app_id=" + appId
 var _globalFyersDict: any = {}
@@ -541,9 +540,10 @@ class marketDataUpdateHelper {
 
 	async onMarketDataUpdate(symbol: Array<string>, accessToken: string, callback: Function, user: string) {
 		this.data.TLIST = symbol
-		await getQuotes(symbol, `${config.fyers.appId}:${accessToken}`)
+		const config = getConfigData()
+		await getQuotes(symbol, `${config.apis.fyers.appId}:${accessToken}`)
 		const dataString = JSON.stringify(this.data)
-		const url = WS_URL(config.fyers.appId, accessToken, "symbolUpdate")
+		const url = WS_URL(config.apis.fyers.appId, accessToken, "symbolUpdate")
 		this.marketDataUpdateInstance = socketWrapper(
 			url,
 			dataString,
@@ -574,8 +574,9 @@ class orderUpdateHelper {
 	private data = { T: "SUB_ORD", SLIST: ["orderUpdate"], SUB_T: 1 }
 
 	async onOrderUpdate(accessToken: string, callback: Function, user: string) {
+		const config = getConfigData()
 		const dataString = JSON.stringify(this.data)
-		const url = WS_URL(config.fyers.appId, accessToken, "orderUpdate")
+		const url = WS_URL(config.apis.fyers.appId, accessToken, "orderUpdate")
 		this.orderUpdateInstance = socketWrapper(
 			url,
 			dataString,
