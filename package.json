@@ -1,5 +1,5 @@
 {
-  "name": "FnO-Backend-Vedus",
+  "name": "FnO_Backend_Vedus",
   "version": "0.0.2",
   "displayName": "FnO Backend | Vedus",
   "description": "",
@@ -28,6 +28,7 @@
     "mongoose": "^6.6.5",
     "nodemailer": "^6.8.0",
     "prettier": "^2.7.1",
+    "qs": "^6.11.2",
     "socket.io": "^4.5.3",
     "typescript": "^4.8.4",
     "uuid": "^9.0.0",
