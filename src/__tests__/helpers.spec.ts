@@ -1,12 +1,12 @@
 import mongoose from "mongoose"
-import { datePassedOrNot } from "../helper"
+import { datePassed } from "../helper"
 
-describe("datePassedOrNot", () => {
+describe("datePassed", () => {
 	test("should return true if date is passed", () => {
-		expect(datePassedOrNot("01-01-2021")).toBe(true)
+		expect(datePassed("01-01-2021")).toBe(true)
 	})
 	test("should return false if date is not passed", () => {
-		expect(datePassedOrNot("01-01-2999")).toBe(false)
+		expect(datePassed("01-01-2999")).toBe(false)
 	})
 })
 

@@ -1,5 +1,7 @@
+import axios from "axios"
+import logger from "../logger"
 import { getMarketCurrentPrice } from "./marketData.helper"
-import { SingleMForMonth, datePassedOrNot } from "./optionChain.helper"
+import { SingleMForMonth, datePassed } from "./optionChain.helper"
 
 const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 function sum(a: number, b: number) {
@@ -15,4 +17,29 @@ const isTodayHoliday = () => {
 	}
 }
 
-export { SingleMForMonth, datePassedOrNot, getMarketCurrentPrice, isTodayHoliday, sum, timeout }
+const get = async (url: string) => {
+	const googleChromeUserAgent = "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36"
+	const headers = {
+		"User-Agent": googleChromeUserAgent,
+		"Accept": "*/*",
+		"Accept-Encoding": "gzip, deflate, br",
+		"Connection": "keep-alive",
+		"Host": "www.nseindia.com",
+		"Referer": "https://www.nseindia.com/",
+		"Sec-Fetch-Dest": "empty",
+		"Sec-Fetch-Mode": "cors",
+		"Sec-Fetch-Site": "same-origin",
+	}
+	try {
+		const response = await axios.get(url, { headers })
+		if (response.status === 200) {
+			return response.data
+		} else {
+			return false
+		}
+	} catch (error) {
+		return false
+	}
+}
+
+export { SingleMForMonth, datePassed, getMarketCurrentPrice, isTodayHoliday, sum, timeout, get }

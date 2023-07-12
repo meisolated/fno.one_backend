@@ -4,6 +4,7 @@ import * as fyers from "../lib/fyers"
 import trueData from "../lib/trueData"
 import logger from "../logger"
 import { Session, User } from "../model"
+import { baseSymbolsList } from "../provider/symbols.provider"
 import marketDataUpdateHandler from "./marketDataUpdate.handler"
 import orderUpdateHandler from "./orderUpdate.handler"
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
@@ -103,7 +104,8 @@ const connectFyersMarketDataSocket = async () => {
 
 const connectTrueDataMarketDataSocket = async () => {
 	try {
-		const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK"], "live", true, false)
+		const symbolsList: any = await baseSymbolsList()
+		const trueDataConnection = new trueData.MarketFeeds(config.trueData.username, config.trueData.password, ["NIFTY BANK", ...symbolsList], "live", true, false)
 		chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
 			trueDataConnection.closeConnection()
 			trueDataConnection.connect()

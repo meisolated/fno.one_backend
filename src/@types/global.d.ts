@@ -307,10 +307,7 @@ declare global {
 				description: string
 			},
 		]
-		lastUpdated: {
-			FnODataList: Number
-			FnOHolidayList: Number
-		}
+		lastUpdated: Number
 	}
 
 	// general interfaces

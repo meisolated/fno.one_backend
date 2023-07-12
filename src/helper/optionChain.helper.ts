@@ -1,4 +1,8 @@
-const datePassedOrNot = (date: string) => {
+/**
+ * @param date In format of DD-MM-YYYY
+ * @returns true if date is passed else false
+ */
+const datePassed = (date: string) => {
 	const today = new Date()
 	const dateArray = date.split("-")
 	const dateObject = new Date(`${dateArray[1]}-${dateArray[0]}-${dateArray[2]}`)
@@ -11,30 +15,30 @@ const datePassedOrNot = (date: string) => {
 const SingleMForMonth = (month: string) => {
 	switch (month) {
 		case "Jan":
-			return "1"
+			return "01"
 		case "Feb":
-			return "2"
+			return "02"
 		case "Mar":
-			return "3"
+			return "03"
 		case "Apr":
-			return "4"
+			return "04"
 		case "May":
-			return "5"
+			return "05"
 		case "Jun":
-			return "6"
+			return "06"
 		case "Jul":
-			return "7"
+			return "07"
 		case "Aug":
-			return "8"
+			return "08"
 		case "Sep":
-			return "9"
+			return "09"
 		case "Oct":
-			return "O"
+			return "10"
 		case "Nov":
-			return "N"
+			return "11"
 		case "Dec":
-			return "D"
+			return "12"
 	}
 }
 
-export { SingleMForMonth, datePassedOrNot }
+export { SingleMForMonth, datePassed }
