@@ -1,7 +1,8 @@
+import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "./optionChain.helper"
+
 import axios from "axios"
-import logger from "../logger"
 import { getMarketCurrentPrice } from "./marketData.helper"
-import { SingleMForMonth, datePassed } from "./optionChain.helper"
+import logger from "../logger"
 
 const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 function sum(a: number, b: number) {
@@ -42,4 +43,5 @@ const get = async (url: string) => {
 	}
 }
 
-export { SingleMForMonth, datePassed, getMarketCurrentPrice, isTodayHoliday, sum, timeout, get }
+export { TrueDataMonthStringToNumber, datePassed, get, FyersMonthStringToNumber, getMarketCurrentPrice, isTodayHoliday, sum, timeout }
+

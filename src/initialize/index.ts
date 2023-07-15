@@ -1,7 +1,8 @@
-import axios from "axios"
 import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
-import logger from "../logger"
+
 import { MarketData } from "../model"
+import axios from "axios"
+import logger from "../logger"
 
 export var marketData: any = {}
 const maxTries = 10
@@ -59,7 +60,7 @@ var tasks = [
 				const now = Date.now()
 				const diff = now - lastUpdated
 				const diffInDays = diff / (1000 * 3600 * 24)
-				if (diffInDays < 5) {
+				if (diffInDays < 10) {
 					logger.info("Market Data is updated in last 5 days, no need to update again")
 					tasks.forEach((task) => {
 						if (
@@ -76,7 +77,7 @@ var tasks = [
 					return true
 				} else {
 					logger.info("Market Data is not updated in last 5 days")
-					return false
+					return true
 				}
 			}
 		},

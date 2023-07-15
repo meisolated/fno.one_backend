@@ -1,16 +1,19 @@
-import compression from "compression"
-import { getConfigData } from "./config/initialize"
-import cookieParser from "cookie-parser"
-import express, { Express, json, Request, Response, urlencoded } from "express"
-import http from "http"
 import * as path from "path"
+
+import express, { Express, Request, Response, json, urlencoded } from "express"
+
+import LoadRoutes from "./lib/routesLoader"
 import { Server } from "socket.io"
+import compression from "compression"
+import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
+import cookieParser from "cookie-parser"
+import { getConfigData } from "./config/initialize"
+import http from "http"
+import initialize from "./initialize"
+import logger from "./logger"
 import middleware from "./api/middleware"
 import socketLoader from "./api/socket"
-import { subscribeToAllUsersSockets, subscribeToMarketDataSocket } from "./handler/fyers.handler"
-import initialize from "./initialize"
-import LoadRoutes from "./lib/routesLoader"
-import logger from "./logger"
+import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -67,7 +70,7 @@ initialize()
 			socketLoader(io)
 			logger.info("Socket.io events loaded!")
 			await subscribeToAllUsersSockets()
-			await subscribeToMarketDataSocket()
+			await connectTrueDataMarketDataSocket()
 			logger.info("Starting server...")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`)

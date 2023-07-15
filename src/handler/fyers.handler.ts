@@ -1,13 +1,13 @@
-import config from "../config/coldConf"
-import { getConfigData } from "../config/initialize"
-import chatter from "../events"
 import * as fyers from "../lib/fyers"
-import trueData from "../lib/trueData"
-import logger from "../logger"
+
 import { Session, User } from "../model"
-import { baseSymbolsList } from "../provider/symbols.provider"
+
+import chatter from "../events"
+import config from "../config/coldConf"
+import logger from "../logger"
 import marketDataUpdateHandler from "./marketDataUpdate.handler"
 import orderUpdateHandler from "./orderUpdate.handler"
+
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
 const connectionToMarketDataSocket = new fyers.marketDataSocket()
 
@@ -68,13 +68,6 @@ export const subscribeToAllUsersSockets = async () => {
 		}
 	}, 10000)
 }
-
-export const subscribeToMarketDataSocket = async () => {
-	if (true) {
-		connectTrueDataMarketDataSocket() // connect to true data market data socket
-	}
-}
-
 const connectFyersMarketDataSocket = async () => {
 	async function connectToSocket() {
 		if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
@@ -97,19 +90,5 @@ const connectFyersMarketDataSocket = async () => {
 			logger.warn("Retrying to connect to market data socket")
 			connectToSocket()
 		}, 10000)
-	}
-}
-
-const connectTrueDataMarketDataSocket = async () => {
-	try {
-		const config = getConfigData()
-		const symbolsList: any = await baseSymbolsList()
-		const trueDataConnection = new trueData.MarketFeeds(config.apis.trueData.username, config.apis.trueData.password, ["NIFTY BANK", ...symbolsList], "live", true, false)
-		chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
-			trueDataConnection.closeConnection()
-			trueDataConnection.connect()
-		})
-	} catch (err: any) {
-		logger.error("Error in connecting to true data socket", false, "", "trueData")
 	}
 }

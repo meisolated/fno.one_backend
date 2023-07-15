@@ -1,16 +1,22 @@
-import { getConfigData } from "../config/initialize"
-import { SingleMForMonth, datePassed } from "../helper"
+import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "../helper"
+
 import HistoricalData from "../lib/trueData/historical"
-import logger from "../logger"
 import { MarketData } from "../model"
+import { getConfigData } from "../config/initialize"
+import logger from "../logger"
+
 export const baseSymbolsList = async () => {
 	const settings = {
-		numberOfOptions: 20, // Number of options to be fetched both above and below the current price
+		numberOfOptions: 15, // Number of options to be fetched both above and below the current price
 		numberOfSymbolsAllowed: 200,
 		includeUnderlyingAssets: true, // Include the underlying asset in the list of symbols
 		onlyIncludeSymbolsOfCurrentExpiry: true, // Only include symbols of the current expiry
 		whichMarketOptionsToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
 		whichMarketUnderlyingToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
+		mainSymbol: "NIFTY BANK",
+		secondarySymbol: "NIFTY",
+		t5BanksSymbol: ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK"],
+		o5BanksSymbol: ["INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"],
 	}
 
 	if (settings.whichMarketOptionsToInclude === "banknifty") {
@@ -23,7 +29,7 @@ export const baseSymbolsList = async () => {
 			const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
 
 			// get upcoming expiry date
-			let BANKNIFTYUpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
+			const BANKNIFTYUpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
 				if (!datePassed(expiryDate)) {
 					return expiryDate
 				}
@@ -32,7 +38,8 @@ export const baseSymbolsList = async () => {
 
 			//prepare expiry date
 			const DD = BANKNIFTYUpcomingExpiry[0].split("-")[0]
-			const MM = SingleMForMonth(BANKNIFTYUpcomingExpiry[0].split("-")[1])
+			const MM = TrueDataMonthStringToNumber(BANKNIFTYUpcomingExpiry[0].split("-")[1])
+			const M = FyersMonthStringToNumber(BANKNIFTYUpcomingExpiry[0].split("-")[1])
 			const YY = BANKNIFTYUpcomingExpiry[0].split("-")[2].slice(2, 4)
 			const prepareExpiryDate = YY + MM + DD
 			//---------------------------------------------
@@ -45,14 +52,13 @@ export const baseSymbolsList = async () => {
 				strikePrices.push(roundOffCurrentPrice + 100 * i)
 			}
 			strikePrices.sort((a, b) => a - b)
-			strikePrices.forEach((strike) => {
-				const strikePrice = strike.toString().padStart(5, "0")
-				const CE = `BANKNIFTY${prepareExpiryDate}${strikePrice}CE`
-				const PE = `BANKNIFTY${prepareExpiryDate}${strikePrice}PE`
+			strikePrices.forEach((strikePrice) => {
+				const CE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE")
+				const PE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE")
 				symbols.push(CE)
 				symbols.push(PE)
 			})
-			return symbols
+			return [...symbols, settings.mainSymbol, settings.secondarySymbol, ...settings.t5BanksSymbol, ...settings.o5BanksSymbol]
 
 			//---------------------------------------------
 		}
@@ -60,7 +66,7 @@ export const baseSymbolsList = async () => {
 }
 
 export const optionChainSymbols = async (symbol: string) => {
-	const numberOfOptions = 20
+	const numberOfOptions = 15
 	const config = getConfigData()
 	if (symbol.includes("BANKNIFTY")) {
 		const historical = new HistoricalData(config.apis.trueData.username, config.apis.trueData.password)
@@ -79,7 +85,7 @@ export const optionChainSymbols = async (symbol: string) => {
 
 			//prepare expiry date
 			const DD = UpcomingExpiry[0].split("-")[0]
-			const MM = SingleMForMonth(UpcomingExpiry[0].split("-")[1])
+			const MM = TrueDataMonthStringToNumber(UpcomingExpiry[0].split("-")[1])
 			const YY = UpcomingExpiry[0].split("-")[2].slice(2, 4)
 			const prepareExpiryDate = YY + MM + DD
 			//---------------------------------------------
@@ -91,11 +97,13 @@ export const optionChainSymbols = async (symbol: string) => {
 				strikePrices.push(roundOffCurrentPrice + 100 * i)
 			}
 			strikePrices.sort((a, b) => a - b)
-			strikePrices.forEach((strike) => {
-				const strikePrice = strike.toString().padStart(5, "0")
-				const CE = `${symbol}${prepareExpiryDate}${strikePrice}CE`
-				const PE = `${symbol}${prepareExpiryDate}${strikePrice}PE`
-				symbols.push({ CE, PE, strike })
+			strikePrices.forEach((strikePrice) => {
+				const TD_CE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "CE")
+				const TD_PE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "PE")
+				const FY_CE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "CE")
+				const FY_PE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "PE")
+
+				symbols.push({ CE: TD_CE, PE: TD_PE, strike: strikePrice, other: { FY_PE, FY_CE } })
 			})
 			return symbols
 		} else {
@@ -103,6 +111,39 @@ export const optionChainSymbols = async (symbol: string) => {
 			return false
 		}
 	}
+}
+
+
+/**
+ * 
+ * @param symbol symbol name
+ * @param expiryDate expiry date string in format DD-MM-YYYY
+ * @param strikePrice strike price string
+ * @param optionType CE or PE
+ * @returns 
+ */
+const TrueDataSymbolMaker = (symbol: string, expiryDate: string, strikePrice: number, optionType: string) => {
+	const DD = expiryDate.split("-")[0]
+	const MM = TrueDataMonthStringToNumber(expiryDate.split("-")[1])
+	const YY = expiryDate.split("-")[2].slice(2, 4)
+	const prepareExpiryDate = YY + MM + DD
+	return `${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
+}
+/**
+ * 
+ * @param ex exchange name
+ * @param symbol symbol name
+ * @param expiryDate expiry date string in format DD-MM-YYYY
+ * @param strikePrice strike price string
+ * @param optionType CE or PE
+ * @returns ${ex}:${symbol}${prepareExpiryDate}${strikePrice}${optionType}
+ */
+const FyersSymbolMaker = (ex: string, symbol: string, expiryDate: string, strikePrice: number, optionType: string) => {
+	const DD = expiryDate.split("-")[0]
+	const M = FyersMonthStringToNumber(expiryDate.split("-")[1])
+	const YY = expiryDate.split("-")[2].slice(2, 4)
+	const prepareExpiryDate = YY + M + DD
+	return `${ex}:${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
 }
 
 // Symbols mapping for WebSocket API:

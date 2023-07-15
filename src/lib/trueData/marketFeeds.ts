@@ -1,6 +1,8 @@
-import ws from "ws"
-import chatter from "../../events"
+import { EventEmitter } from "events"
 import logger from "../../logger"
+import { trueDataMarketFeedsDataProcessing } from "../../unit/dataProcessing.unit"
+import ws from "ws"
+const chatter = new EventEmitter()
 
 /**
  * @description MarketFeeds class to connect to TrueData
@@ -68,10 +70,10 @@ class MarketFeeds {
 					var jsonObj = JSON.parse(data.toString())
 					if (jsonObj.trade != null) {
 						const tradeArray = jsonObj.trade
-						chatter.emit("trueDataLibMarketDataUpdates-", "tick", this.handleRealTimeData(tradeArray))
+						chatter.emit("trueDataLibMarketDataUpdates-tick", this.handleRealTimeData(tradeArray))
 					} else if (this.bidAskData && jsonObj.bidask != null) {
 						const bidAskArray = jsonObj.bidask
-						chatter.emit("trueDataLibMarketDataUpdates-", "bigAsk", this.handleBidAskData(bidAskArray))
+						chatter.emit("trueDataLibMarketDataUpdates-bigAsk", this.handleBidAskData(bidAskArray))
 					} else if (jsonObj.success) {
 						switch (jsonObj.message) {
 							case "TrueData Real Time Data Service":
@@ -86,7 +88,7 @@ class MarketFeeds {
 									this.touchlineData[symbol[1]] = this.handleTouchline(symbol)
 									this.touchlineMap[symbol[1]] = symbol[0]
 								})
-								chatter.emit("trueDataLibMarketDataUpdates-", "touchline", this.touchlineData)
+								chatter.emit("trueDataLibMarketDataUpdates-touchline", this.touchlineData)
 								break
 							// -------------------> touchline <-------------------
 							case "touchline":
@@ -94,7 +96,7 @@ class MarketFeeds {
 								jsonObj.symbollist.forEach((touchline: string[]) => {
 									this.touchlineData[touchline[1]] = this.handleTouchline(touchline)
 								})
-								chatter.emit("trueDataLibMarketDataUpdates-", "touchline", this.touchlineData)
+								chatter.emit("trueDataLibMarketDataUpdates-touchline", this.touchlineData)
 								break
 							// -------------------> HeartBeat <-------------------
 							case "HeartBeat":
@@ -130,6 +132,18 @@ class MarketFeeds {
 				logger.error(err.message, false, undefined, "TrueData")
 			}
 		}
+	}
+
+	dataCallback(callback: any) {
+		chatter.on("trueDataLibMarketDataUpdates-tick", (data) => {
+			callback(data)
+		})
+		chatter.on("trueDataLibMarketDataUpdates-touchline", (data) => {
+			// callback(data)
+		})
+		chatter.on("trueDataLibMarketDataUpdates-bigAsk", (data) => {
+			// callback(data)
+		})
 	}
 
 	closeConnection() {
@@ -240,8 +254,8 @@ class MarketFeeds {
 			Ask: +tradeArray[17] || 0,
 			Ask_Qty: +tradeArray[18] || 0,
 		}
-
-		return data
+		const processedData = trueDataMarketFeedsDataProcessing(data)
+		return processedData
 	}
 
 	private handleBidAskData(bidaskArray: string[]) {

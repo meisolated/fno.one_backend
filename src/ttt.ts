@@ -1,6 +1,7 @@
-import { baseSymbolsList } from "./provider/symbols.provider"
+import { fyersOptionSymbolToTrueDataOptionSymbol, trueDataOptionSymbolToFyersOptionSymbol } from "./unit/converter.unit"
 
-const main = async () => {
-	await baseSymbolsList()
-}
-main()
+const first = fyersOptionSymbolToTrueDataOptionSymbol("NSE:BANKNIFTY20N0525000PE")
+const second = trueDataOptionSymbolToFyersOptionSymbol("BANKNIFTY20043012000CE")
+
+console.log(first)
+console.log(second)
