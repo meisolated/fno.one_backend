@@ -1,4 +1,4 @@
-const trueDataMarketFeedsDataProcessing = (data: any) => {
+const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 	const processData: symbolTicks = {
 		symbol: data.Symbol,
 		original_name: data.Symbol,
@@ -35,5 +35,27 @@ const trueDataMarketFeedsDataProcessing = (data: any) => {
 	}
 	return processData
 }
+const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 
-export { trueDataMarketFeedsDataProcessing }
+	const processData: trueDataMarketFeedsTouchlineData = {
+		symbol: data.Symbol,
+		lastUpdateTime: data.LastUpdateTime,
+		LTP: data.LTP,
+		tickVolume: data.TickVolume,
+		ATP: data.ATP,
+		totalVolume: data.TotalVolume,
+		open: data.Open,
+		high: data.High,
+		low: data.Low,
+		previousClose: data.Previous_Close,
+		turnOver: data.TurnOver,
+		bid: data.Bid,
+		ask: data.Ask,
+		bigQty: data.BigQty,
+		askQty: data.AskQty,
+	}
+	return processData
+}
+
+export { trueDataMarketFeedsHandleTouchlineDataProcessing, trueDataMarketFeedsRealTimeDataProcessing }
+

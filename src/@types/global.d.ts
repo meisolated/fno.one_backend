@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface rateLimitData {
@@ -274,7 +274,6 @@ declare global {
 		ex_sym: string
 		description: string
 	}
-
 	interface marketData {
 		id: string
 		BANKNIFTY: {
@@ -304,10 +303,27 @@ declare global {
 		]
 		lastUpdated: Number
 	}
-
 	// general interfaces
 	interface AccessToken {
 		accessToken: string
 		email: string
+	}
+
+	interface trueDataMarketFeedsTouchlineData {
+		symbol: string
+		lastUpdateTime: string
+		LTP: number
+		tickVolume: number
+		ATP: number
+		totalVolume: number
+		open: number
+		high: number
+		low: number
+		previousClose: number
+		turnOver: number
+		bid: number
+		bigQty: number
+		ask: number
+		askQty: number
 	}
 }

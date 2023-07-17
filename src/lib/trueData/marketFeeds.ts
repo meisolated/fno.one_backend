@@ -1,7 +1,7 @@
 import { EventEmitter } from "events"
-import logger from "../../logger"
-import { trueDataMarketFeedsDataProcessing } from "../../unit/dataProcessing.unit"
 import ws from "ws"
+import { trueDataMarketFeedsHandleTouchlineDataProcessing, trueDataMarketFeedsRealTimeDataProcessing } from "../../dataProcessingUnit"
+import logger from "../../logger"
 const chatter = new EventEmitter()
 
 /**
@@ -209,8 +209,9 @@ class MarketFeeds {
 		}, this.reconnectInterval)
 	}
 
+	// ------------- data handlers ----------------
 	private handleTouchline(touchline: string[]) {
-		return {
+		const data = {
 			Symbol: touchline[0],
 			LastUpdateTime: touchline[2],
 			LTP: +touchline[3],
@@ -229,6 +230,8 @@ class MarketFeeds {
 			Ask: +touchline[16] || 0,
 			AskQty: +touchline[17] || 0,
 		}
+		trueDataMarketFeedsHandleTouchlineDataProcessing(data)
+		return data
 	}
 
 	private handleRealTimeData(tradeArray: string[]) {
@@ -254,7 +257,7 @@ class MarketFeeds {
 			Ask: +tradeArray[17] || 0,
 			Ask_Qty: +tradeArray[18] || 0,
 		}
-		const processedData = trueDataMarketFeedsDataProcessing(data)
+		const processedData = trueDataMarketFeedsRealTimeDataProcessing(data)
 		return processedData
 	}
 

@@ -60,7 +60,7 @@ var tasks = [
 				const now = Date.now()
 				const diff = now - lastUpdated
 				const diffInDays = diff / (1000 * 3600 * 24)
-				if (diffInDays < 10) {
+				if (diffInDays < 1) {
 					logger.info("Market Data is updated in last 5 days, no need to update again")
 					tasks.forEach((task) => {
 						if (

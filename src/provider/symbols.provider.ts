@@ -15,6 +15,7 @@ export const baseSymbolsList = async () => {
 		whichMarketUnderlyingToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
 		mainSymbol: "NIFTY BANK",
 		secondarySymbol: "NIFTY",
+		thirdSymbol: "FINNIFTY",
 		t5BanksSymbol: ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK"],
 		o5BanksSymbol: ["INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"],
 	}
@@ -34,15 +35,6 @@ export const baseSymbolsList = async () => {
 					return expiryDate
 				}
 			})
-			//---------------------------------------------
-
-			//prepare expiry date
-			const DD = BANKNIFTYUpcomingExpiry[0].split("-")[0]
-			const MM = TrueDataMonthStringToNumber(BANKNIFTYUpcomingExpiry[0].split("-")[1])
-			const M = FyersMonthStringToNumber(BANKNIFTYUpcomingExpiry[0].split("-")[1])
-			const YY = BANKNIFTYUpcomingExpiry[0].split("-")[2].slice(2, 4)
-			const prepareExpiryDate = YY + MM + DD
-			//---------------------------------------------
 
 			// based on current price take 10 options above and below
 			const strikePrices = []
@@ -83,13 +75,6 @@ export const optionChainSymbols = async (symbol: string) => {
 			})
 			//---------------------------------------------
 
-			//prepare expiry date
-			const DD = UpcomingExpiry[0].split("-")[0]
-			const MM = TrueDataMonthStringToNumber(UpcomingExpiry[0].split("-")[1])
-			const YY = UpcomingExpiry[0].split("-")[2].slice(2, 4)
-			const prepareExpiryDate = YY + MM + DD
-			//---------------------------------------------
-
 			const strikePrices = []
 			const symbols: Array<Object> = []
 			for (let i = 0; i < numberOfOptions; i++) {
@@ -121,6 +106,7 @@ export const optionChainSymbols = async (symbol: string) => {
  * @param strikePrice strike price string
  * @param optionType CE or PE
  * @returns 
+ * 
  */
 const TrueDataSymbolMaker = (symbol: string, expiryDate: string, strikePrice: number, optionType: string) => {
 	const DD = expiryDate.split("-")[0]
