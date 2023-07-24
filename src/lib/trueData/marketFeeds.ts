@@ -1,7 +1,14 @@
+import {
+	trueDataHandleBarDataProcessing,
+	trueDataMarketFeedsHandleBidAskDataProcessing,
+	trueDataMarketFeedsHandleTouchlineDataProcessing,
+	trueDataMarketFeedsRealTimeDataProcessing,
+} from "../../dataProcessingUnit"
+
 import { EventEmitter } from "events"
-import ws from "ws"
-import { trueDataMarketFeedsHandleTouchlineDataProcessing, trueDataMarketFeedsRealTimeDataProcessing } from "../../dataProcessingUnit"
 import logger from "../../logger"
+import ws from "ws"
+
 const chatter = new EventEmitter()
 
 /**
@@ -134,17 +141,26 @@ class MarketFeeds {
 		}
 	}
 
-	dataCallback(callback: any) {
-		chatter.on("trueDataLibMarketDataUpdates-tick", (data) => {
-			callback(data)
-		})
-		chatter.on("trueDataLibMarketDataUpdates-touchline", (data) => {
-			// callback(data)
-		})
-		chatter.on("trueDataLibMarketDataUpdates-bigAsk", (data) => {
-			// callback(data)
-		})
-	}
+	// dataCallback(callback: any) {
+	// 	chatter.on("trueDataLibMarketDataUpdates-tick", (data) => {
+	// 		callback({
+	// 			type: "tick",
+	// 			data
+	// 		})
+	// 	})
+	// 	chatter.on("trueDataLibMarketDataUpdates-touchline", (data) => {
+	// 		callback({
+	// 			type: "touchline",
+	// 			data
+	// 		})
+	// 	})
+	// 	chatter.on("trueDataLibMarketDataUpdates-bigAsk", (data) => {
+	// 		callback({
+	// 			type: "bigAsk",
+	// 			data
+	// 		})
+	// 	})
+	// }
 
 	closeConnection() {
 		if (this.connection) {
@@ -231,7 +247,7 @@ class MarketFeeds {
 			AskQty: +touchline[17] || 0,
 		}
 		trueDataMarketFeedsHandleTouchlineDataProcessing(data)
-		return data
+		return true
 	}
 
 	private handleRealTimeData(tradeArray: string[]) {
@@ -257,12 +273,12 @@ class MarketFeeds {
 			Ask: +tradeArray[17] || 0,
 			Ask_Qty: +tradeArray[18] || 0,
 		}
-		const processedData = trueDataMarketFeedsRealTimeDataProcessing(data)
-		return processedData
+		trueDataMarketFeedsRealTimeDataProcessing(data)
+		return
 	}
 
 	private handleBidAskData(bidaskArray: string[]) {
-		return {
+		const data = {
 			Symbol: this.touchlineMap[bidaskArray[0]],
 			SymbolId: bidaskArray[0],
 			Time: bidaskArray[1],
@@ -271,10 +287,12 @@ class MarketFeeds {
 			Ask: +bidaskArray[4],
 			AskQty: +bidaskArray[5],
 		}
+		trueDataMarketFeedsHandleBidAskDataProcessing(data)
+		return
 	}
 
 	private handleBarData(barArray: string[], bar: string) {
-		return {
+		const data = {
 			Symbol: this.touchlineMap[barArray[0]],
 			SymbolId: barArray[0],
 			Bar: bar,
@@ -286,6 +304,8 @@ class MarketFeeds {
 			Volume: +barArray[6],
 			OI: +barArray[7],
 		}
+		trueDataHandleBarDataProcessing(data)
+		return
 	}
 }
 

@@ -98,15 +98,14 @@ export const optionChainSymbols = async (symbol: string) => {
 	}
 }
 
-
 /**
- * 
+ *
  * @param symbol symbol name
  * @param expiryDate expiry date string in format DD-MM-YYYY
  * @param strikePrice strike price string
  * @param optionType CE or PE
- * @returns 
- * 
+ * @returns
+ *
  */
 const TrueDataSymbolMaker = (symbol: string, expiryDate: string, strikePrice: number, optionType: string) => {
 	const DD = expiryDate.split("-")[0]
@@ -116,7 +115,7 @@ const TrueDataSymbolMaker = (symbol: string, expiryDate: string, strikePrice: nu
 	return `${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
 }
 /**
- * 
+ *
  * @param ex exchange name
  * @param symbol symbol name
  * @param expiryDate expiry date string in format DD-MM-YYYY

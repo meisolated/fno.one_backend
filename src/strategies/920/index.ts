@@ -1,5 +1,6 @@
-import { EventEmitter } from "events"
-
 export default {
-	disabled: true,
+	name: "920",
+	enabled: true,
+	description: "",
+	run: async function () {},
 }

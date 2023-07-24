@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -325,5 +325,24 @@ declare global {
 		bigQty: number
 		ask: number
 		askQty: number
+	}
+	interface trueDataMarketFeedsBidAskData {
+		symbol: string
+		time: string
+		bid: string
+		bidQty: string
+		ask: string
+		askQty: string
+	}
+	interface trueDataHandleBarData {
+		symbol: string
+		bar: string
+		time: string
+		open: string
+		high: string
+		low: string
+		close: string
+		volume: string
+		oi: string
 	}
 }

@@ -72,4 +72,3 @@ const FyersMonthStringToNumber = (month: string) => {
 }
 
 export { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed }
-

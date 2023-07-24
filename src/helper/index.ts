@@ -44,4 +44,3 @@ const get = async (url: string) => {
 }
 
 export { TrueDataMonthStringToNumber, datePassed, get, FyersMonthStringToNumber, getMarketCurrentPrice, isTodayHoliday, sum, timeout }
-

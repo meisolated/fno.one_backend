@@ -68,7 +68,7 @@ export const subscribeToAllUsersSockets = async () => {
 		}
 	}, 10000)
 }
-const connectFyersMarketDataSocket = async () => {
+export const connectFyersMarketDataSocket = async () => {
 	async function connectToSocket() {
 		if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
 			const symbol = [config.mainSymbol, config.secondarySymbol, ...config.o5BanksSymbol, ...config.t5BanksSymbol]
