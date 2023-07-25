@@ -1,6 +1,6 @@
 import * as path from "path"
 
-import express, { Express, Request, Response, json, urlencoded } from "express"
+import express, { Express, NextFunction, Request, Response, json, urlencoded } from "express"
 
 import LoadRoutes from "./lib/routesLoader"
 import { Server } from "socket.io"
