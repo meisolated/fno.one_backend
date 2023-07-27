@@ -40,7 +40,7 @@ function commit(version) {
     let res = childProcess.spawnSync("git", ["commit", "-m", msg, "-a"])
     console.log(res.stdout.toString().trim())
 
-    if (stdout.includes("no changes added to commit")) {
+    if (res.stdout.toString().trim().includes("no changes added to commit")) {
         throw new Error("commit error")
     }
 }
