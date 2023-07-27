@@ -1,6 +1,6 @@
+import { Logger } from "../model"
 import chalk from "chalk"
 import path from "path"
-import { Logger } from "../model"
 
 const _log = console.log
 const red = chalk.red
@@ -51,7 +51,7 @@ export default class logger {
 		const stackTrace = new Error().stack || ""
 		const stackLines = stackTrace.split("\n").slice(2)
 		const callerLine = stackLines[0]
-		const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
+		// const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10) // not in use
 		const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
 		const from = `${path.relative(process.cwd(), fileName)}` || "♡"
 

@@ -13,11 +13,9 @@ export const baseSymbolsList = async () => {
 		onlyIncludeSymbolsOfCurrentExpiry: true, // Only include symbols of the current expiry
 		whichMarketOptionsToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
 		whichMarketUnderlyingToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
-		mainSymbol: "NIFTY BANK",
-		secondarySymbol: "NIFTY",
-		thirdSymbol: "FINNIFTY",
-		t5BanksSymbol: ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK"],
-		o5BanksSymbol: ["INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"],
+		indicesSymbol: ["NIFTY", "BANKNIFTY", "FINNIFTY"],
+		bankNiftyUnderlyingAssets: ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"],
+
 	}
 
 	if (settings.whichMarketOptionsToInclude === "banknifty") {
@@ -50,7 +48,7 @@ export const baseSymbolsList = async () => {
 				symbols.push(CE)
 				symbols.push(PE)
 			})
-			return [...symbols, settings.mainSymbol, settings.secondarySymbol, ...settings.t5BanksSymbol, ...settings.o5BanksSymbol]
+			return [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets,]
 
 			//---------------------------------------------
 		}
