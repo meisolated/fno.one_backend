@@ -48,7 +48,7 @@ var tasks = [
 		},
 	},
 	{
-		name: "CheckIfLastUpdatedInLast5Days",
+		name: "CheckIfLastUpdatedInLast1Days",
 		status: false,
 		tries: 0,
 		execute: async () => {
@@ -61,7 +61,7 @@ var tasks = [
 				const diff = now - lastUpdated
 				const diffInDays = diff / (1000 * 3600 * 24)
 				if (diffInDays < 1) {
-					logger.info("Market Data is updated in last 5 days, no need to update again")
+					logger.info("Market Data is updated in last 1 days, no need to update again")
 					tasks.forEach((task) => {
 						if (
 							task.name === "NSEBankNiftyData" ||
@@ -76,7 +76,7 @@ var tasks = [
 					})
 					return true
 				} else {
-					logger.info("Market Data is not updated in last 5 days")
+					logger.info("Market Data is not updated in last 1 days")
 					return true
 				}
 			}

@@ -1,6 +1,6 @@
 {
     "name": "FnO_Backend_Vedus",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "displayName": "FnO Backend | Vedus",
     "description": "",
     "main": "index.js",
@@ -12,7 +12,8 @@
         "testFile": "yarn build && node dist/tempStrategyTest.js",
         "prettier": "prettier",
         "test": "npx jest",
-        "localTest": "tsc && node ./dist/ttt.js"
+        "localTest": "tsc && node ./dist/ttt.js",
+        "updateVersion": "node ./extra/updateVersion.js"
     },
     "keywords": [],
     "author": "meisolated",

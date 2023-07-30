@@ -20,7 +20,6 @@ if (!exists) {
 
     // Process package.json
     pkg.version = newVersion
-
     fs.writeFileSync("package.json", JSON.stringify(pkg, null, 4) + "\n")
     commit(newVersion)
     tag(newVersion)

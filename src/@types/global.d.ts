@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface rateLimitData {
@@ -19,16 +19,15 @@ declare global {
 	}
 	interface symbolTicks {
 		symbol: string
-		original_name: string
-		short_name: string
+		originalName: string
+		shortName: string
 		description: string
 		exchange: string
-		high_price: number
-		low_price: number
-		prev_close_price: number
+		highPrice: number
+		lowPrice: number
+		prevClosePrice: number
 		ch: number
 		tt: number
-
 		cmd: {
 			c: number
 			h: number
@@ -40,14 +39,14 @@ declare global {
 		}
 
 		chp: number
-		open_price: number
+		openPrice: number
 		lp: number
 		LTQ: number
-		L2_LTT: number
+		L2LTT: number
 		ATP: number
 		volume: number
-		tot_buy: number
-		tot_sell: number
+		totBuy: number
+		totSell: number
 		bid: number
 		ask: number
 		spread: number
@@ -178,6 +177,7 @@ declare global {
 	}
 	interface trades {
 		id: string
+		paper: boolean
 		clientId: string
 		exchange: string
 		exchangeOrderNo: string
@@ -303,6 +303,23 @@ declare global {
 		]
 		lastUpdated: Number
 	}
+
+	interface strategies {
+		id: string
+		name: string
+		description: string
+		markets: string[]
+		enabled: boolean
+		backTest: {
+			lastBackTested: Date
+			backTestData: string
+		}
+		createdAt: Date
+		updatedAt: Date
+
+	}
+
+	// --------- model interfaces end ------------
 	// general interfaces
 	interface AccessToken {
 		accessToken: string

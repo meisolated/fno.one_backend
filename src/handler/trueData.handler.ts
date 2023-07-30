@@ -1,8 +1,8 @@
-import { baseSymbolsList } from "../provider/symbols.provider"
-import chatter from "../events"
 import { getConfigData } from "../config/initialize"
-import logger from "../logger"
+import chatter from "../events"
 import trueData from "../lib/trueData"
+import logger from "../logger"
+import { baseSymbolsList } from "../provider/symbols.provider"
 
 const connectTrueDataMarketDataSocket = async () => {
 	try {
