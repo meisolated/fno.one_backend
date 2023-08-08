@@ -1,13 +1,15 @@
-import { EventEmitter } from "events"
+import chatter from "../../events"
 import logger from "../../logger"
 
-export default {
-	enabled: true,
-	id: "920",
-	name: "920",
-	description: "A simple strategy, just pick 9:20AM candle and trade on its high or low. Opposite will be SL.",
-	intervalDuration: 10000, // 10 seconds
-	run: async function () {
-		logger.info(`Running ${this.name} strategy`)
-	},
+export default class NineTwenty {
+	private _name: string = "trafficLight"
+	public enabled: boolean = false
+	public name = "920"
+	public id = "920"
+	constructor() {
+	}
+	public async run(markets: Array<string>) {
+		logger.info(`Running ${this._name} strategy`)
+	}
+
 }

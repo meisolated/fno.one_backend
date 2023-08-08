@@ -5,92 +5,110 @@ import { MarketData } from "../model"
 import { getConfigData } from "../config/initialize"
 import logger from "../logger"
 
+export var _baseSymbolsList: any = []
+export var _optionChainSymbolsList: any = {}
+
 export const baseSymbolsList = async () => {
+	if (_baseSymbolsList.length > 0) return _baseSymbolsList
 	const settings = {
-		numberOfOptions: 15, // Number of options to be fetched both above and below the current price
+		numberOfOptions: 10, // Number of options to be fetched both above and below the current price
 		numberOfSymbolsAllowed: 200,
 		includeUnderlyingAssets: true, // Include the underlying asset in the list of symbols
 		onlyIncludeSymbolsOfCurrentExpiry: true, // Only include symbols of the current expiry
 		whichMarketOptionsToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
 		whichMarketUnderlyingToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
-		indicesSymbol: ["NIFTY", "BANKNIFTY", "FINNIFTY"],
+		indicesSymbol: ["NIFTY", "NIFTY BANK", "FINNIFTY"],
 		bankNiftyUnderlyingAssets: ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"],
 
 	}
-
 	if (settings.whichMarketOptionsToInclude === "banknifty") {
 		const config = getConfigData()
 		const marketData = await MarketData.findOne({ id: 1 })
 		if (marketData) {
-			const historical = new HistoricalData(config.apis.trueData.username, config.apis.trueData.password)
-			const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
-			const currentPrice = BankNiftyCurrentPrice.Records[0][4]
-			const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
+			try {
+				const historical = new HistoricalData()
+				const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
+				const currentPrice = BankNiftyCurrentPrice.Records[0][4]
+				const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
 
-			// get upcoming expiry date
-			const BANKNIFTYUpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
-				if (!datePassed(expiryDate)) {
-					return expiryDate
+				// get upcoming expiry date
+				const BANKNIFTYUpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
+					if (!datePassed(expiryDate)) {
+						return expiryDate
+					}
+				})
+
+				// based on current price take 10 options above and below
+				const strikePrices = []
+				const symbols: Array<String> = []
+				for (let i = 0; i < settings.numberOfOptions; i++) {
+					strikePrices.push(roundOffCurrentPrice - 100 * i)
+					strikePrices.push(roundOffCurrentPrice + 100 * i)
 				}
-			})
+				strikePrices.sort((a, b) => a - b)
+				strikePrices.forEach((strikePrice) => {
+					const CE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE")
+					const PE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE")
+					symbols.push(CE)
+					symbols.push(PE)
+				})
+				const uniqueSymbols = [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets,]
+				logger.info(`Total number of symbols: ${uniqueSymbols.length}`)
+				_baseSymbolsList = uniqueSymbols
+				return uniqueSymbols
 
-			// based on current price take 10 options above and below
-			const strikePrices = []
-			const symbols: Array<String> = []
-			for (let i = 0; i < settings.numberOfOptions; i++) {
-				strikePrices.push(roundOffCurrentPrice - 100 * i)
-				strikePrices.push(roundOffCurrentPrice + 100 * i)
+				//---------------------------------------------
+			} catch (error) {
+				logger.error(`Error in fetching symbols list: ${error}`)
 			}
-			strikePrices.sort((a, b) => a - b)
-			strikePrices.forEach((strikePrice) => {
-				const CE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE")
-				const PE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE")
-				symbols.push(CE)
-				symbols.push(PE)
-			})
-			return [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets,]
 
-			//---------------------------------------------
 		}
 	}
 }
 
 export const optionChainSymbols = async (symbol: string) => {
-	const numberOfOptions = 15
+	const numberOfOptions = 10
 	const config = getConfigData()
 	if (symbol.includes("BANKNIFTY")) {
-		const historical = new HistoricalData(config.apis.trueData.username, config.apis.trueData.password)
-		const currentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
-		const roundOffCurrentPrice = Math.round(currentPrice.Records[0][4] / 100) * 100
+		if (_optionChainSymbolsList[symbol]) return _optionChainSymbolsList[symbol]
+		try {
+			const historical = new HistoricalData()
+			const currentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
+			const roundOffCurrentPrice = Math.round(currentPrice.Records[0][4] / 100) * 100
 
-		const marketData = await MarketData.findOne({ id: 1 })
-		if (marketData) {
-			// get upcoming expiry date
-			let UpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
-				if (!datePassed(expiryDate)) {
-					return expiryDate
+			const marketData = await MarketData.findOne({ id: 1 })
+			if (marketData) {
+				// get upcoming expiry date
+				let UpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
+					if (!datePassed(expiryDate)) {
+						return expiryDate
+					}
+				})
+				//---------------------------------------------
+
+				const strikePrices = []
+				const symbols: Array<Object> = []
+				for (let i = 0; i < numberOfOptions; i++) {
+					strikePrices.push(roundOffCurrentPrice - 100 * i)
+					strikePrices.push(roundOffCurrentPrice + 100 * i)
 				}
-			})
-			//---------------------------------------------
+				strikePrices.sort((a, b) => a - b)
+				strikePrices.forEach((strikePrice) => {
+					const TD_CE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "CE")
+					const TD_PE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "PE")
+					const FY_CE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "CE")
+					const FY_PE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "PE")
 
-			const strikePrices = []
-			const symbols: Array<Object> = []
-			for (let i = 0; i < numberOfOptions; i++) {
-				strikePrices.push(roundOffCurrentPrice - 100 * i)
-				strikePrices.push(roundOffCurrentPrice + 100 * i)
+					symbols.push({ CE: TD_CE, PE: TD_PE, strike: strikePrice, other: { fy: { PE: FY_PE, CE: FY_CE } } })
+				})
+				_optionChainSymbolsList = { [symbol]: symbols }
+				return symbols
+			} else {
+				logger.error("Market Data not found")
+				return false
 			}
-			strikePrices.sort((a, b) => a - b)
-			strikePrices.forEach((strikePrice) => {
-				const TD_CE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "CE")
-				const TD_PE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "PE")
-				const FY_CE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "CE")
-				const FY_PE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "PE")
-
-				symbols.push({ CE: TD_CE, PE: TD_PE, strike: strikePrice, other: { FY_PE, FY_CE } })
-			})
-			return symbols
-		} else {
-			logger.error("Market Data not found")
+		} catch (error) {
+			logger.error(`Error in fetching symbols list: ${error}`)
 			return false
 		}
 	}

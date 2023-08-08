@@ -49,6 +49,7 @@ export const subscribeToAllUsersSockets = async () => {
 					}
 				} else {
 					logger.info("User disconnected from fyers " + user.email)
+					activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(user._id.toString()), 1)
 					user.connectedApps = user.connectedApps.filter((app: any) => app !== "fyers")
 					user.save()
 				}

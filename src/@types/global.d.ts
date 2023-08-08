@@ -318,6 +318,21 @@ declare global {
 		updatedAt: Date
 
 	}
+	interface positions {
+		id: string
+		paper: boolean
+		whichBroker: string
+		buyAvgPrice: number
+		buyQty: number
+		sellAvgPrice: number
+		sellQty: number
+		netAvgPrice: number
+		netQty: number
+		side : number
+		qty: number
+		productType: string
+
+	}
 
 	// --------- model interfaces end ------------
 	// general interfaces

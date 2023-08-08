@@ -2,19 +2,19 @@ import * as path from "path"
 
 import express, { Express, NextFunction, Request, Response, json, urlencoded } from "express"
 
-import compression from "compression"
-import cookieParser from "cookie-parser"
-import http from "http"
+import LoadRoutes from "./api/routesLoader"
 import { Server } from "socket.io"
+import compression from "compression"
+import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
+import cookieParser from "cookie-parser"
+import { getConfigData } from "./config/initialize"
+import http from "http"
+import initialize from "./initialize"
+import logger from "./logger"
 import middleware from "./api/middleware"
 import socketLoader from "./api/socket"
-import { getConfigData } from "./config/initialize"
-import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
-import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
-import initialize from "./initialize"
-import LoadRoutes from "./lib/routesLoader"
-import logger from "./logger"
 import strategiesLoader from "./strategies/strategiesLoader"
+import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
 
 const app: Express = express()
 const server = http.createServer(app)
