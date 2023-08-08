@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -316,7 +316,6 @@ declare global {
 		}
 		createdAt: Date
 		updatedAt: Date
-
 	}
 	interface positions {
 		id: string
@@ -328,10 +327,9 @@ declare global {
 		sellQty: number
 		netAvgPrice: number
 		netQty: number
-		side : number
+		side: number
 		qty: number
 		productType: string
-
 	}
 
 	// --------- model interfaces end ------------

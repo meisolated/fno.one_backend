@@ -31,7 +31,6 @@ export default async function strategiesLoader() {
 					})
 				}
 			}
-
 		} else {
 			logger.info(`index.ts file not found in ${folder} folder`)
 		}

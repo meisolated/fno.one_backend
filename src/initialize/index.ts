@@ -1,8 +1,8 @@
 import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
 
-import { MarketData } from "../model"
 import axios from "axios"
 import logger from "../logger"
+import { MarketData } from "../model"
 
 export var marketData: any = {}
 const maxTries = 10
@@ -36,6 +36,7 @@ const commonAxiosGet = async (url: string) => {
 var tasks = [
 	{
 		name: "InitializeConfig",
+		importance: 1,
 		status: false,
 		tries: 0,
 		execute: async () => {
@@ -49,6 +50,7 @@ var tasks = [
 	},
 	{
 		name: "CheckIfLastUpdatedInLast1Days",
+		importance: 1,
 		status: false,
 		tries: 0,
 		execute: async () => {
@@ -86,6 +88,7 @@ var tasks = [
 		name: "NSEBankNiftyData",
 		status: false,
 		tries: 0,
+		importance: 1,
 		execute: async () => {
 			const name = "BANKNIFTY"
 			const config = getConfigData()
@@ -110,6 +113,7 @@ var tasks = [
 		name: "NSENiftyData",
 		status: false,
 		tries: 0,
+		importance: 1,
 		execute: async () => {
 			const name = "NIFTY"
 			const config = getConfigData()
@@ -133,6 +137,7 @@ var tasks = [
 		name: "NSEFinNiftyData",
 		status: false,
 		tries: 0,
+		importance: 0,
 		execute: async () => {
 			const name = "FINNIFTY"
 			const config = getConfigData()
@@ -156,6 +161,7 @@ var tasks = [
 		name: "FnOTradingHoliday",
 		status: false,
 		tries: 0,
+		importance: 1,
 		execute: async () => {
 			const config = getConfigData()
 			const url = config.apis.NSE.HolidaysAPIUrl + "trading"
@@ -181,6 +187,7 @@ var tasks = [
 		name: "SaveMarketDataToDB",
 		status: false,
 		tries: 0,
+		importance: 1,
 		execute: async () => {
 			// find if data is already present in DB
 			const getDataOfMarketData = await MarketData.find({ id: 1 })
@@ -229,8 +236,13 @@ export default () =>
 				const isPreviousTaskCompleted = tasks.slice(0, index).every((task) => task.status === true)
 				if (isPreviousTaskCompleted) {
 					if (task.tries >= maxTries) {
-						clearInterval(int)
-						return reject(`Task ${task.name} failed to execute`)
+						if (task.importance === 1) {
+							clearInterval(int)
+							return reject(`Task ${task.name} failed to execute`)
+						} else {
+							logger.warn(`Task ${task.name} failed to execute, but will not stop the process`)
+							task.status = true
+						}
 					}
 					if (task.status === false) {
 						const data = await task.execute()

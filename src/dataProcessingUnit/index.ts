@@ -43,8 +43,6 @@ export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 	} catch (error) {
 		logger.error("There is something wrong inside trueDataMarketFeedsRealTimeDataProcessing", false, "", "DPU")
 	}
-
-
 }
 export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 	const processData: trueDataMarketFeedsTouchlineData = {

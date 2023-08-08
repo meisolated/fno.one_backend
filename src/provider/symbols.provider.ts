@@ -19,7 +19,6 @@ export const baseSymbolsList = async () => {
 		whichMarketUnderlyingToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
 		indicesSymbol: ["NIFTY", "NIFTY BANK", "FINNIFTY"],
 		bankNiftyUnderlyingAssets: ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"],
-
 	}
 	if (settings.whichMarketOptionsToInclude === "banknifty") {
 		const config = getConfigData()
@@ -52,7 +51,7 @@ export const baseSymbolsList = async () => {
 					symbols.push(CE)
 					symbols.push(PE)
 				})
-				const uniqueSymbols = [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets,]
+				const uniqueSymbols = [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets]
 				logger.info(`Total number of symbols: ${uniqueSymbols.length}`)
 				_baseSymbolsList = uniqueSymbols
 				return uniqueSymbols
@@ -61,7 +60,6 @@ export const baseSymbolsList = async () => {
 			} catch (error) {
 				logger.error(`Error in fetching symbols list: ${error}`)
 			}
-
 		}
 	}
 }

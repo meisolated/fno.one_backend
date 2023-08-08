@@ -12,7 +12,6 @@ class HistoricalData {
 	constructor() {
 		this._username = getConfigData().apis.trueData.username
 		this._password = getConfigData().apis.trueData.password
-
 	}
 	public async getAccessToken() {
 		let data = qs.stringify({
@@ -35,12 +34,12 @@ class HistoricalData {
 				if (response.data.access_token != undefined) {
 					this._accessToken = response.data.access_token
 					this._expireTime = Math.floor(Date.now() / 1000) + response.data.expires_in
-					return this._accessTokenGenerated = true
+					return (this._accessTokenGenerated = true)
 				}
-				return this._accessTokenGenerated = false
+				return (this._accessTokenGenerated = false)
 			})
 			.catch((error) => {
-				return this._accessTokenGenerated = false
+				return (this._accessTokenGenerated = false)
 			})
 	}
 	private async checkAccessToken() {

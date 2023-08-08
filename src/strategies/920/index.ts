@@ -6,10 +6,8 @@ export default class NineTwenty {
 	public enabled: boolean = false
 	public name = "920"
 	public id = "920"
-	constructor() {
-	}
+	constructor() {}
 	public async run(markets: Array<string>) {
 		logger.info(`Running ${this._name} strategy`)
 	}
-
 }
