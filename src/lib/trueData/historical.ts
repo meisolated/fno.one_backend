@@ -1,6 +1,7 @@
 import axios from "axios"
 import { getConfigData } from "../../config/initialize"
 import qs from "qs"
+import logger from "../../logger"
 
 class HistoricalData {
 	private _username: string
@@ -87,7 +88,7 @@ class HistoricalData {
 		let config = {
 			method: "get",
 			maxBodyLength: Infinity,
-			url: this._apiUrl + `getbardata?symbol=${symbol}&response=json&interval=${interval}&from=${from}&to=${to}`,
+			url: this._apiUrl + `getbars?symbol=${symbol}&response=json&interval=${interval}&from=${from}&to=${to}`,
 			headers: {
 				Authorization: "Bearer " + this._accessToken,
 			},
@@ -96,6 +97,7 @@ class HistoricalData {
 		if (response.data.status == "Success") {
 			return response.data
 		}
+		logger.error("Error in getBarData")
 		return false
 	}
 }

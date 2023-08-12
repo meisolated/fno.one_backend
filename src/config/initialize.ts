@@ -13,6 +13,7 @@ const checkIsConfigured = async () => {
 const initializeEmptySettings = async () => {
 	const settings: settings = {
 		id: 1,
+		state: "development",
 		realTimeMarketsToWatch: [],
 		keepRealTimeMarketsData: false,
 		activeStrategies: [],

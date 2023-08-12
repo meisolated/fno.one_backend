@@ -2,19 +2,19 @@ import * as path from "path"
 
 import express, { Express, NextFunction, Request, Response, json, urlencoded } from "express"
 
-import LoadRoutes from "./api/routesLoader"
-import { Server } from "socket.io"
 import compression from "compression"
-import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import cookieParser from "cookie-parser"
-import { getConfigData } from "./config/initialize"
 import http from "http"
+import { Server } from "socket.io"
+import middleware from "./api/middleware"
+import LoadRoutes from "./api/routesLoader"
+import socketLoader from "./api/socket"
+import { getConfigData } from "./config/initialize"
+import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
+import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
-import middleware from "./api/middleware"
-import socketLoader from "./api/socket"
 import strategiesLoader from "./strategies/strategiesLoader"
-import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -60,6 +60,7 @@ logger.info("Initializing server start prerequisites...")
 // -----------| Initializing |-----------
 initialize()
 	.then(async (_done) => {
+		const tick = performance.now()
 		logger.info("Loading routes...")
 		LoadRoutes(app, routesDirPath, "", true).then(async () => {
 			logger.info("Routes loaded!")
@@ -79,6 +80,8 @@ initialize()
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`)
 			})
+			const tock = performance.now()
+			logger.info(`Server started in ${tock - tick}ms`)
 		})
 	})
 	.catch((_err) => {

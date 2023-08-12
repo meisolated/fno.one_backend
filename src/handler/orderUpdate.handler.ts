@@ -1,7 +1,6 @@
 import { EventEmitter } from "events"
 import chatter from "../events"
 export default async function (userId: string, data: any) {
-	console.log(data)
 	if (typeof data == "undefined") return
 	if (data.message == "TRADE_CONFIRMED") {
 		const preparedData = {
