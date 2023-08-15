@@ -4,6 +4,8 @@ export default new Schema<settings>(
 	{
 		id: { type: Number, required: false, unique: true },
 		state: { type: String, required: false },
+		simulateTicks: { type: Boolean, required: false },
+		enableLogging: { type: Boolean, required: false },
 		realTimeMarketsToWatch: [{ type: String, required: false }],
 		keepRealTimeMarketsData: { type: Boolean, required: false },
 		activeStrategies: [{ type: String, required: false }],

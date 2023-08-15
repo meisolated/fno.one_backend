@@ -2,19 +2,20 @@ import * as path from "path"
 
 import express, { Express, NextFunction, Request, Response, json, urlencoded } from "express"
 
-import compression from "compression"
-import cookieParser from "cookie-parser"
-import http from "http"
-import { Server } from "socket.io"
-import middleware from "./api/middleware"
 import LoadRoutes from "./api/routesLoader"
-import socketLoader from "./api/socket"
-import { getConfigData } from "./config/initialize"
-import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
+import { Server } from "socket.io"
+import compression from "compression"
 import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
+import cookieParser from "cookie-parser"
+import { getConfigData } from "./config/initialize"
+import http from "http"
 import initialize from "./initialize"
 import logger from "./logger"
+import middleware from "./api/middleware"
+import simulate from "./simulate"
+import socketLoader from "./api/socket"
 import strategiesLoader from "./strategies/strategiesLoader"
+import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -76,6 +77,9 @@ initialize()
 			await connectTrueDataMarketDataSocket()
 			logger.info("Loading strategies...")
 			await strategiesLoader()
+			logger.info("Strategies loaded!")
+			logger.info("Starting Simulate...")
+			simulate()
 			logger.info("Starting server...")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`)

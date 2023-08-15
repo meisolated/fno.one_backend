@@ -118,6 +118,8 @@ declare global {
 	interface settings {
 		id: Number
 		state: string
+		simulateTicks: boolean
+		enableLogging: boolean
 		realTimeMarketsToWatch: string[]
 		keepRealTimeMarketsData: boolean
 		activeStrategies: string[]

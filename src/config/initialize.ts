@@ -1,5 +1,5 @@
-import logger from "../logger"
 import { Settings } from "../model"
+import logger from "../logger"
 
 let settings: settings
 
@@ -14,6 +14,8 @@ const initializeEmptySettings = async () => {
 	const settings: settings = {
 		id: 1,
 		state: "development",
+		simulateTicks: false,
+		enableLogging: true,
 		realTimeMarketsToWatch: [],
 		keepRealTimeMarketsData: false,
 		activeStrategies: [],

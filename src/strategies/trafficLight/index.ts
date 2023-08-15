@@ -56,36 +56,36 @@ export default class TrafficLight {
 				const to = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), 0)
 				const fromString = `${from.getFullYear()}${from.getMonth() + 1}${from.getDate()}T${from.getHours()}:${from.getMinutes()}:${from.getSeconds()}`
 				const toString = `${to.getFullYear()}${to.getMonth() + 1}${to.getDate()}T${to.getHours()}:${to.getMinutes()}:${to.getSeconds()}`
-				const data = await historicalData.getBarData(market, this._timeFrame, fromString, toString)
-				if (!data) return this.stop()
-				const records = data.Records
-				if (records.length < 2) return logger.info(`Not enough data for ${market}`)
+				// const data = await historicalData.getBarData(market, this._timeFrame, fromString, toString)
+				// if (!data) return this.stop()
+				// const records = data.Records
+				// if (records.length < 2) return logger.info(`Not enough data for ${market}`)
 
-				// logic
-				const firstCandle = records[0]
-				const secondCandle = records[1]
-				//check if its traffic light or not 
-				const firstCandleColor = firstCandle[1] > firstCandle[4] ? "red" : "green"
-				const secondCandleColor = secondCandle[1] > secondCandle[4] ? "red" : "green"
+				// // logic
+				// const firstCandle = records[0]
+				// const secondCandle = records[1]
+				// //check if its traffic light or not 
+				// const firstCandleColor = firstCandle[1] > firstCandle[4] ? "red" : "green"
+				// const secondCandleColor = secondCandle[1] > secondCandle[4] ? "red" : "green"
 
-				if (firstCandleColor === secondCandleColor) return
+				// if (firstCandleColor === secondCandleColor) return
 
-				if (firstCandleColor === "red" && secondCandleColor === "green") {
-					//buy
-					console.log("Found Pair")
-					const high = firstCandle[2] > secondCandle[2] ? firstCandle[2] : secondCandle[2]
-					const low = firstCandle[3] < secondCandle[3] ? firstCandle[3] : secondCandle[3]
-					this._pairsFound[market] = {
-						high,
-						low,
-						time: new Date()
-					}
-					console.log({
-						market,
-						high,
-						low,
-					})
-				}
+				// if (firstCandleColor === "red" && secondCandleColor === "green") {
+				// 	//buy
+				// 	console.log("Found Pair")
+				// 	const high = firstCandle[2] > secondCandle[2] ? firstCandle[2] : secondCandle[2]
+				// 	const low = firstCandle[3] < secondCandle[3] ? firstCandle[3] : secondCandle[3]
+				// 	this._pairsFound[market] = {
+				// 		high,
+				// 		low,
+				// 		time: new Date()
+				// 	}
+				// 	console.log({
+				// 		market,
+				// 		high,
+				// 		low,
+				// 	})
+				// }
 
 
 			})
