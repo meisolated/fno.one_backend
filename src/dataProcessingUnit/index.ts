@@ -1,5 +1,6 @@
 import { SymbolTicks } from "../model"
 import chatter from "../events"
+import { getConfigData } from "../config/initialize"
 import logger from "../logger"
 export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 	try {
@@ -37,7 +38,8 @@ export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 			spread: data.Ask - data.Bid,
 			marketStat: 1,
 		}
-		SymbolTicks.create(processData)
+		const conf = getConfigData()
+		if (conf.keepRealTimeMarketsData) SymbolTicks.create(processData)
 		chatter.emit("marketData-", "tick", processData)
 		return processData
 	} catch (error) {

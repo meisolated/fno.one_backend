@@ -13,9 +13,7 @@ export default class TrafficLight {
 	// strategy specific variables
 	private _timeFrame: string = "5min" // historical data time frame
 	private _pairsFound: any = {}
-	constructor() {
-
-	}
+	constructor() {}
 
 	private strategyActive() {
 		// check if current time is between 9:15AM and 3:30PM
@@ -29,7 +27,7 @@ export default class TrafficLight {
 		//check is data related to this market is present in _pairsFound
 		if (!this._pairsFound[market]) return true
 		const lastFoundTime = this._pairsFound[market].time
-		// check if its more than 10mins or not 
+		// check if its more than 10mins or not
 		const now = new Date()
 		const lastFound = new Date(lastFoundTime)
 		const diff = now.getTime() - lastFound.getTime()
@@ -64,7 +62,7 @@ export default class TrafficLight {
 				// // logic
 				// const firstCandle = records[0]
 				// const secondCandle = records[1]
-				// //check if its traffic light or not 
+				// //check if its traffic light or not
 				// const firstCandleColor = firstCandle[1] > firstCandle[4] ? "red" : "green"
 				// const secondCandleColor = secondCandle[1] > secondCandle[4] ? "red" : "green"
 
@@ -86,8 +84,6 @@ export default class TrafficLight {
 				// 		low,
 				// 	})
 				// }
-
-
 			})
 		}, this._checkFOrPairIntervalTime)
 	}

@@ -1,13 +1,45 @@
 import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "../helper"
+import { MarketData, SymbolData } from "../model"
 
 import HistoricalData from "../lib/trueData/historical"
-import { MarketData } from "../model"
 import { getConfigData } from "../config/initialize"
 import logger from "../logger"
+
+const indicesSymbol = ["NIFTY 50", "NIFTY BANK", "FINNIFTY", "INDIA VIX", "NIFTY IT"]
+const bankNiftyUnderlyingAssets = ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"]
 
 export var _baseSymbolsList: any = []
 export var _optionChainSymbolsList: any = {}
 
+export const generateSymbolsList = async () => {
+	const marketData = await MarketData.findOne({ id: 1 })
+	if (marketData) {
+		const BANKNIFTYUpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
+			if (!datePassed(expiryDate)) {
+				return expiryDate
+			}
+		})
+		SymbolData.deleteMany({}).then(() => logger.info("Deleted all symbols"))
+		marketData.BANKNIFTY.strikePrices.forEach(async (strikePrice) => {
+			await SymbolData.create({
+				trueDataSymbol: TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE"),
+				fyersSymbol: FyersSymbolMaker("NSE", "BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE"),
+				ltp: 0,
+				lastUpdated: new Date(),
+			})
+			await SymbolData.create({
+				trueDataSymbol: TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE"),
+				fyersSymbol: FyersSymbolMaker("NSE", "BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE"),
+				ltp: 0,
+				lastUpdated: new Date(),
+			})
+		})
+	}
+	else {
+		logger.error("Market Data not found")
+		return false
+	}
+}
 export const baseSymbolsList = async () => {
 	if (_baseSymbolsList.length > 0) return _baseSymbolsList
 	const settings = {
@@ -17,8 +49,8 @@ export const baseSymbolsList = async () => {
 		onlyIncludeSymbolsOfCurrentExpiry: true, // Only include symbols of the current expiry
 		whichMarketOptionsToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
 		whichMarketUnderlyingToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
-		indicesSymbol: ["NIFTY", "NIFTY BANK", "FINNIFTY"],
-		bankNiftyUnderlyingAssets: ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"],
+		indicesSymbol: indicesSymbol,
+		bankNiftyUnderlyingAssets: bankNiftyUnderlyingAssets
 	}
 	if (settings.whichMarketOptionsToInclude === "banknifty") {
 		const config = getConfigData()
@@ -45,11 +77,13 @@ export const baseSymbolsList = async () => {
 					strikePrices.push(roundOffCurrentPrice + 100 * i)
 				}
 				strikePrices.sort((a, b) => a - b)
-				strikePrices.forEach((strikePrice) => {
-					const CE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE")
-					const PE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE")
-					symbols.push(CE)
-					symbols.push(PE)
+				strikePrices.forEach(async (strikePrice) => {
+					const TD_CE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE")
+					const TD_PE = TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE")
+					const FY_CE = FyersSymbolMaker("NSE", "BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE")
+					const FY_PE = FyersSymbolMaker("NSE", "BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE")
+					symbols.push(TD_CE)
+					symbols.push(TD_PE)
 				})
 				const uniqueSymbols = [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets]
 				logger.info(`Total number of symbols: ${uniqueSymbols.length}`)
@@ -68,14 +102,14 @@ export const optionChainSymbols = async (symbol: string) => {
 	const numberOfOptions = 10
 	const config = getConfigData()
 	if (symbol.includes("BANKNIFTY")) {
-		if (_optionChainSymbolsList[symbol]) return _optionChainSymbolsList[symbol]
+		// if (_optionChainSymbolsList[symbol]) return _optionChainSymbolsList[symbol]
 		try {
-			const historical = new HistoricalData()
-			const currentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
-			const roundOffCurrentPrice = Math.round(currentPrice.Records[0][4] / 100) * 100
+			const currentPrice: any = await SymbolData.findOne({ trueDataSymbol: "NIFTY BANK" }).then((data: any) => data.ltp)
+			const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
 
 			const marketData = await MarketData.findOne({ id: 1 })
 			if (marketData) {
+
 				// get upcoming expiry date
 				let UpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
 					if (!datePassed(expiryDate)) {
@@ -91,13 +125,15 @@ export const optionChainSymbols = async (symbol: string) => {
 					strikePrices.push(roundOffCurrentPrice + 100 * i)
 				}
 				strikePrices.sort((a, b) => a - b)
-				strikePrices.forEach((strikePrice) => {
-					const TD_CE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "CE")
-					const TD_PE = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "PE")
-					const FY_CE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "CE")
-					const FY_PE = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "PE")
-
-					symbols.push({ CE: TD_CE, PE: TD_PE, strike: strikePrice, other: { fy: { PE: FY_PE, CE: FY_CE } } })
+				strikePrices.forEach(async (strikePrice) => {
+					const TD_CE: string = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "CE")
+					const TD_PE: string = TrueDataSymbolMaker(symbol, UpcomingExpiry[0], strikePrice, "PE")
+					const FY_CE: string = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "CE")
+					const FY_PE: string = FyersSymbolMaker("NSE", symbol, UpcomingExpiry[0], strikePrice, "PE")
+					const PE_LTP = await SymbolData.findOne({ trueDataSymbol: TD_PE })
+					const CE_LTP = await SymbolData.findOne({ trueDataSymbol: TD_CE })
+					if (PE_LTP && CE_LTP) return symbols.push({ CE: TD_CE, PE: TD_PE, PE_LTP: PE_LTP.ltp, CE_LTP: CE_LTP.ltp, strike: strikePrice, other: { fy: { PE: FY_PE, CE: FY_CE } } })
+					return symbols.push({ CE: TD_CE, PE: TD_PE, strike: strikePrice, other: { fy: { PE: FY_PE, CE: FY_CE } } })
 				})
 				_optionChainSymbolsList = { [symbol]: symbols }
 				return symbols
@@ -159,3 +195,64 @@ const FyersSymbolMaker = (ex: string, symbol: string, expiryDate: string, strike
 // Options: - SYMBOL + YY + MM + DD + STRIKE +CE/PE >> e.g. NIFTY20043012000CE (Same format for weekly and monthly futures)
 
 // Indices :- NIFTY 50, NIFTY BANK, INDIA VIX, NIFTY IT
+
+
+
+const symbols = [
+	{
+		"symbol": "NIFTY 50",
+		"trueData": "NIFTY 50",
+		"fyers": "NSE:NIFTY50-INDEX",
+	}
+	,
+	{
+		"symbol": "NIFTY BANK",
+		"trueData": "NIFTY BANK",
+		"fyers": "NSE:NIFTYBANK-INDEX",
+	},
+	{
+		"symbol": "FINNIFTY",
+		"trueData": "FINNIFTY-I",
+		"fyers": "NSE:FINNIFTY-INDEX",
+	},
+	{
+		"symbol": "INDIA VIX",
+		"trueData": "INDIA VIX",
+		"fyers": "NSE:INDIAVIX-INDEX",
+	},
+	{
+		"symbol": "NIFTY IT",
+		"trueData": "NIFTY IT",
+		"fyers": "NSE:NIFTYIT-INDEX",
+	},
+	{
+		"symbol": "HDFCBANK",
+		"trueData": "HDFCBANK",
+		"fyers": "NSE:HDFCBANK-EQ",
+	}
+
+
+	// NIFTY 50
+	// HDFC Bank Ltd. 14.10
+	// Reliance Industries Ltd. 9.87
+	// ICICI Bank Ltd. 7.99
+	// Infosys Ltd. 5.54
+	// ITC Ltd. 4.70
+	// Tata Consultancy Services Ltd. 4.01
+	// Larsen & Toubro Ltd. 3.71
+	// Kotak Mahindra Bank Ltd. 3.12
+	// Axis Bank Ltd. 2.99
+	// State Bank of India 2.72
+
+	// BANKNIFTY
+	// HDFC Bank Ltd. 28.42
+	// ICICI Bank Ltd. 24.04
+	// State Bank of India 9.89
+	// Kotak Mahindra Bank Ltd. 9.40
+	// Axis Bank Ltd. 9.35
+	// IndusInd Bank Ltd. 6.74
+	// Bank of Baroda 2.75
+	// AU Small Finance Bank Ltd. 2.56
+	// Federal Bank Ltd. 2.33
+	// IDFC First Bank Ltd. 1.98
+]

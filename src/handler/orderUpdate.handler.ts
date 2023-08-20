@@ -23,6 +23,7 @@ export default async function (userId: string, data: any) {
 				tradedPrice: data.tradedPrice,
 			},
 		}
+		console.log(preparedData)
 		chatter.emit("fyersOrderHandler-", "orderUpdate", preparedData)
 	}
 }

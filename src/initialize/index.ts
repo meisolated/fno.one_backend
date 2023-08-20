@@ -1,8 +1,8 @@
 import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
 
+import { MarketData } from "../model"
 import axios from "axios"
 import logger from "../logger"
-import { MarketData } from "../model"
 
 export var marketData: any = {}
 const maxTries = 10
@@ -226,6 +226,17 @@ var tasks = [
 			}
 		},
 	},
+	{
+		name: "updateSymbolData",
+		status: false,
+		tries: 0,
+		importance: 1,
+		execute: async () => {
+			return true
+		}
+
+	}
+
 ]
 
 export default () =>

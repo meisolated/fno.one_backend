@@ -335,6 +335,23 @@ declare global {
 		productType: string
 	}
 
+	interface keepLTP {
+		symbolTD: string
+		symbolKite: string
+		symbolFY: string
+		ltp: number
+		lastUpdated: Date
+	}
+	interface symbolData {
+		symbol: string
+		fyersSymbol: string
+		kiteSymbol: string
+		trueDataSymbol: string
+		ltp: number
+		lastUpdated: Date
+
+	}
+
 	// --------- model interfaces end ------------
 	// general interfaces
 	interface AccessToken {

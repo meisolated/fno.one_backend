@@ -6,6 +6,7 @@ import {
 } from "../../dataProcessingUnit"
 
 import { EventEmitter } from "events"
+import { checkIfAllMarketDataTicksAreBeingProvidedByProvider } from "../../worker/verify"
 import logger from "../../logger"
 import ws from "ws"
 
@@ -90,6 +91,7 @@ class MarketFeeds {
 								break
 							// -------------------> symbol added <-------------------
 							case "symbols added":
+								checkIfAllMarketDataTicksAreBeingProvidedByProvider(this.allSymbols, jsonObj.symbollist)
 								logger.info(`Added Symbols:${jsonObj.symbolsadded}, Total Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, "TrueData")
 								jsonObj.symbollist.forEach((symbol: string[]) => {
 									this.touchlineData[symbol[1]] = this.handleTouchline(symbol)
