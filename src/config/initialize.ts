@@ -1,5 +1,5 @@
-import { Settings } from "../model"
 import logger from "../logger"
+import { Settings } from "../model"
 
 let settings: settings
 
@@ -19,6 +19,7 @@ const initializeEmptySettings = async () => {
 		realTimeMarketsToWatch: [],
 		keepRealTimeMarketsData: false,
 		activeStrategies: [],
+		primaryFyersAccountEmail: "",
 		global: {
 			maxProfit: 30,
 			maxLoss: 10,
@@ -80,7 +81,6 @@ const initializeEmptySettings = async () => {
 		logger.info("Empty Settings Initialized")
 		logger.info("Please configure the settings and restart the server")
 		process.exit(0)
-		return true
 	} catch (error) {
 		logger.error(JSON.stringify(error))
 		return false

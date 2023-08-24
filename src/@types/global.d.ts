@@ -123,6 +123,7 @@ declare global {
 		realTimeMarketsToWatch: string[]
 		keepRealTimeMarketsData: boolean
 		activeStrategies: string[]
+		primaryFyersAccountEmail: string
 		serverConf: {
 			APIPort: number
 			socketPort: number

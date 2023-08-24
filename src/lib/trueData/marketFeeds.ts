@@ -6,14 +6,14 @@ import {
 } from "../../dataProcessingUnit"
 
 import { EventEmitter } from "events"
-import { checkIfAllMarketDataTicksAreBeingProvidedByProvider } from "../../worker/verify"
-import logger from "../../logger"
 import ws from "ws"
+import logger from "../../logger"
+import { checkIfAllMarketDataTicksAreBeingProvidedByProvider } from "../../worker/verify"
 
 const chatter = new EventEmitter()
 
 /**
- * @description MarketFeeds class to connect to TrueData
+ * @description MarketFeeds class to connect to TrueData MarketFeeds Socket
  * @author username: meisolated on instagram and github
  * @date 23/06/2023
  * @class MarketFeeds
@@ -54,11 +54,11 @@ class MarketFeeds {
 		this.mode = mode
 		this.logHeartbeat = logHeartbeat
 		if (autoConnect) {
-			this.connect()
+			this.connect(symbols)
 		}
 	}
 
-	connect() {
+	connect(symbols: string[]) {
 		if (!this.connection) {
 			logger.info("Connecting to TrueData...", false, undefined, "TrueData")
 			let websocketUrl = this.mode === "live" ? this.websocketUrl : this.replayWebsocketUrl
@@ -87,7 +87,8 @@ class MarketFeeds {
 							case "TrueData Real Time Data Service":
 								logger.info("TrueData Real Time Data Service", false, undefined, "TrueData")
 								this.heartbeatChecker()
-								this.subscribe(this.allSymbols)
+								console.log(symbols)
+								this.subscribe(symbols)
 								break
 							// -------------------> symbol added <-------------------
 							case "symbols added":
@@ -130,7 +131,7 @@ class MarketFeeds {
 
 				this.connection.on("close", () => {
 					logger.info("Connection closed", false, undefined, "TrueData")
-					this.reconnectIntervalMethod()
+					this.reconnectIntervalMethod(symbols)
 				})
 
 				this.connection.on("error", (err) => {
@@ -217,13 +218,13 @@ class MarketFeeds {
 		}, 20000)
 	}
 
-	private reconnectIntervalMethod() {
+	private reconnectIntervalMethod(symbols: string[]) {
 		logger.info("Reconnect interval to TrueData started", false, undefined, "TrueData")
 		if (this._reconnectInterval) clearInterval(this._reconnectInterval)
 		this._reconnectInterval = setInterval(() => {
 			logger.info("Reconnecting to TrueData...", false, undefined, "TrueData")
 			this.closeConnection()
-			this.connect()
+			this.connect(symbols)
 		}, this.reconnectInterval)
 	}
 

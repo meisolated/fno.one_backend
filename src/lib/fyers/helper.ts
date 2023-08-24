@@ -1,5 +1,6 @@
 //@ts-nocheck
 import axios from "axios"
+import crypto from "crypto"
 import WebSocket from "ws"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
@@ -9,7 +10,14 @@ const generateAccessTokenUrl = (authToken: string, appId: string) => api + "genr
 var _globalFyersDict: any = {}
 
 // ------| Helper functions |------
-async function sha256(s: any) {
+
+export function getSHA256Hash(inputString: string) {
+	const hash = crypto.createHash("sha256")
+	hash.update(inputString)
+	return hash.digest("hex")
+}
+
+export async function sha256(s: any) {
 	var chrsz = 8
 	var hexcase = 0
 	function safe_add(x, y) {
@@ -533,7 +541,7 @@ function unPackUDP(resp: any) {
 }
 
 // ------| Class to handle the data received from the websocket |------
-class marketDataUpdateHelper {
+export class marketDataUpdateHelper {
 	private marketDataUpdateInstance: any
 	private data = { T: "SUB_DATA", TLIST: null, SUB_T: 1 }
 	private connected = false
@@ -569,7 +577,7 @@ class marketDataUpdateHelper {
 		}
 	}
 }
-class orderUpdateHelper {
+export class orderUpdateHelper {
 	private orderUpdateInstance: any
 	private data = { T: "SUB_ORD", SLIST: ["orderUpdate"], SUB_T: 1 }
 
@@ -616,4 +624,3 @@ const getQuotes = async (symbol: any, token: any) => {
 		return e.response.data
 	}
 }
-export { marketDataUpdateHelper, orderUpdateHelper, sha256 }

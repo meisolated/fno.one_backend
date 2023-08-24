@@ -11,7 +11,6 @@ export default async function (app: Express, path: string) {
 	app.get(path, async (req: Request, res: Response) => {
 		const cookie = req.cookies["fno.one"]
 		if (cookie && cookie.includes("ily") && cookie.includes("fno.one-")) {
-			//@ts-ignore
 			const session = await Session.findOne({ session: cookie })
 			if (session) {
 				const user = await User.findOne({ _id: session.userId })

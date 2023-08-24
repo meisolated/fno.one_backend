@@ -17,7 +17,7 @@ const connectTrueDataMarketDataSocket = async () => {
 		// })
 		chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
 			trueDataConnection.closeConnection()
-			trueDataConnection.connect()
+			trueDataConnection.connect(symbolsList)
 		})
 	} catch (err: any) {
 		logger.error("Error in connecting to true data socket", false, "", "trueData")

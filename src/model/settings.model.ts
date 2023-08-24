@@ -9,6 +9,7 @@ export default new Schema<settings>(
 		realTimeMarketsToWatch: [{ type: String, required: false }],
 		keepRealTimeMarketsData: { type: Boolean, required: false },
 		activeStrategies: [{ type: String, required: false }],
+		primaryFyersAccountEmail: { type: String, required: false },
 		global: {
 			maxProfit: { type: Number, required: false },
 			maxLoss: { type: Number, required: false },

@@ -1,12 +1,12 @@
-import { SymbolData } from "../model"
 import logger from "../logger"
+import { SymbolData } from "../model"
 
 export const checkIfAllMarketDataTicksAreBeingProvidedByProvider = async (symbolsAsked: Array<String>, symbolList: String[][]) => {
-    const askedList = symbolsAsked
+    const notFoundList = symbolsAsked
     symbolList.forEach(async (symbol) => {
         const symbolName = symbol[0]
         if (symbolsAsked.includes(symbolName)) {
-            askedList.splice(askedList.indexOf(symbolName), 1)
+            notFoundList.splice(notFoundList.indexOf(symbolName), 1)
         }
         const getIfExist = await SymbolData.findOne({ trueDataSymbol: symbolName })
         if (!getIfExist) {
@@ -18,5 +18,5 @@ export const checkIfAllMarketDataTicksAreBeingProvidedByProvider = async (symbol
 
     // we will save ltp of all the symbols in the database
 
-    return logger.info(`[verify.ts] checkIfAllMarketDataTicksAreBeingProvidedByProvider: ${askedList.length == 0 ? "All" : "Some"} symbols are not being provided by provider. ${askedList.length == 0 ? "" : `Missing symbols: ${askedList}`}`)
+    return logger.info(`[verify.ts] checkIfAllMarketDataTicksAreBeingProvidedByProvider: ${notFoundList.length == 0 ? "All symbols confirmed" : `Missing symbols: ${notFoundList}`}`)
 }
