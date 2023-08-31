@@ -1,7 +1,7 @@
-import crypto from 'crypto'
+import crypto from "crypto"
 import { getConfigData } from "../../config/initialize"
 
-//  urls 
+//  urls
 export const API = "https://api.fyers.in/api/v2"
 export const SyncAPI = "https://api-t1.fyers.in/api/v3"
 export const dataApi = "https://api.fyers.in/data-rest/v2"
@@ -29,24 +29,24 @@ const historyPath = "/history"
 const quotesPath = "/quotes"
 const marketDepthPath = "/depth"
 
-
 /**
- * @param clientId 
+ * @param clientId
  * @param redirectUrl fyers authentication url
  * @param state some random string
- * @returns 
+ * @returns
  */
-export const authenticationUrl = (clientId: string, redirectUrl: string, state: string) => `${SyncAPI + generateAuthPath}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&state=${state}`
+export const authenticationUrl = (clientId: string, redirectUrl: string, state: string) =>
+	`${SyncAPI + generateAuthPath}?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&state=${state}`
 
 /**
  * @description This is the url to validate the auth code
  * @raw-data ``` {grant_type: "authorization_code", appIdHash: string, code:sting (authCode)} ```
- * @returns 
+ * @returns
  */
 export const validateAuthCodeUrl = () => `${SyncAPI + validateAuthCodePath}}`
 
 /**
- * @description This is the url to validate the refresh token   
+ * @description This is the url to validate the refresh token
  * @raw-data ```{grant_type: "refresh_token", appIdHash: string, refresh_token:sting (refreshToken), pin: string (User pin)}```
  *
  * When we validate the auth code to generate the access token, a refresh token is also sent in the response.
@@ -54,7 +54,6 @@ export const validateAuthCodeUrl = () => `${SyncAPI + validateAuthCodePath}}`
  * The following parameters must be passed in the body for the POST request
  */
 export const validateRefreshTokenUrl = () => `${API + validateRefreshTokenPath}}`
-
 
 /**
  * # Get Profile
@@ -64,13 +63,12 @@ export const validateRefreshTokenUrl = () => `${API + validateRefreshTokenPath}}
  */
 export const getProfileUrl = () => `${SyncAPI + getProfilePath}`
 
-
 /**
  * # Get Funds
  * @description This is the url to get the funds details of the user
  * @Authorization:appId:accessToken
  * @returns fund_limit : [{id, title, equityAmount, commodityAmount}]
- * 
+ *
  */
 export const getFundsUrl = () => `${SyncAPI + fundsPath}`
 
@@ -82,7 +80,6 @@ export const getFundsUrl = () => `${SyncAPI + fundsPath}`
  * @returns overall : { count_total, total_investment, total_current_value, total_pl, pnl_perc}
  */
 export const getHoldingsUrl = () => `${SyncAPI + holdingsPath}`
-
 
 /**
  * # Get Order

@@ -63,6 +63,9 @@ export default new Schema<settings>(
 				HolidaysAPIUrl: { type: String, required: false },
 			},
 		},
+		tasksLastRun: {
+			symbolMasterDataUpdate: { type: Date, required: false },
+		},
 		lastUpdated: { type: Date, required: false },
 	},
 	{ timestamps: true },

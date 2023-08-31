@@ -8,6 +8,7 @@ import {
 import { EventEmitter } from "events"
 import ws from "ws"
 import logger from "../../logger"
+import { SymbolData } from "../../model"
 import { checkIfAllMarketDataTicksAreBeingProvidedByProvider } from "../../worker/verify"
 
 const chatter = new EventEmitter()
@@ -21,30 +22,30 @@ const chatter = new EventEmitter()
  */
 class MarketFeeds {
 	connection: ws | null = null
-	selfConnectionClosed = false
-	heartbeatStatus = false
-	heartbeatInterval = 20000
-	lastHeartBeatTime = Date.now()
-	logHeartbeat = false
-	totalSymbols = 0
+	private selfConnectionClosed = false
+	private heartbeatStatus = false
+	private heartbeatInterval = 20000
+	private lastHeartBeatTime = Date.now()
+	private logHeartbeat = false
+	private totalSymbols = 0
 	// auth params
-	auth = {
+	private auth = {
 		username: "",
 		password: "",
 	}
-	allSymbols: string[] = []
-	userPort = 8082
-	websocketUrl = "wss://push.truedata.in"
-	replayWebsocketUrl = "wss://replay.truedata.in"
-	mode = "live"
-	reconnectInterval = 1000 * 10
-	_reconnectInterval: NodeJS.Timeout | null = null
-	_heartBeatCheckerInterval: NodeJS.Timeout | null = null
+	private allSymbols: string[] = []
+	private userPort = 8082
+	private websocketUrl = "wss://push.truedata.in"
+	private replayWebsocketUrl = "wss://replay.truedata.in"
+	private mode = "live"
+	private reconnectInterval = 1000 * 10
+	private _reconnectInterval: NodeJS.Timeout | null = null
+	private _heartBeatCheckerInterval: NodeJS.Timeout | null = null
 
 	// data
-	touchlineData: any = {}
-	touchlineMap: any = {}
-	bidAskData: any = {}
+	private touchlineData: any = {}
+	private touchlineMap: any = {}
+	private bidAskData: any = {}
 
 	constructor(username: string, password: string, symbols: string[], mode: string = "live", autoConnect: boolean = true, logHeartbeat: boolean = false) {
 		this.auth.username = username
@@ -54,22 +55,21 @@ class MarketFeeds {
 		this.mode = mode
 		this.logHeartbeat = logHeartbeat
 		if (autoConnect) {
-			this.connect(symbols)
+			this.connect()
 		}
 	}
 
-	connect(symbols: string[]) {
+	async connect() {
 		if (!this.connection) {
-			logger.info("Connecting to TrueData...", false, undefined, "TrueData")
+			logger.info("Connecting to TrueData...")
 			let websocketUrl = this.mode === "live" ? this.websocketUrl : this.replayWebsocketUrl
 			let url = `${websocketUrl}:${this.userPort}/?user=${this.auth.username}&password=${this.auth.password}`
 
 			try {
 				this.connection = new ws(url)
 				this.connection.on("open", () => {
-					logger.info("Connected to TrueData", false, undefined, "TrueData")
+					logger.info("Connected to TrueData")
 				})
-
 				this.connection.on("message", (data) => {
 					if (this._reconnectInterval) {
 						clearInterval(this._reconnectInterval)
@@ -85,93 +85,72 @@ class MarketFeeds {
 					} else if (jsonObj.success) {
 						switch (jsonObj.message) {
 							case "TrueData Real Time Data Service":
-								logger.info("TrueData Real Time Data Service", false, undefined, "TrueData")
+								logger.info("TrueData Real Time Data Service")
 								this.heartbeatChecker()
-								console.log(symbols)
-								this.subscribe(symbols)
+								this.subscribe(this.allSymbols)
 								break
-							// -------------------> symbol added <-------------------
+							// -------------------------------------> symbol added <-------------------------------------
 							case "symbols added":
-								checkIfAllMarketDataTicksAreBeingProvidedByProvider(this.allSymbols, jsonObj.symbollist)
-								logger.info(`Added Symbols:${jsonObj.symbolsadded}, Total Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, "TrueData")
+								checkIfAllMarketDataTicksAreBeingProvidedByProvider([...this.allSymbols], [...jsonObj.symbollist])
+								logger.info(`Added Symbols:${jsonObj.symbolsadded}, Total Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`)
 								jsonObj.symbollist.forEach((symbol: string[]) => {
 									this.touchlineData[symbol[1]] = this.handleTouchline(symbol)
 									this.touchlineMap[symbol[1]] = symbol[0]
 								})
 								chatter.emit("trueDataLibMarketDataUpdates-touchline", this.touchlineData)
 								break
-							// -------------------> touchline <-------------------
+							// -------------------------------------> touchline <-------------------------------------
 							case "touchline":
-								logger.info("Touchline touched", false, undefined, "TrueData")
+								logger.info("Touchline touched")
 								jsonObj.symbollist.forEach((touchline: string[]) => {
 									this.touchlineData[touchline[1]] = this.handleTouchline(touchline)
 								})
 								chatter.emit("trueDataLibMarketDataUpdates-touchline", this.touchlineData)
 								break
-							// -------------------> HeartBeat <-------------------
+							// -------------------------------------> HeartBeat <-------------------------------------
 							case "HeartBeat":
 								this.heartbeatStatus = true
 								this.lastHeartBeatTime = Date.now()
-								if (this.logHeartbeat) logger.info("HeartBeat", false, undefined, "TrueData")
+								if (this.logHeartbeat) logger.info("HeartBeat")
 								break
+							// -------------------------------------> MarketStatus <-------------------------------------
 							case "marketstatus":
-								logger.info(`Market Status: ${jsonObj.data}`, false, undefined, "TrueData")
+								logger.info(`Market Status: ${jsonObj.data}`)
 								break
+							// -------------------------------------> Symbol Removed <-------------------------------------
 							case "symbols removed":
-								logger.info(`Removed Symbols:${jsonObj.symbolsremoved}, Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`, false, undefined, "TrueData")
+								logger.info(`Removed Symbols:${jsonObj.symbolsremoved}, Symbols Subscribed:${jsonObj.totalsymbolsubscribed}`)
 								break
+							// -------------------------------------> Default <-------------------------------------
 							default:
-								logger.info(jsonObj.message, false, undefined, "TrueData")
+								logger.info(jsonObj.message)
 						}
 					} else if (jsonObj.success == false) {
-						console.log(jsonObj)
-						logger.error(jsonObj.message, false, undefined, "TrueData")
+						logger.error(jsonObj.message)
 					}
 				})
 
 				this.connection.on("close", () => {
-					logger.info("Connection closed", false, undefined, "TrueData")
-					this.reconnectIntervalMethod(symbols)
+					logger.info("Connection closed")
+					this.reconnectIntervalMethod()
 				})
 
 				this.connection.on("error", (err) => {
-					logger.error(err.message, false, undefined, "TrueData")
+					logger.error(err.message)
 				})
 				// this.websocketEvents()
 			} catch (err: any) {
-				logger.error(err.message, false, undefined, "TrueData")
+				logger.error(err.message)
 			}
 		}
 	}
-
-	// dataCallback(callback: any) {
-	// 	chatter.on("trueDataLibMarketDataUpdates-tick", (data) => {
-	// 		callback({
-	// 			type: "tick",
-	// 			data
-	// 		})
-	// 	})
-	// 	chatter.on("trueDataLibMarketDataUpdates-touchline", (data) => {
-	// 		callback({
-	// 			type: "touchline",
-	// 			data
-	// 		})
-	// 	})
-	// 	chatter.on("trueDataLibMarketDataUpdates-bigAsk", (data) => {
-	// 		callback({
-	// 			type: "bigAsk",
-	// 			data
-	// 		})
-	// 	})
-	// }
-
 	closeConnection() {
 		if (this.connection) {
-			logger.info("Closing connection", false, undefined, "TrueData")
+			logger.info("Closing connection")
 			this.connection.close()
 			this.connection = null
 		} else {
-			logger.error("Why are you trying to close something not open", false, undefined, "TrueData")
+			logger.error("Why are you trying to close something not open")
 			return {
 				status: "error",
 				message: "Connection not established",
@@ -180,7 +159,7 @@ class MarketFeeds {
 	}
 
 	unSubscribe(symbols: string[]) {
-		logger.info(`Unsubscribing Symbols: ${symbols}`, false, undefined, "TrueData")
+		logger.info(`Unsubscribing Symbols: ${symbols}`)
 		for (let i = 0; i <= symbols.length; i += 1500) {
 			const jsonRequest = {
 				method: "removesymbol",
@@ -191,8 +170,15 @@ class MarketFeeds {
 		}
 	}
 
-	subscribe(symbols: string[]) {
-		logger.info(`Subscribing Symbols: ${symbols}`, false, undefined, "TrueData")
+	async subscribe(symbols: string[]) {
+		// this.touchlineMap = {}
+		const symbolDataFromDB: any = await SymbolData.find({ symbol: { $in: symbols } })
+
+		symbolDataFromDB.forEach((symbol: any) => {
+			this.touchlineMap[symbol.trueDataSymbolId] = symbol.symbol
+			return
+		})
+		logger.info(`Subscribing Symbols: ${symbols}`)
 		//for-loop to override max 65000 characters
 		for (let i = 0; i <= symbols.length; i += 1500) {
 			const jsonRequest = {
@@ -205,26 +191,26 @@ class MarketFeeds {
 	}
 
 	private heartbeatChecker() {
-		logger.info("Heartbeat Checker Initiated", false, undefined, "TrueData")
-		if (!this.logHeartbeat) logger.warn("Heartbeat logging disabled by default or disabled by you!", false, undefined, "TrueData")
+		logger.info("Heartbeat Checker Initiated")
+		if (!this.logHeartbeat) logger.warn("Heartbeat logging disabled by default or disabled by you!")
 		this._heartBeatCheckerInterval = setInterval(() => {
 			const checkerHeartBeat = Date.now() - this.lastHeartBeatTime
 			if (checkerHeartBeat > 15000) {
 				this.closeConnection()
 				this.heartbeatStatus = false
-				logger.info(`Auto Reconnect Initiated @ ${new Date().toLocaleTimeString()}`, false, undefined, "TrueData")
+				logger.info(`Auto Reconnect Initiated @ ${new Date().toLocaleTimeString()}`)
 				clearInterval(this._heartBeatCheckerInterval as NodeJS.Timeout)
 			}
 		}, 20000)
 	}
 
-	private reconnectIntervalMethod(symbols: string[]) {
-		logger.info("Reconnect interval to TrueData started", false, undefined, "TrueData")
+	private reconnectIntervalMethod() {
+		logger.info("Reconnect interval to TrueData started")
 		if (this._reconnectInterval) clearInterval(this._reconnectInterval)
 		this._reconnectInterval = setInterval(() => {
-			logger.info("Reconnecting to TrueData...", false, undefined, "TrueData")
+			logger.info("Reconnecting to TrueData...")
 			this.closeConnection()
-			this.connect(symbols)
+			this.connect()
 		}, this.reconnectInterval)
 	}
 
@@ -254,6 +240,7 @@ class MarketFeeds {
 	}
 
 	private handleRealTimeData(tradeArray: string[]) {
+		// console.log(tradeArray, this.touchlineMap)
 		const data = {
 			Symbol: this.touchlineMap[tradeArray[0]],
 			Symbol_ID: +tradeArray[0],

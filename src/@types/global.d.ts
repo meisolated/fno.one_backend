@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -18,6 +18,7 @@ declare global {
 		loggedFrom: string
 	}
 	interface symbolTicks {
+		symbolId: string
 		symbol: string
 		originalName: string
 		shortName: string
@@ -176,7 +177,9 @@ declare global {
 			maxTradesPerDay: number
 			enableMoneyManager: boolean
 		}
-
+		tasksLastRun: {
+			[key: string]: Date
+		}
 		lastUpdated: Date
 	}
 	interface trades {
@@ -344,13 +347,13 @@ declare global {
 		lastUpdated: Date
 	}
 	interface symbolData {
+		trueDataSymbolId: string
 		symbol: string
 		fyersSymbol: string
 		kiteSymbol: string
 		trueDataSymbol: string
 		ltp: number
 		lastUpdated: Date
-
 	}
 
 	// --------- model interfaces end ------------
@@ -363,7 +366,7 @@ declare global {
 	interface trueDataMarketFeedsTouchlineData {
 		symbol: string
 		lastUpdateTime: string
-		LTP: number
+		lp: number
 		tickVolume: number
 		ATP: number
 		totalVolume: number

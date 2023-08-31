@@ -12,7 +12,7 @@ export default function publicSocketNamespace(socket: Namespace) {
 			_socket.emit("marketDataUpdate", JSON.stringify({ message: "Market data update socket connected" }))
 		})
 	})
-	chatter.on("marketData-", "tick", (data) => {
+	chatter.on("symbolUpdateTicks-", "tick", (data) => {
 		socket.emit("marketDataUpdate", JSON.stringify(data))
 	})
 }

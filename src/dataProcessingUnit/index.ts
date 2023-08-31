@@ -1,10 +1,12 @@
-import { SymbolTicks } from "../model"
-import chatter from "../events"
 import { getConfigData } from "../config/initialize"
+import chatter from "../events"
 import logger from "../logger"
+import { SymbolTicks } from "../model"
 export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
+	// console.log(data)
 	try {
 		const processData: symbolTicks = {
+			symbolId: data.Symbol_ID,
 			symbol: data.Symbol,
 			originalName: data.Symbol,
 			shortName: data.Symbol,
@@ -40,17 +42,17 @@ export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 		}
 		const conf = getConfigData()
 		if (conf.keepRealTimeMarketsData) SymbolTicks.create(processData)
-		chatter.emit("marketData-", "tick", processData)
+		chatter.emit("symbolUpdateTicks-", "tick", processData)
 		return processData
 	} catch (error) {
-		logger.error("There is something wrong inside trueDataMarketFeedsRealTimeDataProcessing", false, "", "DPU")
+		logger.error("There is something wrong inside trueDataMarketFeedsRealTimeDataProcessing")
 	}
 }
 export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 	const processData: trueDataMarketFeedsTouchlineData = {
 		symbol: data.Symbol,
 		lastUpdateTime: data.LastUpdateTime,
-		LTP: data.LTP,
+		lp: data.LTP,
 		tickVolume: data.TickVolume,
 		ATP: data.ATP,
 		totalVolume: data.TotalVolume,
@@ -64,6 +66,7 @@ export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 		bigQty: data.BigQty,
 		askQty: data.AskQty,
 	}
+	chatter.emit("symbolUpdateTicks-", "tick", processData)
 	return processData
 }
 export const trueDataMarketFeedsHandleBidAskDataProcessing = (data: any) => {

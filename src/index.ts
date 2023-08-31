@@ -1,24 +1,22 @@
-import * as path from "path"
-
-import express, { Express, NextFunction, Request, Response, json, urlencoded } from "express"
-
-import LoadRoutes from "./api/routesLoader"
-import { Server } from "socket.io"
 import compression from "compression"
-import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import cookieParser from "cookie-parser"
-import { getConfigData } from "./config/initialize"
+import express, { Express, Request, Response, json, urlencoded } from "express"
 import http from "http"
+import * as path from "path"
+import { Server } from "socket.io"
+
+import middleware from "./api/middleware"
+import LoadRoutes from "./api/routesLoader"
+import socketLoader from "./api/socket"
+import { getConfigData } from "./config/initialize"
+import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
+import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
-import middleware from "./api/middleware"
-import socketLoader from "./api/socket"
 import strategiesLoader from "./strategies/strategiesLoader"
-import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
 
 const app: Express = express()
 const server = http.createServer(app)
-
 const routesDirPath = path.join(__dirname, "/api/routes")
 
 //-------------------- Starting Server --------------------
@@ -29,16 +27,14 @@ app.use(urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, "/public")))
 app.use(cookieParser())
 app.get("/", (_req: Request, res: Response) => {
-	res.send({ message: "Something is missing over here", code: 200 })
+	res.send({ message: "Something is missing over here", code: 404 })
 })
 
-
-logger.info("Initializing server start prerequisites...")
 // -----------| Initializing |-----------
 initialize()
 	.then(async (_done) => {
 		logger.info("Loading routes...")
-		LoadRoutes(app, routesDirPath, "", true).then(async () => {
+		LoadRoutes(app, routesDirPath, "", false).then(async () => {
 			logger.info("Routes loaded!")
 			const config = getConfigData()
 			const APIport: number = config.serverConf.APIPort

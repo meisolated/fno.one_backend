@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import config from "../config"
 
 export default class Mongoose {
-	uri
+	uri: string
 	constructor() {
 		this.uri = config.database.mongoUri
 	}

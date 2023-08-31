@@ -16,7 +16,7 @@ export default async () => {
 			//prepare random ticks
 			const randomTicks = Math.floor(Math.random() * 1000) + 1
 			const randomPrice = Math.floor(Math.random() * 1000) + 1
-			chatter.emit("marketData-", "tick", {
+			chatter.emit("symbolUpdateTicks-", "tick", {
 				symbol,
 				ticks: randomTicks,
 				lp: randomPrice,

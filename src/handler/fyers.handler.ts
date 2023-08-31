@@ -55,6 +55,4 @@ export const subscribeToAllUsersSockets = async () => {
 			}
 		}
 	}, 10000)
-
-
 }

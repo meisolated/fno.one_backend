@@ -1,8 +1,10 @@
 import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
 
-import { MarketData } from "../model"
 import axios from "axios"
+import { timeout } from "../helper"
 import logger from "../logger"
+import { MarketData, Settings } from "../model"
+import { convertMarketTicksToBars, updateSymbolLTP, updateSymbolMasterData } from "../worker"
 
 export var marketData: any = {}
 const maxTries = 10
@@ -29,7 +31,7 @@ const commonAxiosGet = async (url: string) => {
 			return false
 		}
 	} catch (error) {
-		logger.doNotLog(JSON.stringify(error), false, "", "axios error in commonAxiosGet initialize/index.ts")
+		logger.info(JSON.stringify(error))
 		return false
 	}
 }
@@ -39,239 +41,283 @@ var tasks = [
 		importance: 1,
 		status: false,
 		tries: 0,
-		execute: async () => {
-			await initializeConfig()
-			await getConfig()
-			const conf = getConfigData()
-			return {
-				config: conf,
-			}
-		},
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				await initializeConfig()
+				await getConfig()
+				const conf = getConfigData()
+				return resolve({
+					config: conf,
+				})
+			}),
 	},
 	{
 		name: "CheckIfLastUpdatedInLast1Days",
 		importance: 1,
 		status: false,
 		tries: 0,
-		execute: async () => {
-			const marketData = await MarketData.findOne({ id: 1 })
-			if (!marketData) {
-				return true
-			} else {
-				const lastUpdated: number = marketData.lastUpdated as any
-				const now = Date.now()
-				const diff = now - lastUpdated
-				const diffInDays = diff / (1000 * 3600 * 24)
-				if (diffInDays < 1) {
-					logger.info("Market Data is updated in last 1 days, no need to update again")
-					tasks.forEach((task) => {
-						if (
-							task.name === "NSEBankNiftyData" ||
-							task.name === "NSENiftyData" ||
-							task.name === "NSEFinNiftyData" ||
-							task.name === "FnOTradingHoliday" ||
-							task.name === "SaveMarketDataToDB"
-						) {
-							task.status = true
-							logger.info(`Task ${task.name} is skipped`)
-						}
-					})
-					return true
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				const marketData = await MarketData.findOne({ id: 1 })
+				if (!marketData) {
+					return resolve(true)
 				} else {
-					logger.info("Market Data is not updated in last 1 days")
-					return true
+					const lastUpdated: number = marketData.lastUpdated as any
+					const now = Date.now()
+					const diff = now - lastUpdated
+					const diffInDays = diff / (1000 * 3600 * 24)
+					if (diffInDays < 1) {
+						logger.info("Market Data is updated in last 1 days, no need to update again")
+						tasks.forEach((task) => {
+							if (
+								task.name === "NSEBankNiftyData" ||
+								task.name === "NSENiftyData" ||
+								task.name === "NSEFinNiftyData" ||
+								task.name === "FnOTradingHoliday" ||
+								task.name === "SaveMarketDataToDB"
+							) {
+								task.status = true
+								logger.info(`Task ${task.name} is skipped`)
+							}
+						})
+						return resolve(true)
+					} else {
+						logger.info("Market Data is not updated in last 1 days")
+						return resolve(true)
+					}
 				}
-			}
-		},
+			}),
 	},
 	{
 		name: "NSEBankNiftyData",
 		status: false,
 		tries: 0,
 		importance: 1,
-		execute: async () => {
-			const name = "BANKNIFTY"
-			const config = getConfigData()
-			const url = config.apis.NSE.OptionChainDataAPIUrl + name
-			const data = await commonAxiosGet(url)
-			if (data) {
-				marketData = {
-					...marketData,
-					[name]: {
-						derivativeName: name,
-						expiryDates: data.records.expiryDates,
-						strikePrices: data.records.strikePrices,
-					},
-				}
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				const name = "BANKNIFTY"
+				const config = getConfigData()
+				const url = config.apis.NSE.OptionChainDataAPIUrl + name
+				const data = await commonAxiosGet(url)
+				if (data) {
+					marketData = {
+						...marketData,
+						[name]: {
+							derivativeName: name,
+							expiryDates: data.records.expiryDates,
+							strikePrices: data.records.strikePrices,
+						},
+					}
 
-				return true
-			}
-			return false
-		},
+					return resolve(true)
+				}
+				return resolve(false)
+			}),
 	},
 	{
 		name: "NSENiftyData",
 		status: false,
 		tries: 0,
 		importance: 1,
-		execute: async () => {
-			const name = "NIFTY"
-			const config = getConfigData()
-			const url = config.apis.NSE.OptionChainDataAPIUrl + name
-			const data = await commonAxiosGet(url)
-			if (data) {
-				marketData = {
-					...marketData,
-					[name]: {
-						derivativeName: name,
-						expiryDates: data.records.expiryDates,
-						strikePrices: data.records.strikePrices,
-					},
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				const name = "NIFTY"
+				const config = getConfigData()
+				const url = config.apis.NSE.OptionChainDataAPIUrl + name
+				const data = await commonAxiosGet(url)
+				if (data) {
+					marketData = {
+						...marketData,
+						[name]: {
+							derivativeName: name,
+							expiryDates: data.records.expiryDates,
+							strikePrices: data.records.strikePrices,
+						},
+					}
+					return resolve(true)
 				}
-				return true
-			}
-			return false
-		},
+				return resolve(false)
+			}),
 	},
 	{
 		name: "NSEFinNiftyData",
 		status: false,
 		tries: 0,
 		importance: 0,
-		execute: async () => {
-			const name = "FINNIFTY"
-			const config = getConfigData()
-			const url = config.apis.NSE.OptionChainDataAPIUrl + name
-			const data = await commonAxiosGet(url)
-			if (data) {
-				marketData = {
-					...marketData,
-					[name]: {
-						derivativeName: name,
-						expiryDates: data.records.expiryDates,
-						strikePrices: data.records.strikePrices,
-					},
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				const name = "FINNIFTY"
+				const config = getConfigData()
+				const url = config.apis.NSE.OptionChainDataAPIUrl + name
+				const data = await commonAxiosGet(url)
+				if (data) {
+					marketData = {
+						...marketData,
+						[name]: {
+							derivativeName: name,
+							expiryDates: data.records.expiryDates,
+							strikePrices: data.records.strikePrices,
+						},
+					}
+					return resolve(true)
 				}
-				return true
-			}
-			return false
-		},
+				return resolve(false)
+			}),
 	},
 	{
 		name: "FnOTradingHoliday",
 		status: false,
 		tries: 0,
 		importance: 1,
-		execute: async () => {
-			const config = getConfigData()
-			const url = config.apis.NSE.HolidaysAPIUrl + "trading"
-			const data = await commonAxiosGet(url)
-			if (data) {
-				const preparedData = data.FO.map((item: any) => {
-					return {
-						holidayDate: item.tradingDate,
-						weekDay: item.weekDay,
-						description: item.description,
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				const config = getConfigData()
+				const url = config.apis.NSE.HolidaysAPIUrl + "trading"
+				const data = await commonAxiosGet(url)
+				if (data) {
+					const preparedData = data.FO.map((item: any) => {
+						return {
+							holidayDate: item.tradingDate,
+							weekDay: item.weekDay,
+							description: item.description,
+						}
+					})
+					marketData = {
+						...marketData,
+						FnOHolidayList: preparedData,
 					}
-				})
-				marketData = {
-					...marketData,
-					FnOHolidayList: preparedData,
+					return resolve(true)
 				}
-				return true
-			}
-			return false
-		},
+				return resolve(false)
+			}),
 	},
 	{
 		name: "SaveMarketDataToDB",
 		status: false,
 		tries: 0,
 		importance: 1,
-		execute: async () => {
-			// find if data is already present in DB
-			const getDataOfMarketData = await MarketData.find({ id: 1 })
-			if (getDataOfMarketData.length > 0) {
-				// first we need to delete the existing data
-				try {
-					await MarketData.deleteMany({ id: 1 })
-					await MarketData.create({
-						id: 1,
-						BANKNIFTY: marketData.BANKNIFTY,
-						NIFTY: marketData.NIFTY,
-						FINNIFTY: marketData.FINNIFTY,
-						FnOHolidayList: marketData.FnOHolidayList,
-						lastUpdated: Date.now(),
-					})
-					return true
-				} catch (error: any) {
-					logger.doNotLog(error.message.toString())
-					return false
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				// find if data is already present in DB
+				const getDataOfMarketData = await MarketData.find({ id: 1 })
+				if (getDataOfMarketData.length > 0) {
+					// first we need to delete the existing data
+					try {
+						await MarketData.deleteMany({ id: 1 })
+						await MarketData.create({
+							id: 1,
+							BANKNIFTY: marketData.BANKNIFTY,
+							NIFTY: marketData.NIFTY,
+							FINNIFTY: marketData.FINNIFTY,
+							FnOHolidayList: marketData.FnOHolidayList,
+							lastUpdated: Date.now(),
+						})
+						return resolve(true)
+					} catch (error: any) {
+						logger.info(error.message.toString())
+						return resolve(false)
+					}
+				} else {
+					try {
+						await MarketData.create({
+							id: 1,
+							BANKNIFTY: marketData.BANKNIFTY,
+							NIFTY: marketData.NIFTY,
+							FINNIFTY: marketData.FINNIFTY,
+							FnOHolidayList: marketData.FnOHolidayList,
+							lastUpdated: Date.now(),
+						})
+						return resolve(true)
+					} catch (error: any) {
+						logger.info(error.message.toString())
+						return resolve(false)
+					}
 				}
-			} else {
-				try {
-					await MarketData.create({
-						id: 1,
-						BANKNIFTY: marketData.BANKNIFTY,
-						NIFTY: marketData.NIFTY,
-						FINNIFTY: marketData.FINNIFTY,
-						FnOHolidayList: marketData.FnOHolidayList,
-						lastUpdated: Date.now(),
-					})
-					return true
-				} catch (error: any) {
-					logger.doNotLog(error.message.toString())
-					return false
-				}
-			}
-		},
+			}),
 	},
 	{
-		name: "updateSymbolData",
+		name: "startSymbolDataUpdate",
 		status: false,
 		tries: 0,
 		importance: 1,
-		execute: async () => {
-			return true
-		}
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				updateSymbolLTP()
+				return resolve(true)
+			}),
+	},
+	{
+		name: "convertMarketTicksToBars",
+		status: false,
+		tries: 0,
+		importance: 1,
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				convertMarketTicksToBars()
+				return resolve(true)
+			}),
+	},
 
-	}
-
+	{
+		name: "symbolMasterDataUpdate",
+		status: false,
+		tries: 0,
+		importance: 1,
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				const lastUpdate: any = await Settings.findOne({ id: 1 }).then((data) => data?.tasksLastRun.symbolMasterDataUpdate)
+				if (lastUpdate) {
+					//  check is lastupdate is more than 2days
+					const now = Date.now()
+					const diff = now - lastUpdate
+					const diffInDays = diff / (1000 * 3600 * 24)
+					if (diffInDays < 2) {
+						logger.info("Symbol Master Data is updated in last 2 days, no need to update again")
+						return resolve(true)
+					} else {
+						logger.info("Symbol Master Data is not updated in last 2 days. Updating now...")
+						const returned = await updateSymbolMasterData()
+						if (returned) {
+							await Settings.findOneAndUpdate({ id: 1 }, { tasksLastRun: { symbolMasterDataUpdate: Date.now() } })
+							return resolve(true)
+						} else {
+							return resolve(false)
+						}
+					}
+				} else {
+					await Settings.findOneAndUpdate({ id: 1 }, { tasksLastRun: { symbolMasterDataUpdate: 0 } })
+					return resolve(false)
+				}
+			}),
+	},
 ]
 
 export default () =>
 	new Promise(async (resolve, reject) => {
 		logger.info(`Found ${tasks.length} tasks to execute`)
-		const int = setInterval(async () => {
-			tasks.forEach(async (task, index) => {
-				const isPreviousTaskCompleted = tasks.slice(0, index).every((task) => task.status === true)
-				if (isPreviousTaskCompleted) {
-					if (task.tries >= maxTries) {
-						if (task.importance === 1) {
-							clearInterval(int)
-							return reject(`Task ${task.name} failed to execute`)
-						} else {
-							logger.warn(`Task ${task.name} failed to execute, but will not stop the process`)
-							task.status = true
+		const tick = performance.now()
+		async function runTasksSequentially(taskList: any) {
+			for (const task of taskList) {
+				if (task.status === false) {
+					logger.info(`Waiting for ${task.name} to complete...`)
+					const returned = await task.execute()
+					await timeout(1000)
+					if (returned) {
+						task.status = true
+						logger.info(`Task ${task.name} is completed`)
+					} else {
+						task.tries++
+						logger.info(`Task ${task.name} is failed, retrying again`)
+						if (task.tries > maxTries) {
+							logger.info(`Task ${task.name} is failed, max tries reached`)
+							return resolve(false)
 						}
-					}
-					if (task.status === false) {
-						const data = await task.execute()
-						if (data) {
-							task.status = true
-							task.tries = 0
-							logger.info(`Task ${task.name} executed successfully`)
-						} else {
-							task.tries = task.tries + 1
-							return logger.error(`Error while executing task ${task.name} will make ${maxTries - task.tries} more attempts`)
-						}
+						return runTasksSequentially(taskList)
 					}
 				}
-			})
-			const allTrue = tasks.every((task) => task.status === true)
-			if (allTrue) {
-				clearInterval(int)
-				return resolve(true)
 			}
-		}, 2000)
+			return resolve(true)
+		}
+		const took = (performance.now() - tick) / 1000
+		await runTasksSequentially(tasks)
 	})

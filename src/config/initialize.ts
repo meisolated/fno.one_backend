@@ -72,7 +72,7 @@ const initializeEmptySettings = async () => {
 				HolidaysAPIUrl: "",
 			},
 		},
-
+		tasksLastRun: {},
 		lastUpdated: new Date(),
 	}
 
