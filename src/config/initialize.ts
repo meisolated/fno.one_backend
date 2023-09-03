@@ -49,7 +49,9 @@ const initializeEmptySettings = async () => {
 				webSocketUrl: "",
 				dataApiUrl: "",
 				status: false,
+				webhookSecret: "",
 			},
+
 			kite: {
 				apiKey: "",
 				apiSecret: "",

@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc",
-        "bnr": "rm -rf ./dist && tsc && node ./dist/index.js",
+        "bnr": "rm -rf ./dist && tsc && node --max-old-space-size=15360 ./dist/index.js",
         "start": "node ./dist/index.js",
         "format": "prettier --write \"{src,test}/**/*.{js,ts}\"",
         "testFile": "yarn build && node dist/tempStrategyTest.js",
@@ -25,6 +25,7 @@
         "compression": "^1.7.4",
         "cookie-parser": "^1.4.6",
         "express": "^4.18.2",
+        "fyers-api-v3": "^1.0.1",
         "moment": "^2.29.4",
         "mongoose": "^6.6.5",
         "nodemailer": "^6.9.3",

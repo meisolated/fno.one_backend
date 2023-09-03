@@ -202,15 +202,15 @@ async function socketWrapper(url: string, data: string, callback: Function, user
 	const ws = new WebSocket(url)
 	ws.binaryType = "arraybuffer"
 	ws.on("open", () => {
-		logger.info("a socket connection is established", user ? true : false, user ? user : "null")
+		logger.info("a socket connection is established")
 		ws.send(data)
 		ws.send(JSON.stringify("ping"))
 	})
 	ws.on("error", (e) => {
-		logger.error(e.message, user ? true : false, user ? user : "null")
+		logger.error(e.message)
 	})
 	ws.on("closed", (e) => {
-		logger.error(e.message, user ? true : false, user ? user : "null")
+		logger.error(e.message)
 	})
 	ws.onmessage = (res) => {
 		if (typeof res.data === "string" && res.data.includes("pong")) {
@@ -222,13 +222,13 @@ async function socketWrapper(url: string, data: string, callback: Function, user
 	}
 	let interValInstant = setInterval(() => {
 		if (!isAlive) {
-			logger.warn("trying to reconnect", user ? true : false, user ? user : "null")
+			logger.warn("trying to reconnect")
 			reconnectCount++
 			clearInterval(interValInstant)
 			if (reconnectCount <= maxReconnectTimes) {
 				socketWrapper(url, data, callback, user)
 			} else {
-				logger.warn("Error : Connection Error unable to connect to socket", user ? true : false, user ? user : "null")
+				logger.warn("Error : Connection Error unable to connect to socket")
 			}
 		}
 	}, pingFrequency)

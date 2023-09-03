@@ -34,6 +34,9 @@ export default async function (app: Express, path: string) {
 					return res.redirect("/error/sessionTimeout")
 				}
 			})
+		} else {
+			res.clearCookie("fno.one")
+			return res.redirect("/error/sessionTimeout")
 		}
 	})
 }

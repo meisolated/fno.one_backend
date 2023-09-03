@@ -6,8 +6,9 @@ const datePassed = (date: string) => {
 	const today = new Date()
 	const dateArray = date.split("-")
 	const dateObject = new Date(`${dateArray[1]}-${dateArray[0]}-${dateArray[2]}`)
-	//make dateObject time as 23:59:59
-	dateObject.setHours(23)
+	//make dateObject time as 15:31:00
+	dateObject.setHours(15)
+	dateObject.setMinutes(31)
 	if (dateObject.getTime() < today.getTime()) {
 		return true
 	}

@@ -50,6 +50,7 @@ export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 }
 export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 	const processData: trueDataMarketFeedsTouchlineData = {
+		symbolId: data.Symbol_ID,
 		symbol: data.Symbol,
 		lastUpdateTime: data.LastUpdateTime,
 		lp: data.LTP,

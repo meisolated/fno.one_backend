@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface rateLimitData {
@@ -148,6 +148,7 @@ declare global {
 				webSocketUrl: string
 				dataApiUrl: string
 				status: boolean
+				webhookSecret: string
 			}
 			kite: {
 				apiKey: string
@@ -366,6 +367,7 @@ declare global {
 	interface trueDataMarketFeedsTouchlineData {
 		symbol: string
 		lastUpdateTime: string
+		symbolId: string
 		lp: number
 		tickVolume: number
 		ATP: number

@@ -218,6 +218,7 @@ class MarketFeeds {
 	private handleTouchline(touchline: string[]) {
 		const data = {
 			Symbol: touchline[0],
+			Symbol_ID: +touchline[1],
 			LastUpdateTime: touchline[2],
 			LTP: +touchline[3],
 			TickVolume: +touchline[4],

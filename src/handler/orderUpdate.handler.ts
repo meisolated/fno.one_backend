@@ -2,6 +2,7 @@ import { EventEmitter } from "events"
 import chatter from "../events"
 export default async function (userId: string, data: any) {
 	if (typeof data == "undefined") return
+	chatter.emit("fyersOrderUpdateSocket-", userId, data)
 	if (data.message == "TRADE_CONFIRMED") {
 		const preparedData = {
 			userId: userId,

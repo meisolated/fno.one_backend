@@ -44,21 +44,24 @@ export const baseSymbolsList = async () => {
 		numberOfSymbolsAllowed: 200,
 		includeUnderlyingAssets: true, // Include the underlying asset in the list of symbols
 		onlyIncludeSymbolsOfCurrentExpiry: true, // Only include symbols of the current expiry
-		whichMarketOptionsToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
-		whichMarketUnderlyingToInclude: "banknifty", // "all" or "nifty" or "banknifty" or "finnifty"
+		whichMarketOptionsToInclude: "BANKNIFTY", // "all" or "nifty" or "banknifty" or "finnifty"
+		whichMarketUnderlyingToInclude: "BANKNIFTY", // "all" or "nifty" or "banknifty" or "finnifty"
 		indicesSymbol: indicesSymbol,
 		bankNiftyUnderlyingAssets: bankNiftyUnderlyingAssets,
 	}
-	if (settings.whichMarketOptionsToInclude === "banknifty") {
+	if (settings.whichMarketOptionsToInclude === "BANKNIFTY") {
 		const marketData = await MarketData.findOne({ id: 1 })
 		if (marketData) {
 			try {
-				let currentPrice: any = await SymbolData.findOne({ trueDataSymbol: "NIFTY BANK" }).then((data: any) => data.ltp)
-				if (currentPrice == 0) {
-					const historical = new HistoricalData()
-					const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
-					return (currentPrice = BankNiftyCurrentPrice.Records[0][4])
-				}
+				let currentPrice: any = await SymbolData.findOne({ trueDataSymbol: "NIFTY BANK" }).then(async (data: any) => {
+					if (!data || data.ltp == 0) {
+						const historical = new HistoricalData()
+						const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
+						return BankNiftyCurrentPrice.Records[0][4]
+					} else {
+						return data.ltp
+					}
+				})
 				const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
 
 				// get upcoming expiry date
@@ -89,12 +92,15 @@ export const optionChainSymbols = async (symbol: string) => {
 	if (symbol.includes("BANKNIFTY")) {
 		// if (_optionChainSymbolsList[symbol]) return _optionChainSymbolsList[symbol]
 		try {
-			let currentPrice: any = await SymbolData.findOne({ trueDataSymbol: "NIFTY BANK" }).then((data: any) => data.ltp)
-			if (currentPrice == 0) {
-				const historical = new HistoricalData()
-				const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
-				return (currentPrice = BankNiftyCurrentPrice.Records[0][4])
-			}
+			let currentPrice: any = await SymbolData.findOne({ trueDataSymbol: "NIFTY BANK" }).then(async (data: any) => {
+				if (data.ltp == 0) {
+					const historical = new HistoricalData()
+					const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
+					return BankNiftyCurrentPrice.Records[0][4]
+				} else {
+					return data.ltp
+				}
+			})
 			const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
 			const marketData = await MarketData.findOne({ id: 1 })
 			if (marketData) {
@@ -127,6 +133,9 @@ export const optionChainSymbols = async (symbol: string) => {
 			logger.error(`Error in fetching symbols list: ${error}`)
 			return false
 		}
+	} else {
+		logger.error("Symbol not found")
+		return false
 	}
 }
 
@@ -166,10 +175,11 @@ const generateOptionChainSymbolsList = (symbol: string, numberOfOptions: number,
  *
  */
 const TrueDataSymbolMaker = (symbol: string, expiryDate: string, strikePrice: number, optionType: string) => {
-	const DD = expiryDate.split("-")[0]
+	const DD = expiryDate.split("-")[0] == "07" ? "06" : expiryDate.split("-")[0]
 	const MM = TrueDataMonthStringToNumber(expiryDate.split("-")[1])
 	const YY = expiryDate.split("-")[2].slice(2, 4)
 	const prepareExpiryDate = YY + MM + DD
+
 	return `${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
 }
 /**

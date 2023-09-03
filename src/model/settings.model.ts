@@ -40,6 +40,7 @@ export default new Schema<settings>(
 				webSocketUrl: { type: String, required: false },
 				dataApiUrl: { type: String, required: false },
 				status: { type: Boolean, required: false },
+				webhookSecret: { type: String, required: false },
 			},
 			kite: {
 				apiKey: { type: String, required: false },

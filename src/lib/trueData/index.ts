@@ -1,4 +1,5 @@
 import axios from "axios"
+import logger from "../../logger"
 import { getConfigData } from "../../config/initialize"
 import { TrueDataMonthStringToNumber } from "../../helper"
 import MarketFeeds from "./marketFeeds"
@@ -34,7 +35,7 @@ const getOptionChainData = async (symbol: string, expiry: string) => {
 }
 const getAllSymbols = async (segment: string, allExpiry: boolean) => {
 	const url = `https://api.truedata.in/getAllSymbols?segment=${segment}&user=FYERS1888&password=70goUByG&csv=false&allexpiry=${allExpiry}`
-	console.log(url)
+	logger.info(`[trueData.ts] getAllSymbols: Fetching symbols for segment: ${segment}`)
 	const data: any = await axios.get(url).then((data) => data.data)
 	if (data.status == "Success") {
 		if (data.Records.length > 0) {
