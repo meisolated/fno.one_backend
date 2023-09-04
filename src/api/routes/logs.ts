@@ -13,7 +13,7 @@ export default async function (app: Express, path: string) {
 					if (user.roles.includes("admin")) {
 						Logger.find({})
 							.sort({ createdAt: -1 })
-							.limit(100)
+							.limit(500)
 							.then((data) => {
 								return res.send({ message: "Success", code: 200, logs: data })
 							})

@@ -1,3 +1,5 @@
+import logger from "../logger"
+
 export const fyersSocketOrderUpdateDataProcessing = (orderData: any) => {
     //* To be done later
     console.log("Order Data: ", orderData)
@@ -20,6 +22,9 @@ export const fyersSocketTradeUpdateDataProcessing = (tradeData: any) => {
 export const fyersSocketUnknownDataProcessing = (data: any) => {
     //* To be done later
     console.log("Unknown Data: ", data)
+    if (data.code == 1605) {
+        logger.info("Fyers Subscription Successful", "FyersOrderSocketDPU")
+    }
     const processData: any = {}
     return processData
 }    

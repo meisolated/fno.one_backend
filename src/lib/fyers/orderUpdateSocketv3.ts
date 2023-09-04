@@ -105,7 +105,7 @@ export default class FyersOrderSocket {
     private maxReconnectionTries = 10
     private pingInterval: any = null
     private isPingEnabled = true
-    private subscribeTo = ["orderUpdates", "tradeUpdates", "positionUpdates", "edis", "pricealerts"]
+    private subscribeTo = ["orders", "trades", "positions", "edis", "pricealerts"]
 
     constructor(authorizationKey: string, autoConnect: boolean = true, isPingEnabled: boolean) {
         this.url = orderSocketUrl
@@ -120,8 +120,8 @@ export default class FyersOrderSocket {
         try {
             this.connection = new ws(this.url, {
                 headers: {
-                    "Authorization": this.authorizationKey
-                }
+                    Authorization: this.authorizationKey,
+                },
             })
             this.connection.binaryType = "arraybuffer"
             // WS Events
@@ -141,6 +141,7 @@ export default class FyersOrderSocket {
                 logger.info("Fyers Order Socket Closed", "FyersOrderSocket")
             })
             this.connection.on("message", (_data: any) => {
+
                 try {
                     const data: any = _data.toString()
                     if (data === "pong") return
@@ -178,7 +179,7 @@ export default class FyersOrderSocket {
         const action = subscribe ? 1 : -1
         try {
             if (this.isConnected()) {
-                this.connection?.send(JSON.stringify({ "T": "SUB_ORD", "SLIST": what, "SUB_T": action }))
+                this.connection?.send(JSON.stringify({ T: "SUB_ORD", SLIST: what, SUB_T: action }))
             } else {
                 logger.error("Fyers Order Socket is not connected", "FyersOrderSocket")
             }

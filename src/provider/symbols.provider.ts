@@ -175,7 +175,7 @@ const generateOptionChainSymbolsList = (symbol: string, numberOfOptions: number,
  *
  */
 const TrueDataSymbolMaker = (symbol: string, expiryDate: string, strikePrice: number, optionType: string) => {
-	const DD = expiryDate.split("-")[0] == "07" ? "06" : expiryDate.split("-")[0]
+	const DD = expiryDate.split("-")[0]
 	const MM = TrueDataMonthStringToNumber(expiryDate.split("-")[1])
 	const YY = expiryDate.split("-")[2].slice(2, 4)
 	const prepareExpiryDate = YY + MM + DD

@@ -6,7 +6,6 @@ import FyersOrderSocket from "../lib/fyers/orderUpdateSocketv3"
 import logger from "../logger"
 import { Session, User } from "../model"
 import orderUpdateHandler from "./orderUpdate.handler"
-
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
 
 export const subscribeToAllUsersSockets = async () => {
@@ -16,6 +15,7 @@ export const subscribeToAllUsersSockets = async () => {
 		const accessToken = user?.userAppsData.fyers.accessToken
 		const appId = config.apis.fyers.appId
 		const fyersOrderSocket = new FyersOrderSocket(`${appId}:${accessToken}`, true, true)
+		// fyersOrderSocket
 
 	} else {
 		logger.error("User not found")
@@ -23,7 +23,9 @@ export const subscribeToAllUsersSockets = async () => {
 
 
 
+
 	// const activeUsersSocketConnection: Array<any> = []
+	// const users = await User.find({})
 
 	// function connectSocket(user: any) {
 	// 	if (user.connectedApps.includes("fyers")) {
