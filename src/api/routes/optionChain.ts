@@ -5,7 +5,7 @@ import logger from "../../logger"
 import { optionChainSymbols } from "../../provider/symbols.provider"
 
 export default async function (app: Express, path: string) {
-	logger.info("Loaded route: " + path)
+	logger.info("Loaded route: " + path, "routes")
 	app.get(path, async (req: Request, res: Response) => {
 		const symbol: any = req.query.symbol
 		if (symbol) {

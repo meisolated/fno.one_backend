@@ -2,7 +2,7 @@ import { Express, Request, Response } from "express"
 import { generateLoginUrl } from "../../lib/fyers"
 import logger from "../../logger"
 export default async function (app: Express, path: string) {
-	logger.info("Loaded route: " + path)
+	logger.info("Loaded route: " + path, "routes")
 	app.get(path, (req: Request, res: Response) => {
 		const data = {
 			apps: [

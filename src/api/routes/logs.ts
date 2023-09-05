@@ -2,7 +2,7 @@ import { Express, Request, Response } from "express"
 import logger from "../../logger"
 import { Logger, Session, User } from "../../model"
 export default async function (app: Express, path: string) {
-	logger.info("Loaded route: " + path)
+	logger.info("Loaded route: " + path, "routes")
 	app.get(path, async (req: Request, res: Response) => {
 		const cookie = req.query.cookie || req.cookies["fno.one"]
 		if (cookie && cookie.includes("ily") && cookie.includes("fno.one-")) {

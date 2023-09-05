@@ -33,30 +33,30 @@ app.get("/", (_req: Request, res: Response) => {
 // -----------| Initializing |-----------
 initialize()
 	.then(async (_done) => {
-		logger.info("Loading routes...")
+		logger.info("Loading routes...", "index.ts")
 		LoadRoutes(app, routesDirPath, "", false).then(async () => {
-			logger.info("Routes loaded!")
+			logger.info("Routes loaded!", "index.ts")
 			const config = getConfigData()
 			const APIport: number = config.serverConf.APIPort
 			const socketPort: number = config.serverConf.socketPort
 			const io = new Server(socketPort)
-			logger.info("Loading socket.io events...")
+			logger.info("Loading socket.io events...", "index.ts")
 			socketLoader(io)
-			logger.info("Socket.io events loaded!")
+			logger.info("Socket.io events loaded!", "index.ts")
 			await subscribeToAllUsersSockets()
-			logger.info("Connecting to true data socket...")
+			logger.info("Connecting to true data socket...", "index.ts")
 			await connectTrueDataMarketDataSocket()
-			logger.info("Loading strategies...")
+			logger.info("Loading strategies...", "index.ts")
 			await strategiesLoader()
 			logger.info("Strategies loaded!")
 			logger.info("Starting server...")
 			server.listen(APIport, () => {
-				logger.info(`Server started on port ${APIport}`)
+				logger.info(`Server started on port ${APIport}`, "index.ts")
 			})
 		})
 	})
 	.catch((_err) => {
-		logger.error("Error while initializing")
-		logger.error("Exiting...")
+		logger.error("Error while initializing", "index.ts")
+		logger.error("Exiting...", "index.ts")
 		process.exit(1)
 	})

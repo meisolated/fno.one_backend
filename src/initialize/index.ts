@@ -28,11 +28,11 @@ const commonAxiosGet = async (url: string) => {
 		if (response.status === 200) {
 			return response.data
 		} else {
-			logger.error("Error while fetching NSE data")
+			logger.error("Error while fetching NSE data", "initialize/index.ts[commonAxiosGet]")
 			return false
 		}
 	} catch (error) {
-		logger.info(JSON.stringify(error))
+		logger.info(JSON.stringify(error), "initialize/index.ts[commonAxiosGet]")
 		return false
 	}
 }
@@ -68,7 +68,7 @@ var tasks = [
 					const diff = now - lastUpdated
 					const diffInDays = diff / (1000 * 3600 * 24)
 					if (diffInDays < 1) {
-						logger.info("Market Data is updated in last 1 days, no need to update again")
+						logger.info("Market Data is updated in last 1 days, no need to update again", "initialize/index.ts[CheckIfLastUpdatedInLast1Days]")
 						tasks.forEach((task) => {
 							if (
 								task.name === "NSEBankNiftyData" ||
@@ -78,12 +78,12 @@ var tasks = [
 								task.name === "SaveMarketDataToDB"
 							) {
 								task.status = true
-								logger.info(`Task ${task.name} is skipped`)
+								logger.info(`Task ${task.name} is skipped`, "initialize/index.ts[CheckIfLastUpdatedInLast1Days]")
 							}
 						})
 						return resolve(true)
 					} else {
-						logger.info("Market Data is not updated in last 1 days")
+						logger.info("Market Data is not updated in last 1 days", "initialize/index.ts[CheckIfLastUpdatedInLast1Days]")
 						return resolve(true)
 					}
 				}
@@ -215,7 +215,7 @@ var tasks = [
 						})
 						return resolve(true)
 					} catch (error: any) {
-						logger.info(error.message.toString())
+						logger.info(error.message.toString(), "initialize/index.ts[SaveMarketDataToDB]")
 						return resolve(false)
 					}
 				} else {
@@ -230,7 +230,7 @@ var tasks = [
 						})
 						return resolve(true)
 					} catch (error: any) {
-						logger.info(error.message.toString())
+						logger.info(error.message.toString(), "initialize/index.ts[SaveMarketDataToDB]")
 						return resolve(false)
 					}
 				}
@@ -273,10 +273,10 @@ var tasks = [
 					const diff = now - lastUpdate
 					const diffInDays = diff / (1000 * 3600 * 24)
 					if (diffInDays < 2) {
-						logger.info("Symbol Master Data is updated in last 2 days, no need to update again")
+						logger.info("Symbol Master Data is updated in last 2 days, no need to update again", "initialize/index.ts[symbolMasterDataUpdate]")
 						return resolve(true)
 					} else {
-						logger.info("Symbol Master Data is not updated in last 2 days. Updating now...")
+						logger.info("Symbol Master Data is not updated in last 2 days. Updating now...", "initialize/index.ts[symbolMasterDataUpdate]")
 						const returned = await updateSymbolMasterData()
 						if (returned) {
 							await updateTaskLastUpdate("symbolMasterDataUpdate", Date.now())
@@ -306,22 +306,22 @@ var tasks = [
 
 export default () =>
 	new Promise(async (resolve, reject) => {
-		logger.info(`Found ${tasks.length} tasks to execute`)
+		logger.info(`Found ${tasks.length} tasks to execute`, "initialize/index.ts")
 		const tick = performance.now()
 		async function runTasksSequentially(taskList: any) {
 			for (const task of taskList) {
 				if (task.status === false) {
-					logger.info(`Waiting for ${task.name} to complete...`)
+					logger.info(`Waiting for ${task.name} to complete...`, "initialize/index.ts")
 					const returned = await task.execute()
 					await timeout(1000)
 					if (returned) {
 						task.status = true
-						logger.info(`Task ${task.name} is completed`)
+						logger.info(`Task ${task.name} is completed`, "initialize/index.ts")
 					} else {
 						task.tries++
-						logger.info(`Task ${task.name} is failed, retrying again`)
+						logger.info(`Task ${task.name} is failed, retrying again`, "initialize/index.ts")
 						if (task.tries > maxTries) {
-							logger.info(`Task ${task.name} is failed, max tries reached`)
+							logger.info(`Task ${task.name} is failed, max tries reached`, "initialize/index.ts")
 							return resolve(false)
 						}
 						return runTasksSequentially(taskList)

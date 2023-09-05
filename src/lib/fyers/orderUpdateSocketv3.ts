@@ -5,9 +5,11 @@ import {
 	fyersSocketTradeUpdateDataProcessing,
 	fyersSocketUnknownDataProcessing,
 } from "../../dataProcessingUnit/fyersAPI.dpu"
+import { fyersPingHandler } from "../../handler/ping.handler"
 import logger from "../../logger"
 
 const orderSocketUrl = "wss://socket.fyers.in/trade/v3"
+
 const ordStatObj: any = {
 	11: 4,
 	12: 4,
@@ -170,7 +172,7 @@ export default class FyersOrderSocket {
 			this.connection.on("message", (_data: any) => {
 				try {
 					const data: any = _data.toString()
-					if (data === "pong") return
+					if (data === "pong") return fyersPingHandler(data)
 					const parsedData = JSON.parse(data)
 					if (parsedData.hasOwnProperty("orders")) {
 						let orderData = dataMapper(parsedData.orders, mapper.orders)
@@ -214,7 +216,7 @@ export default class FyersOrderSocket {
 			if (this.isConnected()) {
 				this.connection?.send("ping")
 			}
-		}, 1000)
+		}, 5000)
 	}
 	private stopPing() {
 		if (this.pingInterval) clearInterval(this.pingInterval)

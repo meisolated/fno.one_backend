@@ -17,7 +17,7 @@ export const subscribeToAllUsersSockets = async () => {
 		const fyersOrderSocket = new FyersOrderSocket(`${appId}:${accessToken}`, true, true)
 		// fyersOrderSocket
 	} else {
-		logger.error("User not found")
+		logger.error("User not found", "fyers.handler")
 	}
 
 	// const activeUsersSocketConnection: Array<any> = []

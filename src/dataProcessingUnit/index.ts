@@ -45,7 +45,7 @@ export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 		chatter.emit("symbolUpdateTicks-", "tick", processData)
 		return processData
 	} catch (error) {
-		logger.error("There is something wrong inside trueDataMarketFeedsRealTimeDataProcessing")
+		logger.error("There is something wrong inside trueDataMarketFeedsRealTimeDataProcessing", "dataProcessingUnit/index.ts")
 	}
 }
 export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {

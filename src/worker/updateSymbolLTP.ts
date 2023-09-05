@@ -21,7 +21,7 @@ export default async function updateSymbolData() {
 		if (result) {
 			return
 		} else {
-			return logger.error(`[updateSymbolLTP.ts] updateSymbolData: ${symbolData.symbol} not found in SymbolData`)
+			return logger.error(`[updateSymbolLTP.ts] updateSymbolData: ${symbolData.symbol} not found in SymbolData`, "updateSymbolLTP.ts")
 		}
 	})
 }

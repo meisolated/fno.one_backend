@@ -14,7 +14,7 @@ const connectTrueDataMarketDataSocket = async () => {
 			trueDataConnection.connect()
 		})
 	} catch (err: any) {
-		logger.error("Error in connecting to true data socket")
+		logger.error("Error in connecting to true data socket", "trueData.handler")
 	}
 }
 export { connectTrueDataMarketDataSocket }

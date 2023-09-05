@@ -17,7 +17,7 @@ export const generateSymbolsList = async () => {
 				return expiryDate
 			}
 		})
-		SymbolData.deleteMany({}).then(() => logger.info("Deleted all symbols"))
+		SymbolData.deleteMany({}).then(() => logger.info("Deleted all symbols", "symbols.provider[generateSymbolsList]"))
 		marketData.BANKNIFTY.strikePrices.forEach(async (strikePrice) => {
 			await SymbolData.create({
 				trueDataSymbol: TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE"),
@@ -33,7 +33,7 @@ export const generateSymbolsList = async () => {
 			})
 		})
 	} else {
-		logger.error("Market Data not found")
+		logger.error("Market Data not found", "symbols.provider[generateSymbolsList]")
 		return false
 	}
 }
@@ -75,13 +75,13 @@ export const baseSymbolsList = async () => {
 				const _symbols = generateOptionChainSymbolsList("BANKNIFTY", settings.numberOfOptions, roundOffCurrentPrice, BANKNIFTYUpcomingExpiry[0])
 				const symbols = _symbols.map((symbol: any) => symbol.CE).concat(_symbols.map((symbol: any) => symbol.PE))
 				const uniqueSymbols = [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets]
-				logger.info(`Total number of symbols: ${uniqueSymbols.length}`)
+				logger.info(`Total number of symbols: ${uniqueSymbols.length}`, "symbols.provider[baseSymbolsList]")
 				_baseSymbolsList = uniqueSymbols
 				return uniqueSymbols
 
 				//---------------------------------------------
 			} catch (error) {
-				logger.error(`Error in fetching symbols list: ${error}`)
+				logger.error(`Error in fetching symbols list: ${error}`, "symbols.provider[baseSymbolsList]")
 			}
 		}
 	}
@@ -126,11 +126,11 @@ export const optionChainSymbols = async (symbol: string) => {
 				_optionChainSymbolsList = { [symbol]: symbols }
 				return symbols
 			} else {
-				logger.error("Market Data not found")
+				logger.error("Market Data not found", "symbols.provider[optionChainSymbols]")
 				return false
 			}
 		} catch (error) {
-			logger.error(`Error in fetching symbols list: ${error}`)
+			logger.error(`Error in fetching symbols list: ${error}`, "symbols.provider[optionChainSymbols]")
 			return false
 		}
 	} else {

@@ -106,11 +106,11 @@ class HistoricalData {
 			if (response.data.status == "Success") {
 				return response.data.Records
 			} else {
-				logger.error(`Error in getBarData: ${JSON.stringify(response.data)}`)
+				logger.error(`Error in getBarData: ${JSON.stringify(response.data)}`, "trueDataHistoricalData")
 				return false
 			}
 		} catch (error: any) {
-			logger.error(`Error in getBarData: ${JSON.stringify(error)}`)
+			logger.error(`Error in getBarData: ${JSON.stringify(error)}`, "trueDataHistoricalData")
 			return false
 		}
 	}

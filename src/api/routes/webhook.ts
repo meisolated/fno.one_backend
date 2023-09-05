@@ -3,7 +3,7 @@ import { Express, Request, Response } from "express"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 export default async function (app: Express, path: string) {
-	logger.info("Loaded route: " + path)
+	logger.info("Loaded route: " + path, "routes")
 	const config = getConfigData()
 	app.post(path, (req: Request, res: Response) => {
 		const receivedSignature = req.headers["x-signature"] // FYERS might send the signature in a custom header

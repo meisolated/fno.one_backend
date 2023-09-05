@@ -58,11 +58,11 @@ const getHistoricalDataTrueData = async (symbol: string, interval: string) => {
     const historicalData = new HistoricalData()
     await historicalData.getAccessToken()
     const monthsData = generateLast12Months("YYMMDDT:HH:MM:SS")
-    logger.info(`Getting historical data for ${symbol} for ${interval} and ${monthsData.length} months`)
+    logger.info(`Getting historical data for ${symbol} for ${interval} and ${monthsData.length} months`, "updateHistoricalData.ts[getHistoricalDataTrueData]")
     for (const month of monthsData) {
         const data = await historicalData.getBarData(symbol, interval, month.from, month.to)
         if (!data) {
-            logger.error(`No data found for ${symbol} for ${interval} for ${month.from} to ${month.to}`)
+            logger.error(`No data found for ${symbol} for ${interval} for ${month.from} to ${month.to}`, "updateHistoricalData.ts[getHistoricalDataTrueData]")
         } else {
             const candleData = data.map((candle: any) => {
                 return {
@@ -78,21 +78,21 @@ const getHistoricalDataTrueData = async (symbol: string, interval: string) => {
             })
             await CandleHistory.insertMany(candleData)
             await historicalData.sleep(1000)
-            logger.info(`Inserted ${candleData.length} candles for ${symbol} for ${interval} for  ${month.from} to ${month.to}`)
+            logger.info(`Inserted ${candleData.length} candles for ${symbol} for ${interval} for  ${month.from} to ${month.to}`, "updateHistoricalData.ts[getHistoricalDataTrueData]")
         }
     }
 }
 const getHistoricalDataFyers = async (symbol: string,) => {
     const intervals = ["1", "5", "15", "1D"]
     const user = await User.findOne({ email: "fisolatedx@gmail.com" })
-    if (!user) return logger.error("User not found")
+    if (!user) return logger.error("User not found", "updateHistoricalData.ts[getHistoricalDataFyers]")
     const monthsData = generateLast12Months("YYYY-MM-DD")
     for (const interval of intervals) {
-        logger.info(`Getting historical data for ${symbol} symbol for ${interval} interval and ${monthsData.length} months`)
+        logger.info(`Getting historical data for ${symbol} symbol for ${interval} interval and ${monthsData.length} months`, "updateHistoricalData.ts[getHistoricalDataFyers]")
         for (const month of monthsData) {
             const data = await getHistoricalData(user.userAppsData.fyers.accessToken, symbol, interval, 1, month.from, month.to)
             if (!data) {
-                logger.error(`No data found for ${symbol} symbol for ${interval} interval for ${month.from} to ${month.to}`)
+                logger.error(`No data found for ${symbol} symbol for ${interval} interval for ${month.from} to ${month.to}`, "updateHistoricalData.ts[getHistoricalDataFyers]")
             } else {
                 const candleData = data.map((candle: any) => {
                     return {
@@ -107,7 +107,7 @@ const getHistoricalDataFyers = async (symbol: string,) => {
                     }
                 })
                 await CandleHistory.insertMany(candleData)
-                logger.info(`Inserted ${candleData.length} candles for ${symbol} symbol for ${interval} interval for  ${month.from} to ${month.to}`)
+                logger.info(`Inserted ${candleData.length} candles for ${symbol} symbol for ${interval} interval for  ${month.from} to ${month.to}`, "updateHistoricalData.ts[getHistoricalDataFyers]")
             }
         }
     }
@@ -124,12 +124,12 @@ export const updateHistoricalData = async () => {
     }
     const lastUpdate: any = await Settings.findOne({ id: 1 }).then((data) => data?.tasksLastRun.lastHistoricalDataUpdate)
     if (lastUpdate) {
-        if (Date.now() - lastUpdate < 2592000000) return logger.info("Historical data already updated today")
-        logger.info(`Last historical data update found, updating historical data`)
+        if (Date.now() - lastUpdate < 2592000000) return logger.info("Historical data already updated today", "updateHistoricalData.ts[updateHistoricalData]")
+        logger.info(`Last historical data update found, updating historical data`, "updateHistoricalData.ts[updateHistoricalData]")
         return await update()
 
     } else {
-        logger.info(`No last update found, updating historical data`)
+        logger.info(`No last update found, updating historical data`, "updateHistoricalData.ts[updateHistoricalData]")
         await updateTaskLastUpdate("lastHistoricalDataUpdate", 0)
         return await update()
     }

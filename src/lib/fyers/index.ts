@@ -81,7 +81,7 @@ const generateAccessToken = async (authCode: any) => {
 		})
 		return accessToken.data
 	} catch (error: any) {
-		logger.error(error)
+		logger.error(error, "fyers/index.ts[generateAccessToken]")
 		return error
 	}
 }
@@ -104,7 +104,7 @@ const getProfile = async (token: string) => {
 			const profile = await axios.get(`${apiUrl}profile`, reqConfig)
 			return profile.data
 		} catch (error: any) {
-			logger.error(error)
+			logger.error(error, "fyers/index.ts[getProfile]")
 			return error
 		}
 	}
@@ -128,7 +128,7 @@ const getFunds = async (token: string) => {
 			const funds = await axios.get(`${apiUrl}funds`, reqConfig)
 			return funds.data
 		} catch (error: any) {
-			logger.error(error)
+			logger.error(error, "fyers/index.ts[getFunds]")
 			return error
 		}
 	}
@@ -152,7 +152,7 @@ const getHoldings = async (token: string) => {
 			const holdings = await axios.get(`${apiUrl}holdings`, reqConfig)
 			return holdings.data
 		} catch (error: any) {
-			logger.error(error)
+			logger.error(error, "fyers/index.ts[getHoldings]")
 			return error
 		}
 	}
@@ -176,7 +176,7 @@ const getTrades = async (token: string) => {
 			const trades = await axios.get(`${apiUrl}tradebook`, reqConfig)
 			return trades.data
 		} catch (error: any) {
-			logger.error(error)
+			logger.error(error, "fyers/index.ts[getTrades]")
 			return error
 		}
 	}
@@ -200,7 +200,7 @@ const getPositions = async (token: string) => {
 			const positions = await axios.get(`${apiUrl}positions`, reqConfig)
 			return positions.data
 		} catch (error: any) {
-			logger.error(error)
+			logger.error(error, "fyers/index.ts[getPositions]")
 			return error
 		}
 	}
@@ -224,7 +224,7 @@ const getOrders = async (token: string) => {
 			const orders = await axios.get(`${apiUrl}orders`, reqConfig)
 			return orders.data
 		} catch (error: any) {
-			logger.error(error)
+			logger.error(error, "fyers/index.ts[getOrders]")
 			return error
 		}
 	}
@@ -264,7 +264,7 @@ const getHistoricalData = async (token: string, symbol: string, resolution: stri
 				return historicalData.data.candles
 			}
 		} catch (error: any) {
-			logger.error(error)
+			logger.error(error, "fyers/index.ts[getHistoricalData]")
 			return false
 		}
 	}

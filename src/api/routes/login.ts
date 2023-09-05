@@ -1,8 +1,8 @@
 import { Express, Request, Response } from "express"
-import logger from "../../logger"
 import { getConfigData } from "../../config/initialize"
+import logger from "../../logger"
 export default async function (app: Express, path: string) {
-	logger.info("Loaded route: " + path)
+	logger.info("Loaded route: " + path, "routes")
 	app.get(path, async (req: Request, res: Response) => {
 		const cookie = req.cookies["fno.one"]
 		const config = getConfigData()

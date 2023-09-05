@@ -16,8 +16,8 @@ export default async function strategiesLoader() {
 				const findInDb = await Strategies.findOne({ id: strgy.id })
 				if (findInDb) {
 					if (findInDb.enabled) {
-						if (findInDb.markets.length == 0) return logger.info(`No markets found for ${strgy.name} strategy`)
-						logger.info(`Loading ${strgy.name} strategy`)
+						if (findInDb.markets.length == 0) return logger.info(`No markets found for ${strgy.name} strategy`, "strategies/strategiesLoader.ts")
+						logger.info(`Loading ${strgy.name} strategy`, "strategies/strategiesLoader.ts")
 						strgy.run(findInDb.markets)
 					}
 				} else {
@@ -32,7 +32,7 @@ export default async function strategiesLoader() {
 				}
 			}
 		} else {
-			logger.info(`index.ts file not found in ${folder} folder`)
+			logger.info(`index.ts file not found in ${folder} folder`, "strategies/strategiesLoader.ts")
 		}
 	})
 }

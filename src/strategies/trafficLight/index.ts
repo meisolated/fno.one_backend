@@ -13,7 +13,7 @@ export default class TrafficLight {
 	// strategy specific variables
 	private _timeFrame: string = "5min" // historical data time frame
 	private _pairsFound: any = {}
-	constructor() {}
+	constructor() { }
 
 	private strategyActive() {
 		// check if current time is between 9:15AM and 3:30PM
@@ -35,13 +35,13 @@ export default class TrafficLight {
 		return diffInMins > 10
 	}
 	public async run(markets: Array<string>) {
-		logger.info(`Running ${this._name} strategy`)
+		logger.info(`Running ${this._name} strategy`, "strategies/trafficLight/index.ts")
 		this.algorithm(markets)
 	}
 	private async algorithm(markets: Array<string>) {
 		const historicalData = new HistoricalData()
 		await historicalData.getAccessToken()
-		if (!historicalData._accessTokenGenerated) logger.error("Access token not generated")
+		if (!historicalData._accessTokenGenerated) logger.error("Access token not generated", "strategies/trafficLight/index.ts")
 		this._checkForPairInterval = setInterval(async () => {
 			markets.forEach(async (market) => {
 				if (!this.strategyActive()) return
@@ -89,7 +89,7 @@ export default class TrafficLight {
 	}
 
 	public async stop() {
-		logger.info(`Stopping ${this._name} strategy`)
+		logger.info(`Stopping ${this._name} strategy`, "strategies/trafficLight/index.ts")
 		if (this._checkForPairInterval) clearInterval(this._checkForPairInterval)
 	}
 }
