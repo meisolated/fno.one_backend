@@ -56,12 +56,12 @@ declare global {
 	interface marketHistory {
 		symbol: string
 		resolution: string
-		t: number // timestamp
-		o: number // candle open
-		h: number // candle high
-		l: number // candle low
-		c: number // candle close
-		v: number // candle volume
+		t: string // timestamp
+		o: string // candle open
+		h: string // candle high
+		l: string // candle low
+		c: string // candle close
+		v: string // candle volume
 	}
 	interface openInterest {
 		symbol: string
@@ -179,7 +179,7 @@ declare global {
 			enableMoneyManager: boolean
 		}
 		tasksLastRun: {
-			[key: string]: Date
+			[key: string]: any
 		}
 		lastUpdated: Date
 	}

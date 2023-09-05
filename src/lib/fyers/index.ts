@@ -258,10 +258,14 @@ const getHistoricalData = async (token: string, symbol: string, resolution: stri
 				`https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=`,
 				reqConfig,
 			)
-			return historicalData.data
+			if (historicalData.data.s != "ok") {
+				return false
+			} else {
+				return historicalData.data.candles
+			}
 		} catch (error: any) {
 			logger.error(error)
-			return error
+			return false
 		}
 	}
 }

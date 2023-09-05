@@ -65,7 +65,8 @@ export default new Schema<settings>(
 			},
 		},
 		tasksLastRun: {
-			symbolMasterDataUpdate: { type: Date, required: false },
+			symbolMasterDataUpdate: { type: String, required: false },
+			lastHistoricalDataUpdate: { type: String, required: false },
 		},
 		lastUpdated: { type: Date, required: false },
 	},

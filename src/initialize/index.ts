@@ -1,10 +1,11 @@
 import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
 
 import axios from "axios"
-import { timeout } from "../helper"
+import { timeout, updateTaskLastUpdate } from "../helper"
 import logger from "../logger"
 import { MarketData, Settings } from "../model"
 import { convertMarketTicksToBars, updateSymbolLTP, updateSymbolMasterData } from "../worker"
+import { updateHistoricalData } from "../worker/updateHistoricalData"
 
 export var marketData: any = {}
 const maxTries = 10
@@ -278,16 +279,27 @@ var tasks = [
 						logger.info("Symbol Master Data is not updated in last 2 days. Updating now...")
 						const returned = await updateSymbolMasterData()
 						if (returned) {
-							await Settings.findOneAndUpdate({ id: 1 }, { tasksLastRun: { symbolMasterDataUpdate: Date.now() } })
+							await updateTaskLastUpdate("symbolMasterDataUpdate", Date.now())
 							return resolve(true)
 						} else {
 							return resolve(false)
 						}
 					}
 				} else {
-					await Settings.findOneAndUpdate({ id: 1 }, { tasksLastRun: { symbolMasterDataUpdate: 0 } })
+					await updateTaskLastUpdate("symbolMasterDataUpdate", 0)
 					return resolve(false)
 				}
+			}),
+	},
+	{
+		name: "historicalDataUpdate",
+		status: false,
+		tries: 0,
+		importance: 1,
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				await updateHistoricalData()
+				return resolve(true)
 			}),
 	},
 ]

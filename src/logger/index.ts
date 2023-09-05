@@ -17,17 +17,16 @@ class CustomLogger {
 		const color = this.options.colors[level] || chalk.white
 		const currentTime = new Date().toLocaleString()
 		const formattedMessage = `[${level.toUpperCase()}] [${currentTime}] ${sector ? ` [${sector}]` : ""} - ${message}`
-		const logString = JSON.stringify(formattedMessage) + '\n'
-
+		const logString = JSON.stringify(formattedMessage) + "\n"
 
 		// check is logs folder exists
-		if (!fs.existsSync('./logs')) {
-			fs.mkdirSync('./logs')
+		if (!fs.existsSync("./logs")) {
+			fs.mkdirSync("./logs")
 		}
-		const fileName = new Date().toLocaleDateString().replace(/\//g, '-')
+		const fileName = new Date().toLocaleDateString().replace(/\//g, "-")
 		fs.appendFile(`./logs/${fileName}.log`, logString, (err: any) => {
 			if (err) {
-				console.error('Failed to write to log file:', err)
+				console.error("Failed to write to log file:", err)
 			}
 		})
 		console.log(color(formattedMessage))

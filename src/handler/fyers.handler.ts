@@ -16,13 +16,9 @@ export const subscribeToAllUsersSockets = async () => {
 		const appId = config.apis.fyers.appId
 		const fyersOrderSocket = new FyersOrderSocket(`${appId}:${accessToken}`, true, true)
 		// fyersOrderSocket
-
 	} else {
 		logger.error("User not found")
 	}
-
-
-
 
 	// const activeUsersSocketConnection: Array<any> = []
 	// const users = await User.find({})

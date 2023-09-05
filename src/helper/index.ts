@@ -1,8 +1,9 @@
 import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "./optionChain.helper"
 
 import axios from "axios"
-import { getMarketCurrentPrice } from "./marketData.helper"
 import logger from "../logger"
+import { Settings } from "../model"
+import { getMarketCurrentPrice } from "./marketData.helper"
 
 const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 function sum(a: number, b: number) {
@@ -65,4 +66,11 @@ export function getRandomInt(min: number, max: number) {
 	return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
+export async function updateTaskLastUpdate(taskName: string, time: any) {
+	const settings = await Settings.findOne({ id: 1 })
+	if (settings) {
+		settings.tasksLastRun[taskName] = time
+		await settings.save()
+	}
+}
 export { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed, get, getMarketCurrentPrice, isTodayHoliday, sum, timeout }

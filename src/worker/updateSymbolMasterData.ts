@@ -29,6 +29,6 @@ export default async function updateSymbolMasterData() {
 	// 	return true
 	// } else {
 	// 	console.log("no data found")
-	// 	return false	
+	// 	return false
 	// }
 }

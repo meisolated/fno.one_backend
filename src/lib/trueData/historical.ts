@@ -1,6 +1,6 @@
 import axios from "axios"
-import { getConfigData } from "../../config/initialize"
 import qs from "qs"
+import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 
 class HistoricalData {
@@ -10,10 +10,13 @@ class HistoricalData {
 	public _accessTokenGenerated: boolean = false
 	private _apiUrl = "https://history.truedata.in/"
 	private _expireTime: number = 0
+	private lastRequestTime: number = 0
+
 	constructor() {
 		this._username = getConfigData().apis.trueData.username
 		this._password = getConfigData().apis.trueData.password
 	}
+
 	public async getAccessToken() {
 		let data = qs.stringify({
 			username: this._username,
@@ -73,8 +76,7 @@ class HistoricalData {
 			return false
 		}
 	}
-
-	checkDurationInDays(from: string, to: string) {
+	private checkDurationInDays(from: string, to: string) {
 		// from and to FORMAT: YYMMDDT:HH:MM:SS
 		let fromDate = new Date(from)
 		let toDate = new Date(to)
@@ -84,6 +86,7 @@ class HistoricalData {
 	}
 	public async getBarData(symbol: string, interval: string = "1min", from: string, to: string) {
 		if (this.checkDurationInDays(from, to) > 30) return false
+		console.log("getBarData")
 		await this.checkAccessToken()
 		let config = {
 			method: "get",
@@ -93,12 +96,26 @@ class HistoricalData {
 				Authorization: "Bearer " + this._accessToken,
 			},
 		}
-		const response = await axios.request(config)
-		if (response.data.status == "Success") {
-			return response.data
+
+		try {
+			this.lastRequestTime = Date.now()
+			if (this.lastRequestTime - this.lastRequestTime < 1000) {
+				await this.sleep(1000)
+			}
+			const response = await axios.request(config)
+			if (response.data.status == "Success") {
+				return response.data.Records
+			} else {
+				logger.error(`Error in getBarData: ${JSON.stringify(response.data)}`)
+				return false
+			}
+		} catch (error: any) {
+			logger.error(`Error in getBarData: ${JSON.stringify(error)}`)
+			return false
 		}
-		logger.error("Error in getBarData")
-		return false
+	}
+	public async sleep(ms: number) {
+		return new Promise((resolve) => setTimeout(resolve, ms))
 	}
 }
 
