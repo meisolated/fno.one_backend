@@ -14,6 +14,7 @@ import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
 import strategiesLoader from "./strategies/strategiesLoader"
+import backtest from "./strategies/trafficLight/backtest"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -53,6 +54,7 @@ initialize()
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "index.ts")
 			})
+			backtest()
 		})
 	})
 	.catch((_err) => {

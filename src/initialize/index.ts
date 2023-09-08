@@ -4,7 +4,7 @@ import axios from "axios"
 import { timeout, updateTaskLastUpdate } from "../helper"
 import logger from "../logger"
 import { MarketData, Settings } from "../model"
-import { convertMarketTicksToBars, updateSymbolLTP, updateSymbolMasterData } from "../worker"
+import { convertMarketTicksToBars, optionRelativeMovementCalculator, updateSymbolLTP, updateSymbolMasterData } from "../worker"
 import { updateHistoricalData } from "../worker/updateHistoricalData"
 
 export var marketData: any = {}
@@ -254,7 +254,7 @@ var tasks = [
 		importance: 1,
 		execute: async () =>
 			new Promise(async (resolve, reject) => {
-				convertMarketTicksToBars()
+				// convertMarketTicksToBars()
 				return resolve(true)
 			}),
 	},
@@ -299,6 +299,17 @@ var tasks = [
 		execute: async () =>
 			new Promise(async (resolve, reject) => {
 				await updateHistoricalData()
+				return resolve(true)
+			}),
+	},
+	{
+		name: "startOptionRelativeMovementCalculator",
+		status: false,
+		tries: 0,
+		importance: 1,
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				await optionRelativeMovementCalculator()
 				return resolve(true)
 			}),
 	},

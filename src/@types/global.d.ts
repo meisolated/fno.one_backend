@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -53,7 +53,7 @@ declare global {
 		spread: number
 		marketStat: number
 	}
-	interface marketHistory {
+	interface historicalData {
 		symbol: string
 		resolution: string
 		t: string // timestamp

@@ -1,16 +1,8 @@
-import { Settings } from "./model"
+import { getConfig } from "./config/initialize"
+import backtest from "./strategies/trafficLight/backtest"
 
-
-const getSettings = async () => {
-	const settings = await Settings.findOne({ id: 1 })
-	if (settings) {
-		console.log(settings)
-		settings.tasksLastRun = {
-			"lastHistoricalDataUpdate": Date.now().toString()
-		}
-		await settings.save()
-		console.log(settings)
-	}
+async function main() {
+	const config = await getConfig()
+	await backtest()
 }
-
-getSettings()
+main()

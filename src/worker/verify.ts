@@ -24,10 +24,10 @@ export const checkIfAllMarketDataTicksAreBeingProvidedByProvider = async (symbol
 					await SymbolData.create(prepareData)
 				}
 			} catch (error) {
-				return logger.error(`[verify.ts] checkIfAllMarketDataTicksAreBeingProvidedByProvider: ${error}`, "verify.ts")
+				return logger.error(`checkIfAllMarketDataTicksAreBeingProvidedByProvider: ${error}`, "verify.ts")
 			}
 		}),
 	)
 
-	return logger.info(`[verify.ts] checkIfAllMarketDataTicksAreBeingProvidedByProvider: ${notFoundList.length == 0 ? "All symbols confirmed" : `Missing symbols: ${notFoundList}`}`, "verify.ts")
+	return logger.info(`checkIfAllMarketDataTicksAreBeingProvidedByProvider: ${notFoundList.length == 0 ? "All symbols confirmed" : `Missing symbols: ${notFoundList}`}`, "verify.ts")
 }

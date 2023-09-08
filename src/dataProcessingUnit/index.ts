@@ -4,49 +4,49 @@ import logger from "../logger"
 import { SymbolTicks } from "../model"
 export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 	// console.log(data)
-	try {
-		const processData: symbolTicks = {
-			symbolId: data.Symbol_ID,
-			symbol: data.Symbol,
-			originalName: data.Symbol,
-			shortName: data.Symbol,
-			description: data.Symbol,
-			exchange: "NSE",
-			openPrice: data.Open,
-			highPrice: data.High,
-			lowPrice: data.Low,
-			prevClosePrice: data.Prev_Close,
-			ch: data.LTP - data.Prev_Close,
-			tt: new Date(data.Timestamp).getTime(),
-			cmd: {
-				c: data.LTP,
-				h: data.High,
-				l: data.Low,
-				o: data.Open,
-				t: new Date(data.Timestamp).getTime(),
-				v: data.Volume,
-				tf: "",
-			},
-			chp: ((data.LTP - data.Prev_Close) / data.Prev_Close) * 100,
-			lp: data.LTP,
-			LTQ: data.LTQ,
-			L2LTT: new Date(data.Timestamp).getTime(),
-			ATP: data.ATP,
-			volume: data.Volume,
-			totBuy: data.Bid_Qty,
-			totSell: data.Ask_Qty,
-			bid: data.Bid,
-			ask: data.Ask,
-			spread: data.Ask - data.Bid,
-			marketStat: 1,
-		}
-		const conf = getConfigData()
-		if (conf.keepRealTimeMarketsData) SymbolTicks.create(processData)
-		chatter.emit("symbolUpdateTicks-", "tick", processData)
-		return processData
-	} catch (error) {
-		logger.error("There is something wrong inside trueDataMarketFeedsRealTimeDataProcessing", "dataProcessingUnit/index.ts")
+	// try {
+	const processData: symbolTicks = {
+		symbolId: data.Symbol_ID,
+		symbol: data.Symbol,
+		originalName: data.Symbol,
+		shortName: data.Symbol,
+		description: data.Symbol,
+		exchange: "NSE",
+		openPrice: data.Open,
+		highPrice: data.High,
+		lowPrice: data.Low,
+		prevClosePrice: data.Prev_Close,
+		ch: data.LTP - data.Prev_Close,
+		tt: new Date(data.Timestamp).getTime(),
+		cmd: {
+			c: data.LTP,
+			h: data.High,
+			l: data.Low,
+			o: data.Open,
+			t: new Date(data.Timestamp).getTime(),
+			v: data.Volume,
+			tf: "",
+		},
+		chp: ((data.LTP - data.Prev_Close) / data.Prev_Close) * 100,
+		lp: data.LTP,
+		LTQ: data.LTQ,
+		L2LTT: new Date(data.Timestamp).getTime(),
+		ATP: data.ATP,
+		volume: data.Volume,
+		totBuy: data.Bid_Qty,
+		totSell: data.Ask_Qty,
+		bid: data.Bid,
+		ask: data.Ask,
+		spread: data.Ask - data.Bid,
+		marketStat: 1,
 	}
+	const conf = getConfigData()
+	if (conf.keepRealTimeMarketsData) SymbolTicks.create(processData)
+	chatter.emit("symbolUpdateTicks-", "tick", processData)
+	return processData
+	// } catch (error) {
+	// 	logger.error("There is something wrong inside trueDataMarketFeedsRealTimeDataProcessing" + JSON.stringify(error), "dataProcessingUnit/index.ts")
+	// }
 }
 export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 	const processData: trueDataMarketFeedsTouchlineData = {

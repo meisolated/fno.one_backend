@@ -3,7 +3,7 @@ import qs from "qs"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 
-class HistoricalData {
+class HistoricalTrueData {
 	private _username: string
 	private _password: string
 	private _accessToken: string = ""
@@ -119,4 +119,4 @@ class HistoricalData {
 	}
 }
 
-export default HistoricalData
+export default HistoricalTrueData

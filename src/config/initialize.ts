@@ -102,7 +102,7 @@ const initializeConfig = async () => {
 const getConfig = async () => {
 	const _settings = await Settings.findOne({ id: 1 })
 	if (!_settings) {
-		logger.error("Settings not found","Config/initialize.ts")
+		logger.error("Settings not found", "Config/initialize.ts")
 		return
 	}
 	settings = _settings.toObject()
