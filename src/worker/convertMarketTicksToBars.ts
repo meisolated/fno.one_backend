@@ -1,6 +1,8 @@
 import chatter from "../events"
-let symbolTicks: any = {}
-chatter.on("symbolUpdateTicks-", "tick", (symbolData: symbolTicks) => {})
+import { timePassed } from "../helper"
+import logger from "../logger"
+import { HistoricalData } from "../model"
+import { isTodayHoliday } from "../provider/marketData.provider"
 
 export default class convertMarketTicksToBars {
 	primaryInterval: NodeJS.Timeout | undefined
@@ -9,46 +11,193 @@ export default class convertMarketTicksToBars {
 	FifteenMinuteBarsInterval: NodeJS.Timeout | undefined
 	DailyBarsInterval: NodeJS.Timeout | undefined
 	realTimeData: any = {}
+	highsAndLows: any = {}
 	OneMinuteCurrentBar: any = {}
 	FiveMinuteCurrentBar: any = {}
 	FifteenMinuteCurrentBar: any = {}
 	DailyCurrentBar: any = {}
-	constructor() {}
+	constructor() {
+
+	}
 	start() {
-		this.primaryInterval = setInterval(() => {
+		logger.info("Worker convertMarketTicksToBars online", "worker-convertMarketTicksToBars")
+		this.primaryInterval = setInterval(async () => {
 			// only start other intervals at  9:15 AM and clear all intervals at 3:30 PM
-			const currentTime = new Date()
-			const currentHour = currentTime.getHours()
-			const currentMinute = currentTime.getMinutes()
-			const currentSecond = currentTime.getSeconds()
-			if (currentHour === 9 && currentMinute === 15 && currentSecond === 0) {
-				this.OneMinute()
-				this.FiveMinute()
-				this.FifteenMinute()
-				this.Daily()
+			// except saturday and sunday
+			const todayHoliday = await isTodayHoliday()
+			if (todayHoliday) return
+			if (timePassed(9, 15) && !timePassed(15, 30)) {
+				if (this.primaryInterval && this.OneMinuteBarsInterval && this.FiveMinuteBarsInterval && this.FifteenMinuteBarsInterval && this.DailyBarsInterval) return
+				const currentTime = new Date()
+				const currentSeconds = currentTime.getSeconds()
+				if (currentSeconds === 0) {
+					logger.info("Starting convertMarketTicksToBars")
+					this.OneMinute()
+					this.FiveMinute()
+					this.FifteenMinute()
+					this.Daily()
+				}
 			}
-			if (currentHour === 15 && currentMinute === 30 && currentSecond === 0) {
-				clearInterval(this.primaryInterval)
-				clearInterval(this.OneMinuteBarsInterval)
-				clearInterval(this.FiveMinuteBarsInterval)
-				clearInterval(this.FifteenMinuteBarsInterval)
-				clearInterval(this.DailyBarsInterval)
+			if (timePassed(15, 30)) {
+				logger.info("Stopping convertMarketTicksToBars")
+				this.stop()
 			}
 		}, 1000)
+		chatter.on("symbolUpdateTicks-", "tick", (symbolData: symbolTicks) => {
+
+			this.realTimeData[symbolData.symbol] = symbolData
+			const updateHightAndLowData = (symbolData: symbolTicks) => {
+				const { symbol, highPrice, lowPrice } = symbolData
+				if (!this.highsAndLows[symbol]) {
+					this.highsAndLows[symbol] = {
+						high: highPrice,
+						low: lowPrice,
+					}
+				}
+				if (highPrice > this.highsAndLows[symbol].high) {
+					this.highsAndLows[symbol].high = highPrice
+				}
+				if (lowPrice < this.highsAndLows[symbol].low) {
+					this.highsAndLows[symbol].low = lowPrice
+				}
+			}
+			updateHightAndLowData(symbolData)
+		})
 	}
-	stop() {}
+	stop() {
+		clearInterval(this.primaryInterval!)
+		clearInterval(this.OneMinuteBarsInterval!)
+		clearInterval(this.FiveMinuteBarsInterval!)
+		clearInterval(this.FifteenMinuteBarsInterval!)
+		clearInterval(this.DailyBarsInterval!)
+	}
 	private OneMinute() {
-		this.OneMinuteBarsInterval = setInterval(() => {}, 1000 * 60)
-		function main() {}
+		const main = async () => {
+			for (const symbol in this.realTimeData) {
+				if (!this.OneMinuteCurrentBar[symbol]) {
+					this.OneMinuteCurrentBar[symbol] = {
+						symbol,
+						resolution: "1",
+						t: new Date().toISOString(),
+						o: this.realTimeData[symbol].openPrice,
+						h: "",
+						l: "",
+						c: "",
+						v: this.realTimeData[symbol].volume,
+					}
+				} else {
+					this.OneMinuteCurrentBar[symbol].v += this.realTimeData[symbol].volume
+					this.OneMinuteCurrentBar[symbol].c = this.realTimeData[symbol].lp
+					this.OneMinuteCurrentBar[symbol].h = this.highsAndLows[symbol].high
+					this.OneMinuteCurrentBar[symbol].l = this.highsAndLows[symbol].low
+					this.OneMinuteCurrentBar[symbol].t = new Date().toISOString()
+					console.log(this.OneMinuteCurrentBar[symbol])
+					// await HistoricalData.create(this.OneMinuteCurrentBar[symbol])
+					this.OneMinuteCurrentBar[symbol] = undefined
+					this.highsAndLows[symbol] = undefined
+				}
+			}
+		}
+		this.OneMinuteBarsInterval = setInterval(() => {
+			main()
+		}, 1000 * 60)
+		main()
 	}
 	private FiveMinute() {
-		this.FiveMinuteBarsInterval = setInterval(() => {}, 1000 * 60 * 5)
+		const main = async () => {
+			for (const symbol in this.realTimeData) {
+				if (!this.FiveMinuteCurrentBar[symbol]) {
+					this.FiveMinuteCurrentBar[symbol] = {
+						symbol,
+						resolution: "5",
+						t: new Date().toISOString(),
+						o: this.realTimeData[symbol].openPrice,
+						h: "",
+						l: "",
+						c: "",
+						v: this.realTimeData[symbol].volume,
+					}
+				} else {
+					this.FiveMinuteCurrentBar[symbol].v += this.realTimeData[symbol].volume
+					this.FiveMinuteCurrentBar[symbol].c = this.realTimeData[symbol].lp
+					this.FiveMinuteCurrentBar[symbol].h = this.highsAndLows[symbol].high
+					this.FiveMinuteCurrentBar[symbol].l = this.highsAndLows[symbol].low
+					this.FiveMinuteCurrentBar[symbol].t = new Date().toISOString()
+					console.log(this.FiveMinuteCurrentBar[symbol])
+					// await HistoricalData.create(this.FiveMinuteCurrentBar[symbol])
+					this.FiveMinuteCurrentBar[symbol] = undefined
+					this.highsAndLows[symbol] = undefined
+				}
+			}
+		}
+		this.FiveMinuteBarsInterval = setInterval(() => {
+			main()
+		}, 1000 * 60 * 5)
+		main()
 	}
 	private FifteenMinute() {
-		this.FifteenMinuteBarsInterval = setInterval(() => {}, 1000 * 60 * 15)
+		const main = async () => {
+			for (const symbol in this.realTimeData) {
+				if (!this.FifteenMinuteCurrentBar[symbol]) {
+					this.FifteenMinuteCurrentBar[symbol] = {
+						symbol,
+						resolution: "15",
+						t: new Date().toISOString(),
+						o: this.realTimeData[symbol].openPrice,
+						h: "",
+						l: "",
+						c: "",
+						v: this.realTimeData[symbol].volume,
+					}
+				} else {
+					this.FifteenMinuteCurrentBar[symbol].v += this.realTimeData[symbol].volume
+					this.FifteenMinuteCurrentBar[symbol].c = this.realTimeData[symbol].lp
+					this.FifteenMinuteCurrentBar[symbol].h = this.highsAndLows[symbol].high
+					this.FifteenMinuteCurrentBar[symbol].l = this.highsAndLows[symbol].low
+					this.FifteenMinuteCurrentBar[symbol].t = new Date().toISOString()
+					console.log(this.FifteenMinuteCurrentBar[symbol])
+					// await HistoricalData.create(this.FifteenMinuteCurrentBar[symbol])
+					this.FifteenMinuteCurrentBar[symbol] = undefined
+					this.highsAndLows[symbol] = undefined
+				}
+			}
+		}
+		this.FifteenMinuteBarsInterval = setInterval(() => {
+			main()
+		}, 1000 * 60 * 15)
+		main()
 	}
 	private Daily() {
-		this.DailyBarsInterval = setInterval(() => {}, 1000 * 60 * 60 * 24)
+		const main = async () => {
+			for (const symbol in this.realTimeData) {
+				if (!this.DailyCurrentBar[symbol]) {
+					this.DailyCurrentBar[symbol] = {
+						symbol,
+						resolution: "1D",
+						t: new Date().toISOString(),
+						o: this.realTimeData[symbol].openPrice,
+						h: "",
+						l: "",
+						c: "",
+						v: this.realTimeData[symbol].volume,
+					}
+				} else {
+					this.DailyCurrentBar[symbol].v += this.realTimeData[symbol].volume
+					this.DailyCurrentBar[symbol].c = this.realTimeData[symbol].lp
+					this.DailyCurrentBar[symbol].h = this.highsAndLows[symbol].high
+					this.DailyCurrentBar[symbol].l = this.highsAndLows[symbol].low
+					this.DailyCurrentBar[symbol].t = new Date().toISOString()
+					console.log(this.DailyCurrentBar[symbol])
+					// await HistoricalData.create(this.DailyCurrentBar[symbol])
+					this.DailyCurrentBar[symbol] = undefined
+					this.highsAndLows[symbol] = undefined
+				}
+			}
+		}
+		this.DailyBarsInterval = setInterval(() => {
+			main()
+		}, 1000 * 60 * 60 * 6 + 1000 * 60 * 15)
+		main()
 	}
 }
 

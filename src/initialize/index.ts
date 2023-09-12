@@ -312,7 +312,7 @@ var tasks = [
 				await optionRelativeMovementCalculator()
 				return resolve(true)
 			}),
-	},
+	}
 ]
 
 export default () =>

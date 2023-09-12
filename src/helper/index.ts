@@ -1,9 +1,7 @@
-import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "./optionChain.helper"
-
 import axios from "axios"
-import logger from "../logger"
 import { Settings } from "../model"
 import { getMarketCurrentPrice } from "./marketData.helper"
+import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "./optionChain.helper"
 
 const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 function sum(a: number, b: number) {
@@ -44,22 +42,11 @@ const get = async (url: string) => {
 	}
 }
 
-/**
- * Returns a random number between min (inclusive) and max (exclusive)
- */
+
 export function getRandomArbitrary(min: number, max: number) {
 	return Math.random() * (max - min) + min
 }
 
-/**
- *
- * Returns a random integer between min (inclusive) and max (inclusive).
- * The value is no lower than min (or the next integer greater than min
- * if min isn't an integer) and no greater than max (or the next integer
- * lower than max if max isn't an integer).
- * Using Math.round() will give you a non-uniform distribution!
- *
- */
 export function getRandomInt(min: number, max: number) {
 	min = Math.ceil(min)
 	max = Math.floor(max)
@@ -150,17 +137,34 @@ function calculatePivotPointsAndSupportResistance(high: number, low: number, clo
 	}
 }
 function getDayOfWeekAsString(date: number) {
-	const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+	const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 	const dayIndex = date
 
 	if (dayIndex >= 0 && dayIndex < daysOfWeek.length) {
 		return daysOfWeek[dayIndex]
 	} else {
-		return 'Invalid Day'
+		return "Invalid Day"
 	}
 }
 function isNumberInRange(number: number, min: number, max: number) {
 	return number >= min && number <= max
+}
+
+function timePassed(hours: number, minutes: number) {
+	const currentTime = new Date()
+	const currentHours = currentTime.getHours()
+	const currentMinutes = currentTime.getMinutes()
+	if (currentHours > hours) {
+		return true
+	} else if (currentHours === hours) {
+		if (currentMinutes >= minutes) {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
 }
 
 export {
@@ -168,11 +172,16 @@ export {
 	TrueDataMonthStringToNumber,
 	calculatePivotPointsAndSupportResistance,
 	datePassed,
-	get, getDayOfWeekAsString, getMarketCurrentPrice, isNumberInRange, isTodayHoliday,
+	get,
+	getDayOfWeekAsString,
+	getMarketCurrentPrice,
+	isNumberInRange,
+	isTodayHoliday,
 	setEpochTimeTo5_30,
 	setEpochTimeTo5_30AndOneDayBefore,
 	sum,
 	timeout,
-	timestampToStringDateNTime
+	timestampToStringDateNTime,
+	timePassed
 }
 

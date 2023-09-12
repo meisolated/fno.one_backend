@@ -67,7 +67,7 @@ export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 		bigQty: data.BigQty,
 		askQty: data.AskQty,
 	}
-	chatter.emit("symbolUpdateTicks-", "tick", processData)
+	chatter.emit("symbolUpdateTicks-", "touchline", processData)
 	return processData
 }
 export const trueDataMarketFeedsHandleBidAskDataProcessing = (data: any) => {
