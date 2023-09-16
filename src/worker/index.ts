@@ -1,6 +1,6 @@
-import convertMarketTicksToBars from "./convertMarketTicksToBars"
-import optionRelativeMovementCalculator from "./optionRelativeMovementCalculator"
-import { updateHistoricalData } from "./updateHistoricalData"
+import convertMarketTicksToBars from "./convertMarketTicksToBars.worker"
+import optionRelativeMovementCalculator from "./optionRelativeMovementCalculator.worker"
+import { updateHistoricalData } from "./updateHistoricalData.worker"
 import updateSymbolLTP from "./updateSymbolLTP"
 import updateSymbolMasterData from "./updateSymbolMasterData"
 

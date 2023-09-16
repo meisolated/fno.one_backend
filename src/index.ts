@@ -14,12 +14,10 @@ import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
 import strategiesLoader from "./strategies/strategiesLoader"
-import { convertMarketTicksToBars } from "./worker"
 
 const app: Express = express()
 const server = http.createServer(app)
 const routesDirPath = path.join(__dirname, "/api/routes")
-const convertMarketTicksToBarsWorker = new convertMarketTicksToBars()
 
 //-------------------- Starting Server --------------------
 app.use(compression({ level: 9 }))
@@ -51,8 +49,6 @@ initialize()
 			logger.info("Loading strategies...", "index.ts")
 			await strategiesLoader()
 			logger.info("Strategies loaded!")
-			// logger.info("Start converting ticks to bars...", "index.ts")
-			// convertMarketTicksToBarsWorker.start()
 			logger.info("Starting server...")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "index.ts")

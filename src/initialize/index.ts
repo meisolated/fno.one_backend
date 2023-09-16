@@ -5,7 +5,7 @@ import { timeout, updateTaskLastUpdate } from "../helper"
 import logger from "../logger"
 import { MarketData, Settings } from "../model"
 import { convertMarketTicksToBars, optionRelativeMovementCalculator, updateSymbolLTP, updateSymbolMasterData } from "../worker"
-import { updateHistoricalData } from "../worker/updateHistoricalData"
+import { updateHistoricalData } from "../worker/updateHistoricalData.worker"
 
 export var marketData: any = {}
 const maxTries = 10
@@ -96,23 +96,30 @@ var tasks = [
 		importance: 1,
 		execute: async () =>
 			new Promise(async (resolve, reject) => {
-				const name = "BANKNIFTY"
-				const config = getConfigData()
-				const url = config.apis.NSE.OptionChainDataAPIUrl + name
-				const data = await commonAxiosGet(url)
-				if (data) {
-					marketData = {
-						...marketData,
-						[name]: {
-							derivativeName: name,
-							expiryDates: data.records.expiryDates,
-							strikePrices: data.records.strikePrices,
-						},
-					}
+				try {
+					const name = "BANKNIFTY"
+					const config = getConfigData()
+					const url = config.apis.NSE.OptionChainDataAPIUrl + name
+					const data = await commonAxiosGet(url)
+					if (data) {
+						marketData = {
+							...marketData,
+							[name]: {
+								derivativeName: name,
+								expiryDates: data.records.expiryDates,
+								strikePrices: data.records.strikePrices,
+							},
+						}
 
-					return resolve(true)
+						return resolve(true)
+					}
+					return resolve(false)
+				} catch (error: any) {
+					logger.error(error.message.toString(), "initialize/index.ts[NSEBankNiftyData]")
+					return resolve(false)
+
 				}
-				return resolve(false)
+
 			}),
 	},
 	{
@@ -122,22 +129,28 @@ var tasks = [
 		importance: 1,
 		execute: async () =>
 			new Promise(async (resolve, reject) => {
-				const name = "NIFTY"
-				const config = getConfigData()
-				const url = config.apis.NSE.OptionChainDataAPIUrl + name
-				const data = await commonAxiosGet(url)
-				if (data) {
-					marketData = {
-						...marketData,
-						[name]: {
-							derivativeName: name,
-							expiryDates: data.records.expiryDates,
-							strikePrices: data.records.strikePrices,
-						},
+				try {
+					const name = "NIFTY"
+					const config = getConfigData()
+					const url = config.apis.NSE.OptionChainDataAPIUrl + name
+					const data = await commonAxiosGet(url)
+					if (data) {
+						marketData = {
+							...marketData,
+							[name]: {
+								derivativeName: name,
+								expiryDates: data.records.expiryDates,
+								strikePrices: data.records.strikePrices,
+							},
+						}
+						return resolve(true)
 					}
-					return resolve(true)
+					return resolve(false)
+				} catch (error: any) {
+					logger.error(error.message.toString(), "initialize/index.ts[NSENiftyData]")
+					return resolve(false)
 				}
-				return resolve(false)
+
 			}),
 	},
 	{
@@ -147,22 +160,29 @@ var tasks = [
 		importance: 0,
 		execute: async () =>
 			new Promise(async (resolve, reject) => {
-				const name = "FINNIFTY"
-				const config = getConfigData()
-				const url = config.apis.NSE.OptionChainDataAPIUrl + name
-				const data = await commonAxiosGet(url)
-				if (data) {
-					marketData = {
-						...marketData,
-						[name]: {
-							derivativeName: name,
-							expiryDates: data.records.expiryDates,
-							strikePrices: data.records.strikePrices,
-						},
+				try {
+					const name = "FINNIFTY"
+					const config = getConfigData()
+					const url = config.apis.NSE.OptionChainDataAPIUrl + name
+					const data = await commonAxiosGet(url)
+					if (data) {
+						marketData = {
+							...marketData,
+							[name]: {
+								derivativeName: name,
+								expiryDates: data.records.expiryDates,
+								strikePrices: data.records.strikePrices,
+							},
+						}
+						return resolve(true)
 					}
-					return resolve(true)
+					return resolve(false)
+
+				} catch (error: any) {
+					logger.error(error.message.toString(), "initialize/index.ts[NSEFinNiftyData]")
+					return resolve(false)
 				}
-				return resolve(false)
+
 			}),
 	},
 	{
@@ -172,24 +192,37 @@ var tasks = [
 		importance: 1,
 		execute: async () =>
 			new Promise(async (resolve, reject) => {
-				const config = getConfigData()
-				const url = config.apis.NSE.HolidaysAPIUrl + "trading"
-				const data = await commonAxiosGet(url)
-				if (data) {
-					const preparedData = data.FO.map((item: any) => {
-						return {
-							holidayDate: item.tradingDate,
-							weekDay: item.weekDay,
-							description: item.description,
+				try {
+					const config = getConfigData()
+					const url = config.apis.NSE.HolidaysAPIUrl + "trading"
+					const data = await commonAxiosGet(url)
+					if (data) {
+						if (data.FO) {
+							const preparedData = data.FO.map((item: any) => {
+								return {
+									holidayDate: item.tradingDate,
+									weekDay: item.weekDay,
+									description: item.description,
+								}
+							})
+							marketData = {
+								...marketData,
+								FnOHolidayList: preparedData,
+							}
+							return resolve(true)
 						}
-					})
-					marketData = {
-						...marketData,
-						FnOHolidayList: preparedData,
+						else {
+							logger.error("Error while fetching FnOTradingHoliday data", "initialize/index.ts[FnOTradingHoliday]")
+							return resolve(true)
+						}
+
 					}
-					return resolve(true)
+					return resolve(false)
+				} catch (error: any) {
+					logger.error(error.message.toString(), "initialize/index.ts[FnOTradingHoliday]")
+					return resolve(false)
 				}
-				return resolve(false)
+
 			}),
 	},
 	{

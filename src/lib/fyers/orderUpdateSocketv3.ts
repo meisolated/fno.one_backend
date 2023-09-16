@@ -173,7 +173,7 @@ export default class FyersOrderSocket {
 				try {
 					const data: any = _data.toString()
 					if (data === "pong") return fyersPingHandler(data)
-					const parsedData = JSON.parse(data)
+					const parsedData = JSON.parse(_data)
 					if (parsedData.hasOwnProperty("orders")) {
 						let orderData = dataMapper(parsedData.orders, mapper.orders)
 						orderData.status = ordStatObj[orderData.status]

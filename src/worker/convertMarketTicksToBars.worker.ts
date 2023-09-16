@@ -1,9 +1,12 @@
+
 import chatter from "../events"
 import { timePassed } from "../helper"
 import logger from "../logger"
 import { HistoricalData } from "../model"
 import { isTodayHoliday } from "../provider/marketData.provider"
-
+/**
+ * @deprecated This file has many inconsistencies and is not used anymore
+ */
 export default class convertMarketTicksToBars {
 	primaryInterval: NodeJS.Timeout | undefined
 	OneMinuteBarsInterval: NodeJS.Timeout | undefined
