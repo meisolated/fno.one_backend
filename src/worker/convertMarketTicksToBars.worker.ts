@@ -1,4 +1,3 @@
-
 import chatter from "../events"
 import { timePassed } from "../helper"
 import logger from "../logger"
@@ -19,9 +18,7 @@ export default class convertMarketTicksToBars {
 	FiveMinuteCurrentBar: any = {}
 	FifteenMinuteCurrentBar: any = {}
 	DailyCurrentBar: any = {}
-	constructor() {
-
-	}
+	constructor() {}
 	start() {
 		logger.info("Worker convertMarketTicksToBars online", "worker-convertMarketTicksToBars")
 		this.primaryInterval = setInterval(async () => {
@@ -47,7 +44,6 @@ export default class convertMarketTicksToBars {
 			}
 		}, 1000)
 		chatter.on("symbolUpdateTicks-", "tick", (symbolData: symbolTicks) => {
-
 			this.realTimeData[symbolData.symbol] = symbolData
 			const updateHightAndLowData = (symbolData: symbolTicks) => {
 				const { symbol, highPrice, lowPrice } = symbolData

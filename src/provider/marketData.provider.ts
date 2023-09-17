@@ -51,4 +51,5 @@ export const isTodayHoliday = async () => {
 		const isHoliday = holidays.includes(today)
 		return isHoliday
 	}
+	return false
 }

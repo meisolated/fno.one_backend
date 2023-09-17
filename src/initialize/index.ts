@@ -117,9 +117,7 @@ var tasks = [
 				} catch (error: any) {
 					logger.error(error.message.toString(), "initialize/index.ts[NSEBankNiftyData]")
 					return resolve(false)
-
 				}
-
 			}),
 	},
 	{
@@ -150,7 +148,6 @@ var tasks = [
 					logger.error(error.message.toString(), "initialize/index.ts[NSENiftyData]")
 					return resolve(false)
 				}
-
 			}),
 	},
 	{
@@ -177,12 +174,10 @@ var tasks = [
 						return resolve(true)
 					}
 					return resolve(false)
-
 				} catch (error: any) {
 					logger.error(error.message.toString(), "initialize/index.ts[NSEFinNiftyData]")
 					return resolve(false)
 				}
-
 			}),
 	},
 	{
@@ -210,19 +205,16 @@ var tasks = [
 								FnOHolidayList: preparedData,
 							}
 							return resolve(true)
-						}
-						else {
+						} else {
 							logger.error("Error while fetching FnOTradingHoliday data", "initialize/index.ts[FnOTradingHoliday]")
 							return resolve(true)
 						}
-
 					}
 					return resolve(false)
 				} catch (error: any) {
 					logger.error(error.message.toString(), "initialize/index.ts[FnOTradingHoliday]")
 					return resolve(false)
 				}
-
 			}),
 	},
 	{
@@ -345,7 +337,7 @@ var tasks = [
 				await optionRelativeMovementCalculator()
 				return resolve(true)
 			}),
-	}
+	},
 ]
 
 export default () =>

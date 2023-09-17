@@ -42,7 +42,6 @@ const get = async (url: string) => {
 	}
 }
 
-
 export function getRandomArbitrary(min: number, max: number) {
 	return Math.random() * (max - min) + min
 }
@@ -182,6 +181,5 @@ export {
 	sum,
 	timeout,
 	timestampToStringDateNTime,
-	timePassed
+	timePassed,
 }
-

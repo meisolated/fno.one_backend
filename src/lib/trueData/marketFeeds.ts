@@ -10,7 +10,7 @@ import ws from "ws"
 import { trueDataPingHandler } from "../../handler/ping.handler"
 import logger from "../../logger"
 import { SymbolData } from "../../model"
-import { checkIfAllMarketDataTicksAreBeingProvidedByProvider } from "../../worker/verify"
+import { checkIfAllMarketDataTicksAreBeingProvidedByProvider } from "../../worker/verify.worker"
 
 const chatter = new EventEmitter()
 
