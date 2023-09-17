@@ -1,4 +1,4 @@
-import { datePassed } from "../helper"
+import { datePassed, timePassed } from "../helper"
 import { MarketData } from "../model"
 
 export const getExpiryList = async (symbol: string) => {
@@ -52,4 +52,21 @@ export const isTodayHoliday = async () => {
 		return isHoliday
 	}
 	return false
+}
+export const isCurrentTimeIsInMarketHours = async () => {
+	if (timePassed(9, 15)) {
+		if (timePassed(15, 30)) {
+			return false
+		} else {
+			return true
+		}
+	}
+}
+export const isMarketOpen = async () => {
+	const todayHoliday = await isTodayHoliday()
+	if (todayHoliday) {
+		return false
+	} else {
+		return isCurrentTimeIsInMarketHours()
+	}
 }

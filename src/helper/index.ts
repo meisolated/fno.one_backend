@@ -7,15 +7,6 @@ const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)
 function sum(a: number, b: number) {
 	return a + b
 }
-const isTodayHoliday = () => {
-	const todayDay = new Date().getDay()
-	// if today is sunday or saturday
-	if (todayDay === 0 || todayDay === 6) {
-		return true
-	} else {
-		return false
-	}
-}
 
 const get = async (url: string) => {
 	const googleChromeUserAgent = "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36"
