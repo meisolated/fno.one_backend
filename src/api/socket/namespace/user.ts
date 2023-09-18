@@ -14,7 +14,7 @@ export default function userSocketNamespace(socket: Namespace) {
 			_socket.emit("pong", "pong")
 		})
 		_socket.on("subscribeOrderUpdate", async (data) => {
-			logger.info("subscribeOrderUpdate " + id, false, " ", "Socket.io User Namespace")
+			logger.info("subscribeOrderUpdate " + id, "UserSocket")
 			chatter.on("fyersOrderUpdateSocket-", userId, (data) => {
 				_socket.to(userId).emit("orderUpdate", JSON.stringify(data))
 			})

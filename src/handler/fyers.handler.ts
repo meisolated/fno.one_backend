@@ -1,115 +1,71 @@
-import config from "../config/coldConf"
 import { getConfigData } from "../config/initialize"
 import chatter from "../events"
 import * as fyers from "../lib/fyers"
-import trueData from "../lib/trueData"
+import { getSHA256Hash } from "../lib/fyers/helper"
+import FyersOrderSocket from "../lib/fyers/orderUpdateSocketv3"
 import logger from "../logger"
 import { Session, User } from "../model"
-import { baseSymbolsList } from "../provider/symbols.provider"
-import marketDataUpdateHandler from "./marketDataUpdate.handler"
 import orderUpdateHandler from "./orderUpdate.handler"
 const connectionToOrderUpdateSocket = new fyers.orderUpdateSocket()
-const connectionToMarketDataSocket = new fyers.marketDataSocket()
 
-let primaryAccessToken: AccessToken = {
-	accessToken: "",
-	email: "",
-}
 export const subscribeToAllUsersSockets = async () => {
-	const users = await User.find()
-	const activeUsersSocketConnection: Array<any> = []
-
-	function connectSocket(user: any) {
-		if (user.connectedApps.includes("fyers")) {
-			logger.info("We were able to connect this user to fyers api with access token " + user.email)
-			fyers.getProfile(user.userAppsData.fyers.accessToken).then(async (profile) => {
-				if (profile.code === 200) {
-					if (user.roles.includes("admin")) {
-						primaryAccessToken.accessToken = user.userAppsData.fyers.accessToken
-						primaryAccessToken.email = user.email
-					}
-					const userSession = await Session.findOne({ userId: user._id })
-					if (userSession) {
-						activeUsersSocketConnection.push(userSession.userId)
-						connectionToOrderUpdateSocket.onOrderUpdate(
-							user.userAppsData.fyers.accessToken,
-							(data: any) => {
-								const letData = JSON.parse(data)
-								if (letData.s == "ok") {
-									orderUpdateHandler(userSession.userId, letData.d)
-									chatter.emit("fyersOrderUpdateSocket-", userSession.userId, letData.d)
-								} else {
-									connectionToOrderUpdateSocket.unsubscribe()
-									activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(userSession.userId), 1)
-									logger.error("Error in order update socket " + letData)
-								}
-							},
-							primaryAccessToken.email,
-						)
-					}
-				} else {
-					logger.info("User disconnected from fyers " + user.email)
-					user.connectedApps = user.connectedApps.filter((app: any) => app !== "fyers")
-					user.save()
-				}
-			})
-		}
-	}
-	for (const user of users) {
-		connectSocket(user)
-	}
-	setInterval(async () => {
-		const users = await User.find()
-		for (const user of users) {
-			const userIDString = user._id.toString()
-			if (!activeUsersSocketConnection.includes(userIDString)) {
-				connectSocket(user)
-			}
-		}
-	}, 10000)
-}
-
-export const subscribeToMarketDataSocket = async () => {
-	if (true) {
-		connectTrueDataMarketDataSocket() // connect to true data market data socket
-	}
-}
-
-const connectFyersMarketDataSocket = async () => {
-	async function connectToSocket() {
-		if (primaryAccessToken.accessToken != "" && primaryAccessToken.email != "") {
-			const symbol = [config.mainSymbol, config.secondarySymbol, ...config.o5BanksSymbol, ...config.t5BanksSymbol]
-			connectionToMarketDataSocket.onMarketDataUpdate(
-				[...symbol],
-				primaryAccessToken.accessToken,
-				async (data: any) => {
-					marketDataUpdateHandler(data)
-				},
-				primaryAccessToken.email,
-			)
-		} else {
-			retry()
-		}
-	}
-	connectToSocket()
-	function retry() {
-		setTimeout(() => {
-			logger.warn("Retrying to connect to market data socket")
-			connectToSocket()
-		}, 10000)
-	}
-}
-
-const connectTrueDataMarketDataSocket = async () => {
-	try {
+	const user = await User.findOne({ email: "fisolatedx@gmail.com" })
+	if (user) {
 		const config = getConfigData()
-		const symbolsList: any = await baseSymbolsList()
-		const trueDataConnection = new trueData.MarketFeeds(config.apis.trueData.username, config.apis.trueData.password, ["NIFTY BANK", ...symbolsList], "live", true, false)
-		chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
-			trueDataConnection.closeConnection()
-			trueDataConnection.connect()
-		})
-	} catch (err: any) {
-		logger.error("Error in connecting to true data socket", false, "", "trueData")
+		const accessToken = user?.userAppsData.fyers.accessToken
+		const appId = config.apis.fyers.appId
+		const fyersOrderSocket = new FyersOrderSocket(`${appId}:${accessToken}`, true, true)
+		// fyersOrderSocket
+	} else {
+		logger.error("User not found", "fyers.handler")
 	}
+
+	// const activeUsersSocketConnection: Array<any> = []
+	// const users = await User.find({})
+
+	// function connectSocket(user: any) {
+	// 	if (user.connectedApps.includes("fyers")) {
+	// 		logger.info("We were able to connect this user to fyers api with access token " + user.email)
+	// 		fyers.getProfile(user.userAppsData.fyers.accessToken).then(async (profile) => {
+	// 			if (profile.code === 200) {
+	// 				const userSession = await Session.findOne({ userId: user._id })
+	// 				if (userSession) {
+	// 					activeUsersSocketConnection.push(userSession.userId)
+	// 					connectionToOrderUpdateSocket.onOrderUpdate(
+	// 						user.userAppsData.fyers.accessToken,
+	// 						(data: any) => {
+	// 							const letData = JSON.parse(data)
+	// 							if (letData.s == "ok") {
+	// 								orderUpdateHandler(userSession.userId, letData.d)
+	// 								// chatter.emit("fyersOrderUpdateSocket-", userSession.userId, letData.d)
+	// 							} else {
+	// 								connectionToOrderUpdateSocket.unsubscribe()
+	// 								activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(userSession.userId), 1)
+	// 								logger.error("Error in order update socket " + letData)
+	// 							}
+	// 						},
+	// 						user.email,
+	// 					)
+	// 				}
+	// 			} else {
+	// 				logger.info("User disconnected from fyers " + user.email)
+	// 				activeUsersSocketConnection.splice(activeUsersSocketConnection.indexOf(user._id.toString()), 1)
+	// 				user.connectedApps = user.connectedApps.filter((app: any) => app !== "fyers")
+	// 				user.save()
+	// 			}
+	// 		})
+	// 	}
+	// }
+	// for (const user of users) {
+	// 	connectSocket(user)
+	// }
+	// setInterval(async () => {
+	// 	const users = await User.find()
+	// 	for (const user of users) {
+	// 		const userIDString = user._id.toString()
+	// 		if (!activeUsersSocketConnection.includes(userIDString)) {
+	// 			connectSocket(user)
+	// 		}
+	// 	}
+	// }, 5000)
 }

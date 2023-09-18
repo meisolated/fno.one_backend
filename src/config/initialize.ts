@@ -13,9 +13,13 @@ const checkIsConfigured = async () => {
 const initializeEmptySettings = async () => {
 	const settings: settings = {
 		id: 1,
+		state: "development",
+		simulateTicks: false,
+		enableLogging: true,
 		realTimeMarketsToWatch: [],
 		keepRealTimeMarketsData: false,
 		activeStrategies: [],
+		primaryFyersAccountEmail: "",
 		global: {
 			maxProfit: 30,
 			maxLoss: 10,
@@ -45,7 +49,9 @@ const initializeEmptySettings = async () => {
 				webSocketUrl: "",
 				dataApiUrl: "",
 				status: false,
+				webhookSecret: "",
 			},
+
 			kite: {
 				apiKey: "",
 				apiSecret: "",
@@ -68,18 +74,17 @@ const initializeEmptySettings = async () => {
 				HolidaysAPIUrl: "",
 			},
 		},
-
+		tasksLastRun: {},
 		lastUpdated: new Date(),
 	}
 
 	try {
 		await Settings.create(settings)
-		logger.info("Empty Settings Initialized")
+		logger.info("Empty Settings Initialized", "Config/initialize.ts")
 		logger.info("Please configure the settings and restart the server")
 		process.exit(0)
-		return true
 	} catch (error) {
-		logger.error(JSON.stringify(error))
+		logger.error(JSON.stringify(error), "Config/initialize.ts")
 		return false
 	}
 }
@@ -88,7 +93,7 @@ const initializeConfig = async () => {
 	if (!isConfigured) {
 		const isInitialized = await initializeEmptySettings()
 		if (!isInitialized) {
-			logger.error("Failed to initialize empty settings")
+			logger.error("Failed to initialize empty settings", "Config/initialize.ts")
 			return false
 		}
 		return true
@@ -97,7 +102,7 @@ const initializeConfig = async () => {
 const getConfig = async () => {
 	const _settings = await Settings.findOne({ id: 1 })
 	if (!_settings) {
-		logger.error("Settings not found")
+		logger.error("Settings not found", "Config/initialize.ts")
 		return
 	}
 	settings = _settings.toObject()

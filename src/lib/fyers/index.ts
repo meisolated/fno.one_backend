@@ -1,3 +1,5 @@
+import * as helper from "./helper"
+
 /**
  *
  * Over here we have to make optimized version of FyersApi2 package
@@ -11,7 +13,6 @@
 import axios from "axios"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
-import * as helper from "./helper"
 
 const apiUrl = "https://api.fyers.in/api/v2/"
 const orderUpdateSocket = helper.orderUpdateHelper
@@ -80,7 +81,7 @@ const generateAccessToken = async (authCode: any) => {
 		})
 		return accessToken.data
 	} catch (error: any) {
-		logger.error(error, false)
+		logger.error(error, "fyers/index.ts[generateAccessToken]")
 		return error
 	}
 }
@@ -103,7 +104,7 @@ const getProfile = async (token: string) => {
 			const profile = await axios.get(`${apiUrl}profile`, reqConfig)
 			return profile.data
 		} catch (error: any) {
-			logger.error(error, false)
+			logger.error(error, "fyers/index.ts[getProfile]")
 			return error
 		}
 	}
@@ -127,7 +128,7 @@ const getFunds = async (token: string) => {
 			const funds = await axios.get(`${apiUrl}funds`, reqConfig)
 			return funds.data
 		} catch (error: any) {
-			logger.error(error, false)
+			logger.error(error, "fyers/index.ts[getFunds]")
 			return error
 		}
 	}
@@ -151,7 +152,7 @@ const getHoldings = async (token: string) => {
 			const holdings = await axios.get(`${apiUrl}holdings`, reqConfig)
 			return holdings.data
 		} catch (error: any) {
-			logger.error(error, false)
+			logger.error(error, "fyers/index.ts[getHoldings]")
 			return error
 		}
 	}
@@ -175,7 +176,7 @@ const getTrades = async (token: string) => {
 			const trades = await axios.get(`${apiUrl}tradebook`, reqConfig)
 			return trades.data
 		} catch (error: any) {
-			logger.error(error, false)
+			logger.error(error, "fyers/index.ts[getTrades]")
 			return error
 		}
 	}
@@ -199,7 +200,7 @@ const getPositions = async (token: string) => {
 			const positions = await axios.get(`${apiUrl}positions`, reqConfig)
 			return positions.data
 		} catch (error: any) {
-			logger.error(error, false)
+			logger.error(error, "fyers/index.ts[getPositions]")
 			return error
 		}
 	}
@@ -223,9 +224,49 @@ const getOrders = async (token: string) => {
 			const orders = await axios.get(`${apiUrl}orders`, reqConfig)
 			return orders.data
 		} catch (error: any) {
-			logger.error(error, false)
+			logger.error(error, "fyers/index.ts[getOrders]")
 			return error
 		}
 	}
 }
-export { generateAccessToken, generateLoginUrl, getFunds, getHoldings, getOrders, getPositions, getProfile, getTrades, marketDataSocket, orderUpdateSocket }
+/**
+ *
+ * @param token
+ * @param symbol symbol name eg: NSE:SBIN-EQ
+ * @param resolution time frame eg: 1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 240
+ * @param dateFormat 0 for epoch value and 1 for yyyy-mm-dd format
+ * @param from time
+ * @param to time
+ */
+const getHistoricalData = async (token: string, symbol: string, resolution: string, dateFormat: number, from: string, to: string) => {
+	const rateLimitCheck = rateLimit(token)
+	if (!rateLimitCheck) {
+		return {
+			status: "error",
+			message: "Rate limit exceeded",
+		}
+	} else {
+		const AuthorizationToken = await getAuthToken(token)
+		const reqConfig = {
+			method: "GET",
+			headers: {
+				Authorization: AuthorizationToken,
+			},
+		}
+		try {
+			const historicalData = await axios.get(
+				`https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=`,
+				reqConfig,
+			)
+			if (historicalData.data.s != "ok") {
+				return false
+			} else {
+				return historicalData.data.candles
+			}
+		} catch (error: any) {
+			logger.error(error, "fyers/index.ts[getHistoricalData]")
+			return false
+		}
+	}
+}
+export { generateAccessToken, generateLoginUrl, getFunds, getHistoricalData, getHoldings, getOrders, getPositions, getProfile, getTrades, marketDataSocket, orderUpdateSocket }

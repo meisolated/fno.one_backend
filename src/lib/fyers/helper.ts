@@ -1,5 +1,6 @@
 //@ts-nocheck
 import axios from "axios"
+import crypto from "crypto"
 import WebSocket from "ws"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
@@ -9,7 +10,14 @@ const generateAccessTokenUrl = (authToken: string, appId: string) => api + "genr
 var _globalFyersDict: any = {}
 
 // ------| Helper functions |------
-async function sha256(s: any) {
+
+export function getSHA256Hash(inputString: string) {
+	const hash = crypto.createHash("sha256")
+	hash.update(inputString)
+	return hash.digest("hex")
+}
+
+export async function sha256(s: any) {
 	var chrsz = 8
 	var hexcase = 0
 	function safe_add(x, y) {
@@ -194,15 +202,15 @@ async function socketWrapper(url: string, data: string, callback: Function, user
 	const ws = new WebSocket(url)
 	ws.binaryType = "arraybuffer"
 	ws.on("open", () => {
-		logger.info("a socket connection is established", user ? true : false, user ? user : "null")
+		logger.info("a socket connection is established", "fyers-helper")
 		ws.send(data)
 		ws.send(JSON.stringify("ping"))
 	})
 	ws.on("error", (e) => {
-		logger.error(e.message, user ? true : false, user ? user : "null")
+		logger.error(e.message, "fyers-helper")
 	})
 	ws.on("closed", (e) => {
-		logger.error(e.message, user ? true : false, user ? user : "null")
+		logger.error(e.message, "fyers-helper")
 	})
 	ws.onmessage = (res) => {
 		if (typeof res.data === "string" && res.data.includes("pong")) {
@@ -214,13 +222,13 @@ async function socketWrapper(url: string, data: string, callback: Function, user
 	}
 	let interValInstant = setInterval(() => {
 		if (!isAlive) {
-			logger.warn("trying to reconnect", user ? true : false, user ? user : "null")
+			logger.warn("trying to reconnect", "fyers-helper")
 			reconnectCount++
 			clearInterval(interValInstant)
 			if (reconnectCount <= maxReconnectTimes) {
 				socketWrapper(url, data, callback, user)
 			} else {
-				logger.warn("Error : Connection Error unable to connect to socket", user ? true : false, user ? user : "null")
+				logger.warn("Error : Connection Error unable to connect to socket", "fyers-helper")
 			}
 		}
 	}, pingFrequency)
@@ -533,7 +541,7 @@ function unPackUDP(resp: any) {
 }
 
 // ------| Class to handle the data received from the websocket |------
-class marketDataUpdateHelper {
+export class marketDataUpdateHelper {
 	private marketDataUpdateInstance: any
 	private data = { T: "SUB_DATA", TLIST: null, SUB_T: 1 }
 	private connected = false
@@ -569,7 +577,7 @@ class marketDataUpdateHelper {
 		}
 	}
 }
-class orderUpdateHelper {
+export class orderUpdateHelper {
 	private orderUpdateInstance: any
 	private data = { T: "SUB_ORD", SLIST: ["orderUpdate"], SUB_T: 1 }
 
@@ -581,6 +589,7 @@ class orderUpdateHelper {
 			url,
 			dataString,
 			(data: any) => {
+				console.log(data.data)
 				return callback(data.data)
 			},
 			user,
@@ -616,4 +625,3 @@ const getQuotes = async (symbol: any, token: any) => {
 		return e.response.data
 	}
 }
-export { marketDataUpdateHelper, orderUpdateHelper, sha256 }

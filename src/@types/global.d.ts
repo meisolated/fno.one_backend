@@ -1,11 +1,4 @@
-export { }
-
-declare namespace NodeJS {
-	interface Global {
-		something: string
-		// Add other global variables here if needed
-	}
-}
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -25,17 +18,17 @@ declare global {
 		loggedFrom: string
 	}
 	interface symbolTicks {
+		symbolId: string
 		symbol: string
-		original_name: string
-		short_name: string
+		originalName: string
+		shortName: string
 		description: string
 		exchange: string
-		high_price: number
-		low_price: number
-		prev_close_price: number
+		highPrice: number
+		lowPrice: number
+		prevClosePrice: number
 		ch: number
 		tt: number
-
 		cmd: {
 			c: number
 			h: number
@@ -47,28 +40,28 @@ declare global {
 		}
 
 		chp: number
-		open_price: number
+		openPrice: number
 		lp: number
 		LTQ: number
-		L2_LTT: number
+		L2LTT: number
 		ATP: number
 		volume: number
-		tot_buy: number
-		tot_sell: number
+		totBuy: number
+		totSell: number
 		bid: number
 		ask: number
 		spread: number
 		marketStat: number
 	}
-	interface marketHistory {
+	interface historicalData {
 		symbol: string
 		resolution: string
-		t: number // timestamp
-		o: number // candle open
-		h: number // candle high
-		l: number // candle low
-		c: number // candle close
-		v: number // candle volume
+		t: string // timestamp
+		o: string // candle open
+		h: string // candle high
+		l: string // candle low
+		c: string // candle close
+		v: string // candle volume
 	}
 	interface openInterest {
 		symbol: string
@@ -125,9 +118,13 @@ declare global {
 	}
 	interface settings {
 		id: Number
+		state: string
+		simulateTicks: boolean
+		enableLogging: boolean
 		realTimeMarketsToWatch: string[]
 		keepRealTimeMarketsData: boolean
 		activeStrategies: string[]
+		primaryFyersAccountEmail: string
 		serverConf: {
 			APIPort: number
 			socketPort: number
@@ -151,6 +148,7 @@ declare global {
 				webSocketUrl: string
 				dataApiUrl: string
 				status: boolean
+				webhookSecret: string
 			}
 			kite: {
 				apiKey: string
@@ -180,11 +178,14 @@ declare global {
 			maxTradesPerDay: number
 			enableMoneyManager: boolean
 		}
-
+		tasksLastRun: {
+			[key: string]: any
+		}
 		lastUpdated: Date
 	}
 	interface trades {
 		id: string
+		paper: boolean
 		clientId: string
 		exchange: string
 		exchangeOrderNo: string
@@ -281,7 +282,6 @@ declare global {
 		ex_sym: string
 		description: string
 	}
-
 	interface marketData {
 		id: string
 		BANKNIFTY: {
@@ -312,9 +312,93 @@ declare global {
 		lastUpdated: Number
 	}
 
+	interface strategies {
+		id: string
+		name: string
+		description: string
+		markets: string[]
+		enabled: boolean
+		backTest: {
+			lastBackTested: Date
+			backTestData: string
+		}
+		createdAt: Date
+		updatedAt: Date
+	}
+	interface positions {
+		id: string
+		paper: boolean
+		whichBroker: string
+		buyAvgPrice: number
+		buyQty: number
+		sellAvgPrice: number
+		sellQty: number
+		netAvgPrice: number
+		netQty: number
+		side: number
+		qty: number
+		productType: string
+	}
+
+	interface keepLTP {
+		symbolTD: string
+		symbolKite: string
+		symbolFY: string
+		ltp: number
+		lastUpdated: Date
+	}
+	interface symbolData {
+		trueDataSymbolId: string
+		symbol: string
+		fyersSymbol: string
+		kiteSymbol: string
+		trueDataSymbol: string
+		ltp: number
+		lastUpdated: Date
+	}
+
+	// --------- model interfaces end ------------
 	// general interfaces
 	interface AccessToken {
 		accessToken: string
 		email: string
+	}
+
+	interface trueDataMarketFeedsTouchlineData {
+		symbol: string
+		lastUpdateTime: string
+		symbolId: string
+		lp: number
+		tickVolume: number
+		ATP: number
+		totalVolume: number
+		open: number
+		high: number
+		low: number
+		previousClose: number
+		turnOver: number
+		bid: number
+		bigQty: number
+		ask: number
+		askQty: number
+	}
+	interface trueDataMarketFeedsBidAskData {
+		symbol: string
+		time: string
+		bid: string
+		bidQty: string
+		ask: string
+		askQty: string
+	}
+	interface trueDataHandleBarData {
+		symbol: string
+		bar: string
+		time: string
+		open: string
+		high: string
+		low: string
+		close: string
+		volume: string
+		oi: string
 	}
 }

@@ -1,120 +1,62 @@
 import chalk from "chalk"
-import path from "path"
-import { Logger } from "../model"
+import fs from "fs"
+type LogLevel = "info" | "error" | "warn" | "debug"
 
-const _log = console.log
-const red = chalk.red
-const yellow = chalk.yellow
-const blue = chalk.blue
-const green = chalk.green
-const cyan = chalk.cyan
-const magenta = chalk.magenta
-const white = chalk.white
-const gray = chalk.gray
-
-function dateNTime() {
-	return new Date().toLocaleString()
+interface LoggerOptions {
+	colors: Record<LogLevel, chalk.ChalkFunction>
 }
 
-function store(message: string, type: string, by: string, user?: string, from?: string) {
-	Logger.create({
-		message: message,
-		type: type,
-		by: by,
-		user: user,
-		date: new Date(),
-		loggedFrom: from,
-	})
-}
+class CustomLogger {
+	private options: LoggerOptions
 
-function log(message: string, type: string, by: string, user?: string, from?: string) {
-	store(message, type, by, user, from)
-	if (user) {
-		if (type === "error") _log(red(`[${type.toUpperCase()}] [${dateNTime()}] [${by}] [${from}] [${user}] - ${message}`))
-		else if (type === "warn") _log(magenta(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] [${user}] - ${message}`))
-		else if (type === "info") _log(blue(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] [${user}] - ${message}`))
-		else if (type === "debug") _log(green(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] [${user}] - ${message}`))
-		else _log(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] [${user}] - ${message}`)
-		return
-	} else {
-		if (type === "error") _log(red(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`))
-		else if (type === "warn") _log(magenta(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`))
-		else if (type === "info") _log(blue(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`))
-		else if (type === "debug") _log(green(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`))
-		else _log(`[${type.toUpperCase()}] [${dateNTime()}] [${from}] [${by}] - ${message}`)
-		return
+	constructor(options: LoggerOptions) {
+		this.options = options
+	}
+
+	private log(level: LogLevel, message: string, sector?: string): void {
+		const color = this.options.colors[level] || chalk.white
+		const currentTime = new Date().toLocaleString()
+		const formattedMessage = `[${level.toUpperCase()}] [${currentTime}] ${sector ? ` [${sector}]` : ""} - ${message}`
+		const logString = JSON.stringify(formattedMessage) + "\n"
+
+		// check is logs folder exists
+		if (!fs.existsSync("./logs")) {
+			fs.mkdirSync("./logs")
+		}
+		const fileName = new Date().toLocaleDateString().replace(/\//g, "-")
+		fs.appendFile(`./logs/${fileName}.log`, logString, (err: any) => {
+			if (err) {
+				console.error("Failed to write to log file:", err)
+			}
+		})
+		console.log(color(formattedMessage))
+	}
+
+	info(message: string, sector?: string): void {
+		this.log("info", message, sector)
+	}
+
+	error(message: string, sector?: string): void {
+		this.log("error", message, sector)
+	}
+
+	warn(message: string, sector?: string): void {
+		this.log("warn", message, sector)
+	}
+
+	debug(message: string, sector?: string): void {
+		this.log("debug", message, sector)
 	}
 }
 
-export default class logger {
-	static log(message: string, user?: boolean, userId?: string, server?: string) {
-		const stackTrace = new Error().stack || ""
-		const stackLines = stackTrace.split("\n").slice(2)
-		const callerLine = stackLines[0]
-		const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
-		const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-		const from = `${path.relative(process.cwd(), fileName)}` || "♡"
+// Example usage
+const logger = new CustomLogger({
+	colors: {
+		info: chalk.blue,
+		error: chalk.red,
+		warn: chalk.yellow,
+		debug: chalk.green,
+	},
+})
 
-		const by = user ? "user-" + userId : server ? "server-" + server : "server"
-		log(message, "log", by, userId, from)
-	}
-
-	static error(message: string, user?: boolean, userId?: string, server?: string) {
-		const stackTrace = new Error().stack || ""
-		const stackLines = stackTrace.split("\n").slice(2)
-		const callerLine = stackLines[0]
-		const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
-		const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-		const from = `${path.relative(process.cwd(), fileName)}` || "♡"
-
-		const by = user ? "user-" + userId : server ? "server-" + server : "server"
-		log(message, "error", by, userId, from)
-	}
-
-	static warn(message: string, user?: boolean, userId?: string, server?: string) {
-		const stackTrace = new Error().stack || ""
-		const stackLines = stackTrace.split("\n").slice(2)
-		const callerLine = stackLines[0]
-		const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
-		const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-		const from = `${path.relative(process.cwd(), fileName)}` || "♡"
-
-		const by = user ? "user-" + userId : server ? "server-" + server : "server"
-		log(message, "warn", by, userId, from)
-	}
-
-	static info(message: string, user?: boolean, userId?: string, server?: string) {
-		const stackTrace = new Error().stack || ""
-		const stackLines = stackTrace.split("\n").slice(2)
-		const callerLine = stackLines[0]
-		const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
-		const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-		const from = `${path.relative(process.cwd(), fileName)}` || "♡"
-
-		const by = user ? "user-" + userId : server ? "server-" + server : "server"
-		log(message, "info", by, userId, from)
-	}
-
-	static debug(message: string, user?: boolean, userId?: string, server?: string) {
-		const stackTrace = new Error().stack || ""
-		const stackLines = stackTrace.split("\n").slice(2)
-		const callerLine = stackLines[0]
-		const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
-		const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-		const from = `${path.relative(process.cwd(), fileName)}` || "♡"
-
-		const by = user ? "user-" + userId : server ? "server-" + server : "server"
-		log(message, "debug", by, userId, from)
-	}
-	static doNotLog(message: string, user?: boolean, userId?: string, server?: string) {
-		const stackTrace = new Error().stack || ""
-		const stackLines = stackTrace.split("\n").slice(2)
-		const callerLine = stackLines[0]
-		const lineNumber = parseInt(callerLine.match(/:(\d+):\d+$/)?.[1] || "0", 10)
-		const fileName = callerLine.match(/\((.*):\d+:\d+\)$/)?.[1] || ""
-		const from = `${path.relative(process.cwd(), fileName)}` || "♡"
-
-		const by = user ? "user-" + userId : server ? "server-" + server : "server"
-		store(message, "doNotLog", by, userId, from)
-	}
-}
+export default logger

@@ -2,7 +2,7 @@ import chatter from "../events"
 import logger from "../logger"
 import { SymbolTicks } from "../model"
 export default async function (data: any) {
-	if (typeof data == "undefined") return logger.warn("Undefined data in market data socket")
+	if (typeof data == "undefined") return logger.warn("Undefined data in market data socket", "MarketDataUpdateHandler")
 	if (data.s == "ok") {
 		if (data.d["7208"].length > 0) {
 			const marketDataArray = data.d["7208"]
@@ -14,14 +14,14 @@ export default async function (data: any) {
 				const currentMinute = new Date(currentTime).getMinutes()
 				if (currentHour < 9 || (currentHour == 9 && currentMinute < 10)) return
 				SymbolTicks.insertMany(marketData.v).catch((err) => {
-					logger.error(err)
+					logger.error(err, "MarketDataUpdateHandler")
 				})
 			})
 		}
 	} else {
 		const parsedData = JSON.parse(data)
 		if (parsedData.s == "error") {
-			logger.error("Error in market data socket " + parsedData)
+			logger.error("Error in market data socket " + parsedData, "MarketDataUpdateHandler")
 		}
 	}
 }

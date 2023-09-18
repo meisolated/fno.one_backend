@@ -1,6 +1,8 @@
-import { baseSymbolsList } from "./provider/symbols.provider"
+import { getConfig } from "./config/initialize"
+import backtest from "./strategies/trafficLight/backtest"
 
-const main = async () => {
-	await baseSymbolsList()
+async function main() {
+	const config = await getConfig()
+	await backtest()
 }
 main()

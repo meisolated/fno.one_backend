@@ -3,9 +3,13 @@ import { Schema } from "mongoose"
 export default new Schema<settings>(
 	{
 		id: { type: Number, required: false, unique: true },
+		state: { type: String, required: false },
+		simulateTicks: { type: Boolean, required: false },
+		enableLogging: { type: Boolean, required: false },
 		realTimeMarketsToWatch: [{ type: String, required: false }],
 		keepRealTimeMarketsData: { type: Boolean, required: false },
 		activeStrategies: [{ type: String, required: false }],
+		primaryFyersAccountEmail: { type: String, required: false },
 		global: {
 			maxProfit: { type: Number, required: false },
 			maxLoss: { type: Number, required: false },
@@ -36,6 +40,7 @@ export default new Schema<settings>(
 				webSocketUrl: { type: String, required: false },
 				dataApiUrl: { type: String, required: false },
 				status: { type: Boolean, required: false },
+				webhookSecret: { type: String, required: false },
 			},
 			kite: {
 				apiKey: { type: String, required: false },
@@ -58,6 +63,10 @@ export default new Schema<settings>(
 				OptionChainDataAPIUrl: { type: String, required: false },
 				HolidaysAPIUrl: { type: String, required: false },
 			},
+		},
+		tasksLastRun: {
+			symbolMasterDataUpdate: { type: String, required: false },
+			lastHistoricalDataUpdate: { type: String, required: false },
 		},
 		lastUpdated: { type: Date, required: false },
 	},
