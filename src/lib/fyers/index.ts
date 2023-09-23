@@ -1,20 +1,8 @@
-import * as helper from "./helper"
-
-/**
- *
- * Over here we have to make optimized version of FyersApi2 package
- * WHAT TO DO:
- * 1. Make a class FyersApi2
- * 2. How can we handle multiple instances of FyersApi2 with different tokens
- * 3. How can we handle multiple websocket connections with different tokens
- *
- *
- */
 import axios from "axios"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
+import * as helper from "./helper"
 import * as url from "./urlTemplate"
-const apiUrl = url.SyncAPI
 const orderUpdateSocket = helper.orderUpdateHelper
 const marketDataSocket = helper.marketDataUpdateHelper
 
@@ -255,10 +243,7 @@ const getHistoricalData = async (token: string, symbol: string, resolution: stri
 			},
 		}
 		try {
-			const historicalData = await axios.get(
-				url.getHistoricalDataUrl(symbol, resolution, dateFormat, from, to, 0),
-				reqConfig,
-			)
+			const historicalData = await axios.get(url.getHistoricalDataUrl(symbol, resolution, dateFormat, from, to, 0), reqConfig)
 			if (historicalData.data.s != "ok") {
 				return false
 			} else {
