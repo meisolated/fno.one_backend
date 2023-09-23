@@ -47,7 +47,7 @@ export const authenticationUrl = (clientId: string, redirectUrl: string, state: 
  * @returns
  * 
  */
-export const validateAuthCodeUrl = () => `${SyncAPI + validateAuthCodePath}}`
+export const validateAuthCodeUrl = () => `${SyncAPI + validateAuthCodePath}`
 
 /**
  * 
@@ -59,7 +59,7 @@ export const validateAuthCodeUrl = () => `${SyncAPI + validateAuthCodePath}}`
  * The following parameters must be passed in the body for the POST request
  * 
  */
-export const validateRefreshTokenUrl = () => `${API + validateRefreshTokenPath}}`
+export const validateRefreshTokenUrl = () => `${API + validateRefreshTokenPath}`
 
 /**
  * 

@@ -13,8 +13,8 @@ import * as helper from "./helper"
 import axios from "axios"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
-
-const apiUrl = "https://api-t1.fyers.in/api/v3/"
+import * as url from "./urlTemplate"
+const apiUrl = url.SyncAPI
 const orderUpdateSocket = helper.orderUpdateHelper
 const marketDataSocket = helper.marketDataUpdateHelper
 
@@ -66,7 +66,8 @@ const generateLoginUrl = async () => {
 	const client_id = config.apis.fyers.appId
 	const redirect_uri = config.apis.fyers.redirectUrl
 	const state = config.apis.fyers.callbackSecret
-	return `${apiUrl}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
+	return url.authenticationUrl(client_id, redirect_uri, state)
+	// return`${apiUrl}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
 }
 const generateAccessToken = async (authCode: any) => {
 	const config = getConfigData()
@@ -74,7 +75,7 @@ const generateAccessToken = async (authCode: any) => {
 	const secretId = config.apis.fyers.secretId
 	const sha256 = await helper.sha256(`${appId}:${secretId}`)
 	try {
-		const accessToken = await axios.post(`${apiUrl}validate-authcode`, {
+		const accessToken = await axios.post(url.validateAuthCodeUrl(), {
 			grant_type: "authorization_code",
 			code: authCode,
 			appIdHash: sha256,
@@ -101,7 +102,7 @@ const getProfile = async (token: string) => {
 			},
 		}
 		try {
-			const profile = await axios.get(`${apiUrl}profile`, reqConfig)
+			const profile = await axios.get(url.getProfileUrl(), reqConfig)
 			return profile.data
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[getProfile]")
@@ -125,7 +126,7 @@ const getFunds = async (token: string) => {
 			},
 		}
 		try {
-			const funds = await axios.get(`${apiUrl}funds`, reqConfig)
+			const funds = await axios.get(url.getFundsUrl(), reqConfig)
 			return funds.data
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[getFunds]")
@@ -149,7 +150,7 @@ const getHoldings = async (token: string) => {
 			},
 		}
 		try {
-			const holdings = await axios.get(`${apiUrl}holdings`, reqConfig)
+			const holdings = await axios.get(url.getHoldingsUrl(), reqConfig)
 			return holdings.data
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[getHoldings]")
@@ -173,7 +174,7 @@ const getTrades = async (token: string) => {
 			},
 		}
 		try {
-			const trades = await axios.get(`${apiUrl}tradebook`, reqConfig)
+			const trades = await axios.get(url.getTradesUrl(), reqConfig)
 			return trades.data
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[getTrades]")
@@ -197,7 +198,7 @@ const getPositions = async (token: string) => {
 			},
 		}
 		try {
-			const positions = await axios.get(`${apiUrl}positions`, reqConfig)
+			const positions = await axios.get(url.getPositionsUrl(), reqConfig)
 			return positions.data
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[getPositions]")
@@ -221,7 +222,7 @@ const getOrders = async (token: string) => {
 			},
 		}
 		try {
-			const orders = await axios.get(`${apiUrl}orders`, reqConfig)
+			const orders = await axios.get(url.getOrdersUrl(), reqConfig)
 			return orders.data
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[getOrders]")
@@ -255,7 +256,7 @@ const getHistoricalData = async (token: string, symbol: string, resolution: stri
 		}
 		try {
 			const historicalData = await axios.get(
-				`https://api.fyers.in/data-rest/v2/history/?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=`,
+				url.getHistoricalDataUrl(symbol, resolution, dateFormat, from, to, 0),
 				reqConfig,
 			)
 			if (historicalData.data.s != "ok") {

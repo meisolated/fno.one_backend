@@ -1,5 +1,6 @@
 import { Express, Request, Response } from "express"
 import { getConfigData } from "../../config/initialize"
+import * as url from "../../lib/fyers/urlTemplate"
 import logger from "../../logger"
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
@@ -7,8 +8,9 @@ export default async function (app: Express, path: string) {
 		const cookie = req.cookies["fno.one"]
 		const config = getConfigData()
 		res.clearCookie("fno.one")
-		const loginUrl = `https://api-t1.fyers.in/api/v3/generate-authcode?client_id=${config.apis.fyers.appId}&redirect_uri=${config.apis.fyers.redirectUrl}&response_type=code&state=${config.apis.fyers.callbackSecret}`
-		return res.redirect(loginUrl)
+		// const loginUrl = `https://api-t1.fyers.in/api/v3/generate-authcode?client_id=${config.apis.fyers.appId}&redirect_uri=${config.apis.fyers.redirectUrl}&response_type=code&state=${config.apis.fyers.callbackSecret}`
+		const LoginUrl = url.authenticationUrl(config.apis.fyers.appId, config.apis.fyers.redirectUrl, config.apis.fyers.callbackSecret)
+		return res.redirect(LoginUrl)
 		// if (cookie && cookie.includes("ily") && cookie.includes("fno.one-")) {
 		//     return res.redirect("/dashboard")
 		// } else {
