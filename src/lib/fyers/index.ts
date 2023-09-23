@@ -3,8 +3,8 @@ import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 import * as helper from "./helper"
 import * as url from "./urlTemplate"
-const orderUpdateSocket = helper.orderUpdateHelper
-const marketDataSocket = helper.marketDataUpdateHelper
+// const orderUpdateSocket = helper.orderUpdateHelper
+// const marketDataSocket = helper.marketDataUpdateHelper
 
 var rateLimitData: rateLimitData = {}
 
@@ -45,11 +45,11 @@ const rateLimit = (token: string) => {
 		return true
 	}
 }
-const getAuthToken = async (token: string) => {
+export const getAuthToken = async (token: string) => {
 	const config = getConfigData()
 	return `${config.apis.fyers.appId}:${token}`
 }
-const generateLoginUrl = async () => {
+export const generateLoginUrl = async () => {
 	const config = getConfigData()
 	const client_id = config.apis.fyers.appId
 	const redirect_uri = config.apis.fyers.redirectUrl
@@ -57,7 +57,7 @@ const generateLoginUrl = async () => {
 	return url.authenticationUrl(client_id, redirect_uri, state)
 	// return`${apiUrl}generate-authcode?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&state=${state}`
 }
-const generateAccessToken = async (authCode: any) => {
+export const generateAccessToken = async (authCode: any) => {
 	const config = getConfigData()
 	const appId = config.apis.fyers.appId
 	const secretId = config.apis.fyers.secretId
@@ -74,7 +74,7 @@ const generateAccessToken = async (authCode: any) => {
 		return error
 	}
 }
-const getProfile = async (token: string) => {
+export const getProfile = async (token: string) => {
 	const rateLimitCheck = rateLimit(token)
 	if (!rateLimitCheck) {
 		return {
@@ -98,7 +98,7 @@ const getProfile = async (token: string) => {
 		}
 	}
 }
-const getFunds = async (token: string) => {
+export const getFunds = async (token: string) => {
 	const rateLimitCheck = rateLimit(token)
 	if (!rateLimitCheck) {
 		return {
@@ -122,7 +122,7 @@ const getFunds = async (token: string) => {
 		}
 	}
 }
-const getHoldings = async (token: string) => {
+export const getHoldings = async (token: string) => {
 	const rateLimitCheck = rateLimit(token)
 	if (!rateLimitCheck) {
 		return {
@@ -146,7 +146,7 @@ const getHoldings = async (token: string) => {
 		}
 	}
 }
-const getTrades = async (token: string) => {
+export const getTrades = async (token: string) => {
 	const rateLimitCheck = rateLimit(token)
 	if (!rateLimitCheck) {
 		return {
@@ -170,7 +170,7 @@ const getTrades = async (token: string) => {
 		}
 	}
 }
-const getPositions = async (token: string) => {
+export const getPositions = async (token: string) => {
 	const rateLimitCheck = rateLimit(token)
 	if (!rateLimitCheck) {
 		return {
@@ -194,7 +194,7 @@ const getPositions = async (token: string) => {
 		}
 	}
 }
-const getOrders = async (token: string) => {
+export const getOrders = async (token: string) => {
 	const rateLimitCheck = rateLimit(token)
 	if (!rateLimitCheck) {
 		return {
@@ -227,7 +227,7 @@ const getOrders = async (token: string) => {
  * @param from time
  * @param to time
  */
-const getHistoricalData = async (token: string, symbol: string, resolution: string, dateFormat: number, from: string, to: string) => {
+export const getHistoricalData = async (token: string, symbol: string, resolution: string, dateFormat: number, from: string, to: string) => {
 	const rateLimitCheck = rateLimit(token)
 	if (!rateLimitCheck) {
 		return {
@@ -243,7 +243,10 @@ const getHistoricalData = async (token: string, symbol: string, resolution: stri
 			},
 		}
 		try {
-			const historicalData = await axios.get(url.getHistoricalDataUrl(symbol, resolution, dateFormat, from, to, 0), reqConfig)
+			const historicalData = await axios.get(
+				url.getHistoricalDataUrl(symbol, resolution, dateFormat, from, to, 0),
+				reqConfig,
+			)
 			if (historicalData.data.s != "ok") {
 				return false
 			} else {
@@ -255,4 +258,3 @@ const getHistoricalData = async (token: string, symbol: string, resolution: stri
 		}
 	}
 }
-export { generateAccessToken, generateLoginUrl, getFunds, getHistoricalData, getHoldings, getOrders, getPositions, getProfile, getTrades, marketDataSocket, orderUpdateSocket }

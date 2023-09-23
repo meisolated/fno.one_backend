@@ -1,6 +1,3 @@
-// res.cookie(name , 'value', {expire : new Date() + 9999});
-// res.cookie(name, 'value', {maxAge : 9999});
-// clearCookie('cookie_name'); // logout
 import crypto from "crypto"
 import { Express, Request, Response } from "express"
 import * as fyers from "../../lib/fyers"
@@ -20,22 +17,18 @@ export default async function (app: Express, path: string) {
 						user.lastLogin = new Date()
 						if (user.connectedApps.includes("fyers") == false) user.connectedApps.push("fyers")
 						await user.save()
-						return res.redirect("/dashboard")
-						// return res.send({ message: "Logged in", code: 200, data: { userProfile } })
+						return res.redirect("/dashboard") // return res.send({ message: "Logged in", code: 200, data: { userProfile } })
 					} else {
 						res.clearCookie("fno.one")
-						return res.redirect("/error/sessionTimeout")
-						//return res.send({ message: "Maybe access token expired!", code: 401 })
+						return res.redirect("/error/sessionTimeout") //return res.send({ message: "Maybe access token expired!", code: 401 })
 					}
 				} else {
 					res.clearCookie("fno.one")
-					return res.redirect("/error/userNotFound")
-					//return res.send({ message: "User not found", code: 404 })
+					return res.redirect("/error/userNotFound") //return res.send({ message: "User not found", code: 404 })
 				}
 			} else {
 				res.clearCookie("fno.one")
-				return res.redirect("/error/sessionTimeout")
-				//return res.send({ message: "Session not found", code: 404 })
+				return res.redirect("/error/sessionTimeout") //return res.send({ message: "Session not found", code: 404 })
 			}
 		} else {
 			if (req.headers.referer !== "https://api-t1.fyers.in/") return res.redirect("/error/invalidRequest")
@@ -43,20 +36,10 @@ export default async function (app: Express, path: string) {
 				const maxAge = 1000 * 60 * 60 * 24 * 1 // 1 days
 				const currentTimeUnixMs = Date.now()
 				const cookie = crypto.randomBytes(64).toString("hex")
-				const cookieHash =
-					"fno.one-" +
-					crypto
-						.createHash("sha256")
-						.update(cookie + currentTimeUnixMs)
-						.digest("hex") +
-					"ily"
-
-				// const cookieHash = `fno.one-
-				//     ${crypto
-				//         .createHash("sha256")
-				//         .update(cookie + currentTimeUnixMs)
-				//         .digest("hex")}
-				//     ily`
+				const cookieHash = `fno.one-${crypto
+					.createHash("sha256")
+					.update(cookie + currentTimeUnixMs)
+					.digest("hex")}-ily-ASZ`
 				res.cookie("fno.one", cookieHash, { maxAge })
 				const accessToken = await fyers.generateAccessToken(req.query.auth_code)
 				if (accessToken.code != 200) return res.send({ message: accessToken.message, code: accessToken.code })
@@ -99,11 +82,9 @@ export default async function (app: Express, path: string) {
 					userId: user._id,
 				})
 				await session.save()
-				return res.redirect("/dashboard")
-				//res.send({ message: "Login Successful", code: 200, cookie: cookieHash, maxAge })
+				return res.redirect("/dashboard") //res.send({ message: "Login Successful", code: 200, cookie: cookieHash, maxAge })
 			} else {
-				return res.redirect("/error/invalidRequest")
-				//res.send({ message: "Login Failed " + _req.query.message, code: 500 })
+				return res.redirect("/error/invalidRequest") //res.send({ message: "Login Failed " + _req.query.message, code: 500 })
 			}
 		}
 	})
