@@ -14,7 +14,7 @@ import axios from "axios"
 import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 
-const apiUrl = "https://api.fyers.in/api/v2/"
+const apiUrl = "https://api-t1.fyers.in/api/v3/"
 const orderUpdateSocket = helper.orderUpdateHelper
 const marketDataSocket = helper.marketDataUpdateHelper
 

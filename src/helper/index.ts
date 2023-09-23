@@ -166,7 +166,6 @@ export {
 	getDayOfWeekAsString,
 	getMarketCurrentPrice,
 	isNumberInRange,
-	isTodayHoliday,
 	setEpochTimeTo5_30,
 	setEpochTimeTo5_30AndOneDayBefore,
 	sum,

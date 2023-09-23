@@ -38,7 +38,7 @@ export default async function (app: Express, path: string) {
 				//return res.send({ message: "Session not found", code: 404 })
 			}
 		} else {
-			if (req.headers.referer !== "https://api.fyers.in/") return res.redirect("/error/invalidRequest")
+			if (req.headers.referer !== "https://api-t1.fyers.in/") return res.redirect("/error/invalidRequest")
 			if (req.query.auth_code || req.query.s == "ok") {
 				const maxAge = 1000 * 60 * 60 * 24 * 1 // 1 days
 				const currentTimeUnixMs = Date.now()
