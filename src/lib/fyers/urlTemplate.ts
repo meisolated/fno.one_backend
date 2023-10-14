@@ -137,11 +137,10 @@ export const getTradesUrl = () => `${SyncAPI + tradeBookPath}`
 
 /**
  *
- * # Place Order
- * @POST
+ * # Place Single Order
+ * @POST_REQUEST
  * @description This is the url to place the order
  * @Authorization : appId:accessToken
- * @raw-data : ```{symbol, qty, side, type, productType, limitPrice, stopPrice, disclosedQty, validity, offlineOrder, stopLoss, squareOff, trailingStopLoss, variety, exchange, symbol, instrument, fyToken, segment, isin, offlineOrder}```
  * @return : { s, code, message, id }
  *
  */
@@ -153,7 +152,6 @@ export const placeSingleOrderUrl = () => `${SyncAPI + ordersSyncPath}`
  * @POST
  * @description This is the url to place the multi order
  * @Authorization : appId:accessToken
- * @raw-data : `` [{symbol, qty, side, type, productType, limitPrice, stopPrice, disclosedQty, validity, offlineOrder, stopLoss, squareOff, trailingStopLoss, variety, exchange, symbol, instrument, fyToken, segment, isin, offlineOrder}]
  * @return : { s, code, data:[{statusCode, body:{s, code, message, id}, statusDescription}] }
  *
  */

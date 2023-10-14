@@ -16,12 +16,22 @@ export default async function (app: Express, path: string) {
 					} else {
 						User.findOne({ _id: session.userId }).then(async (user) => {
 							if (user) {
-								const userProfile = await fyers.getProfile(user.userAppsData.fyers.accessToken)
-								if (userProfile.code !== 200) {
-									res.clearCookie("fno.one")
-									return res.redirect("/error/sessionTimeout")
+								// const userProfile = await fyers.getProfile(user.userAppsData.fyers.accessToken)
+								// if (userProfile.code !== 200) {
+								// 	res.clearCookie("fno.one")
+								// 	return res.redirect("/error/sessionTimeout")
+								// }
+								const userRawData = {
+									_id: user._id,
+									email: user.email,
+									roles: user.roles,
+									status: user.status,
+									image: user.image,
+									displayName: user.displayName,
+									apps: user.apps,
+									loggedIn: user.loggedIn,
+									lastLogin: user.lastLogin,
 								}
-								const userRawData = user.toObject()
 								return res.send({ message: "Logged in", code: 200, data: { ...userRawData } })
 							} else {
 								res.clearCookie("fno.one")

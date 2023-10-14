@@ -358,6 +358,26 @@ declare global {
 	}
 
 	// --------- model interfaces end ------------
+
+	// --------- socket interfaces start ------------
+	// --------- socket interfaces end ------------
+	// --------- fyers interfaces start ------------
+	interface newOrder {
+		symbol: string
+		qty: number
+		type: number // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
+		side: 1 | -1
+		productType: "CND" | "INTRADAY" | "MARGIN" | "CO" | "BO"
+		limitPrice: 0 | number
+		stopPrice: 0 | number
+		disclosedQty: 0 | number
+		validity: "DAY" | "IOC"
+		offlineOrder: boolean
+		stopLoss: 0 | number
+		takeProfit: 0 | number
+	}
+	// --------- fyers interfaces end ------------
+
 	// general interfaces
 	interface AccessToken {
 		accessToken: string

@@ -3,8 +3,6 @@ import { getConfigData } from "../../config/initialize"
 import logger from "../../logger"
 import * as helper from "./helper"
 import * as url from "./urlTemplate"
-// const orderUpdateSocket = helper.orderUpdateHelper
-// const marketDataSocket = helper.marketDataUpdateHelper
 
 var rateLimitData: rateLimitData = {}
 
@@ -61,7 +59,7 @@ export const generateAccessToken = async (authCode: any) => {
 	const config = getConfigData()
 	const appId = config.apis.fyers.appId
 	const secretId = config.apis.fyers.secretId
-	const sha256 = await helper.sha256(`${appId}:${secretId}`)
+	const sha256 = helper.getSHA256Hash(`${appId}:${secretId}`)
 	try {
 		const accessToken = await axios.post(url.validateAuthCodeUrl(), {
 			grant_type: "authorization_code",
@@ -243,10 +241,7 @@ export const getHistoricalData = async (token: string, symbol: string, resolutio
 			},
 		}
 		try {
-			const historicalData = await axios.get(
-				url.getHistoricalDataUrl(symbol, resolution, dateFormat, from, to, 0),
-				reqConfig,
-			)
+			const historicalData = await axios.get(url.getHistoricalDataUrl(symbol, resolution, dateFormat, from, to, 0), reqConfig)
 			if (historicalData.data.s != "ok") {
 				return false
 			} else {
@@ -255,6 +250,35 @@ export const getHistoricalData = async (token: string, symbol: string, resolutio
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[getHistoricalData]")
 			return false
+		}
+	}
+}
+
+export const placeSingleOrder = async (token: string, data: newOrder) => {
+	const rateLimitCheck = rateLimit(token)
+	if (!rateLimitCheck) {
+		return {
+			status: "error",
+			message: "Rate limit exceeded",
+		}
+	} else {
+		const AuthorizationToken = await getAuthToken(token)
+		const reqConfig = {
+			"url": url.placeSingleOrderUrl(),
+			"method": "post",
+			"maxBodyLength": Infinity,
+			"Content-Type": "application/json",
+			"headers": {
+				Authorization: AuthorizationToken,
+			},
+			"data": JSON.stringify(data),
+		}
+		try {
+			const orderPlacementResponse = await axios.request(reqConfig)
+			return orderPlacementResponse.data
+		} catch (error: any) {
+			logger.error(error, "fyers/index.ts[placeSingleOrder]")
+			return error.response.data
 		}
 	}
 }

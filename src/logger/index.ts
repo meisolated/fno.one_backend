@@ -24,7 +24,7 @@ class CustomLogger {
 			fs.mkdirSync("./logs")
 		}
 		const fileName = new Date().toLocaleDateString().replace(/\//g, "-")
-		fs.appendFile(`./logs/${fileName}.log`, logString, (err: any) => {
+		fs.appendFile(`./logs/${fileName}-console.log`, logString, (err: any) => {
 			if (err) {
 				console.error("Failed to write to log file:", err)
 			}

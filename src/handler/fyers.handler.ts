@@ -3,7 +3,6 @@ import FyersOrderSocket from "../lib/fyers/orderUpdateSocketV3"
 import logger from "../logger"
 import { User } from "../model"
 
-
 export const subscribeToAllUsersSockets = async () => {
 	const user = await User.findOne({ email: "fisolatedx@gmail.com" })
 	if (user) {

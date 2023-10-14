@@ -1,5 +1,20 @@
-/**
- * {
- * id,brokerName,exchangeOrderId,symbol,qty, filledQty,remainingQty, cancelledQty
- * }
- */
+// clientId: 'XV19818',
+// id: '23092900000068',
+// qty: 15,
+// remainingQuantity: 15,
+// type: 2,
+// fyToken: '101123100456666',
+// exchange: 10,
+// segment: 11,
+// symbol: 'NSE:BANKNIFTY23O0444300CE',
+// instrument: 14,
+// offlineOrder: false,
+// orderDateTime: '29-Sep-2023 07:13:42',
+// orderValidity: 'DAY',
+// productType: 'INTRADAY',
+// side: 1,
+// status: 4,
+// source: 'W',
+// ex_sym: 'BANKNIFTY',
+// description: '23 Oct 04 44300 CE',
+// orderNumStatus: '23092900000068:4'

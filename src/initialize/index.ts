@@ -4,7 +4,7 @@ import axios from "axios"
 import { timeout, updateTaskLastUpdate } from "../helper"
 import logger from "../logger"
 import { MarketData, Settings } from "../model"
-import { convertMarketTicksToBars, optionRelativeMovementCalculator, updateSymbolLTP, updateSymbolMasterData } from "../worker"
+import { optionRelativeMovementCalculator, updateSymbolLTP, updateSymbolMasterData } from "../worker"
 import { updateHistoricalData } from "../worker/updateHistoricalData.worker"
 
 export var marketData: any = {}

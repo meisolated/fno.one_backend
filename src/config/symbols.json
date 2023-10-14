@@ -1,0 +1,32 @@
+{
+    "symbols": [
+        {
+            "fySymbol": "NSE:NIFTYBANK-INDEX",
+            "tdSymbol": "NIFTY BANK"
+        },
+        {
+            "fySymbol": "NSE:NIFTY50-INDEX",
+            "tdSymbol": "NIFTY 50"
+        },
+        {
+            "fySymbol": "NSE:NIFTYIT-INDEX",
+            "tdSymbol": "NIFTY IT"
+        },
+        {
+            "fySymbol": "NSE:NIFTYFIN-INDEX",
+            "tdSymbol": "NIFTY FIN SERVICE"
+        },
+        {
+            "fySymbol": "NSE:HDFCBANK-EQ",
+            "tdSymbol": "HDFCNIFBAN"
+        },
+        {
+            "fySymbol": "NSE:ICICIBANK-EQ",
+            "tdSymbol": "ICICIBANKN"
+        },
+        {
+            "fySymbol": "NSE:SBIN-EQ",
+            "tdSymbol": "SETFNIFBK"
+        }
+    ]
+}
