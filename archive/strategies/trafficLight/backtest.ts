@@ -1,6 +1,6 @@
 import fs from "fs"
-import { getDayOfWeekAsString, isNumberInRange, setEpochTimeTo5_30AndOneDayBefore, timeout, timestampToStringDateNTime } from "../../helper"
-import { HistoricalData } from "./../../model"
+import { getDayOfWeekAsString, isNumberInRange, setEpochTimeTo5_30AndOneDayBefore, timeout, timestampToStringDateNTime } from "../../../helper"
+import { HistoricalData } from "../../../model"
 const groupCandlesIntoDays = async (candles: any) => {
 	const groupedArray: any = []
 	let currentCandleDate = ""

@@ -1,14 +1,13 @@
-import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
-
 import axios from "axios"
+import { getConfig, getConfigData, initializeConfig } from "../config/initialize"
 import { timeout, updateTaskLastUpdate } from "../helper"
 import logger from "../logger"
 import { MarketData, Settings } from "../model"
-import { optionRelativeMovementCalculator, updateSymbolLTP, updateSymbolMasterData } from "../worker"
+import { updateSymbolLTP } from "../worker"
 import { updateHistoricalData } from "../worker/updateHistoricalData.worker"
 
 export var marketData: any = {}
-const maxTries = 10
+const maxTries = 50
 
 const commonAxiosGet = async (url: string) => {
 	const googleChromeUserAgent = "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36"
@@ -31,8 +30,8 @@ const commonAxiosGet = async (url: string) => {
 			logger.error("Error while fetching NSE data", "initialize/index.ts[commonAxiosGet]")
 			return false
 		}
-	} catch (error) {
-		logger.info(JSON.stringify(error), "initialize/index.ts[commonAxiosGet]")
+	} catch (error: any) {
+		logger.error(JSON.stringify(error.message), "initialize/index.ts[commonAxiosGet]")
 		return false
 	}
 }
@@ -67,7 +66,7 @@ var tasks = [
 					const now = Date.now()
 					const diff = now - lastUpdated
 					const diffInDays = diff / (1000 * 3600 * 24)
-					if (diffInDays < 1) {
+					if (diffInDays < 5) {
 						logger.info("Market Data is updated in last 1 days, no need to update again", "initialize/index.ts[CheckIfLastUpdatedInLast1Days]")
 						tasks.forEach((task) => {
 							if (
@@ -154,7 +153,7 @@ var tasks = [
 		name: "NSEFinNiftyData",
 		status: false,
 		tries: 0,
-		importance: 0,
+		importance: 1,
 		execute: async () =>
 			new Promise(async (resolve, reject) => {
 				try {
@@ -272,72 +271,31 @@ var tasks = [
 				return resolve(true)
 			}),
 	},
-	{
-		name: "convertMarketTicksToBars",
-		status: false,
-		tries: 0,
-		importance: 1,
-		execute: async () =>
-			new Promise(async (resolve, reject) => {
-				// convertMarketTicksToBars()
-				return resolve(true)
-			}),
-	},
 
-	{
-		name: "symbolMasterDataUpdate",
-		status: false,
-		tries: 0,
-		importance: 1,
-		execute: async () =>
-			new Promise(async (resolve, reject) => {
-				const lastUpdate: any = await Settings.findOne({ id: 1 }).then((data) => data?.tasksLastRun.symbolMasterDataUpdate)
-				if (lastUpdate) {
-					//  check is lastupdate is more than 2days
-					const now = Date.now()
-					const diff = now - lastUpdate
-					const diffInDays = diff / (1000 * 3600 * 24)
-					if (diffInDays < 2) {
-						logger.info("Symbol Master Data is updated in last 2 days, no need to update again", "initialize/index.ts[symbolMasterDataUpdate]")
-						return resolve(true)
-					} else {
-						logger.info("Symbol Master Data is not updated in last 2 days. Updating now...", "initialize/index.ts[symbolMasterDataUpdate]")
-						const returned = await updateSymbolMasterData()
-						if (returned) {
-							await updateTaskLastUpdate("symbolMasterDataUpdate", Date.now())
-							return resolve(true)
-						} else {
-							return resolve(false)
-						}
-					}
-				} else {
-					await updateTaskLastUpdate("symbolMasterDataUpdate", 0)
-					return resolve(false)
-				}
-			}),
-	},
-	{
-		name: "historicalDataUpdate",
-		status: false,
-		tries: 0,
-		importance: 1,
-		execute: async () =>
-			new Promise(async (resolve, reject) => {
-				await updateHistoricalData()
-				return resolve(true)
-			}),
-	},
-	{
-		name: "startOptionRelativeMovementCalculator",
-		status: false,
-		tries: 0,
-		importance: 1,
-		execute: async () =>
-			new Promise(async (resolve, reject) => {
-				await optionRelativeMovementCalculator()
-				return resolve(true)
-			}),
-	},
+
+
+	// {
+	// 	name: "historicalDataUpdate",
+	// 	status: false,
+	// 	tries: 0,
+	// 	importance: 1,
+	// 	execute: async () =>
+	// 		new Promise(async (resolve, reject) => {
+	// 			await updateHistoricalData()
+	// 			return resolve(true)
+	// 		}),
+	// },
+	// {
+	// 	name: "startOptionRelativeMovementCalculator",
+	// 	status: false,
+	// 	tries: 0,
+	// 	importance: 1,
+	// 	execute: async () =>
+	// 		new Promise(async (resolve, reject) => {
+	// 			await optionRelativeMovementCalculator()
+	// 			return resolve(true)
+	// 		}),
+	// },
 ]
 
 export default () =>
@@ -358,7 +316,11 @@ export default () =>
 						logger.info(`Task ${task.name} is failed, retrying again`, "initialize/index.ts")
 						if (task.tries > maxTries) {
 							logger.info(`Task ${task.name} is failed, max tries reached`, "initialize/index.ts")
-							return resolve(false)
+							if (task.importance === 0) {
+								task.status = true
+							} else {
+								return reject(false)
+							}
 						}
 						return runTasksSequentially(taskList)
 					}

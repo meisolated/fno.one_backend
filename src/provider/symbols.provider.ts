@@ -1,10 +1,9 @@
-import { getConfigData } from "../config/initialize"
 import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "../helper"
 import HistoricalData from "../lib/trueData/historical"
 import logger from "../logger"
 import { MarketData, SymbolData } from "../model"
-const indicesSymbol = ["NIFTY 50", "NIFTY BANK", "NIFTY FIN SERVICE", "INDIA VIX", "NIFTY IT"]
-const bankNiftyUnderlyingAssets = ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"]
+export const indicesSymbol = ["NIFTY 50", "NIFTY BANK", "NIFTY FIN SERVICE", "NIFTY IT", "INDIA VIX"]
+export const bankNiftyUnderlyingAssets = ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"]
 
 export var _baseSymbolsList: any = []
 export var _optionChainSymbolsList: any = {}
@@ -35,6 +34,65 @@ export const generateSymbolsList = async () => {
 	} else {
 		logger.error("Market Data not found", "symbols.provider[generateSymbolsList]")
 		return false
+	}
+}
+
+export const allIndiesOptionChainGenerator = async () => {
+	const indies = [
+		{
+			symbol: "NIFTY BANK",
+			optionPrefix: "BANKNIFTY",
+		},
+		{
+			symbol: "NIFTY 50",
+			optionPrefix: "NIFTY",
+		},
+		{
+			symbol: "NIFTY FIN SERVICE",
+			optionPrefix: "FINNIFTY",
+		},
+	]
+	const optionChain: any = {
+		indies: indies,
+	}
+	const marketData: any = await MarketData.findOne({ id: 1 })
+	if (marketData) {
+		await Promise.all(
+			indies.map(async (index: any) => {
+				const upcomingExpiry = marketData[index.optionPrefix].expiryDates.filter((expiryDate: any) => {
+					if (!datePassed(expiryDate)) {
+						return expiryDate
+					}
+				})
+				const strikePrices = marketData[index.optionPrefix].strikePrices
+				const currentPrice: any = await SymbolData.findOne({ trueDataSymbol: index.symbol }).then(async (data: any) => {
+					if (!data || data.ltp == 0) {
+						const historical = new HistoricalData()
+						const symbolCurrentPrice: any = await historical.getLastNBars(index.symbol, 1, "1min")
+						return symbolCurrentPrice.Records[0][4]
+					} else {
+						return data.ltp
+					}
+				})
+				const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
+				const symbols = generateOptionChainSymbolsList(index.optionPrefix, 10, roundOffCurrentPrice, upcomingExpiry[0])
+				await Promise.all(
+					symbols.map(async (symbol: any) => {
+						const query = { trueDataSymbol: { $in: [symbol.CE, symbol.PE] } }
+						const LTP = await SymbolData.find(query).then((data: any) => {
+							return data.reduce((map: any, obj: any) => {
+								map[obj.trueDataSymbol] = obj.ltp
+								return map
+							}, {})
+						})
+						symbol.PE_LTP = LTP[symbol.PE] || 0
+						symbol.CE_LTP = LTP[symbol.CE] || 0
+					}),
+				)
+				return (optionChain[index.optionPrefix] = symbols)
+			}),
+		)
+		return optionChain
 	}
 }
 export const baseSymbolsList = async () => {

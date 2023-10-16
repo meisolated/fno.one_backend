@@ -1,6 +1,6 @@
-import chatter from "../../events"
-import HistoricalData from "../../lib/trueData/historical"
-import logger from "../../logger"
+import chatter from "../../../events"
+import HistoricalData from "../../../lib/trueData/historical"
+import logger from "../../../logger"
 
 export default class TrafficLight {
 	public id = "trafficLight"
@@ -13,16 +13,16 @@ export default class TrafficLight {
 	// strategy specific variables
 	private _timeFrame: string = "5min" // historical data time frame
 	private _pairsFound: any = {}
-	constructor() {}
+	constructor() { }
 
-	private strategyActive() {}
-	private pairOldEnoughToLookForAnother(market: string) {}
+	private strategyActive() { }
+	private pairOldEnoughToLookForAnother(market: string) { }
 	public async run(markets: Array<string>) {
 		logger.info(`Running ${this._name} strategy`, "strategies/trafficLight/index.ts")
 		this.algorithm(markets)
 	}
 	private async algorithm(markets: Array<string>) {
-		this._checkForPairInterval = setInterval(async () => {}, this._checkFOrPairIntervalTime)
+		this._checkForPairInterval = setInterval(async () => { }, this._checkFOrPairIntervalTime)
 	}
 
 	public async stop() {

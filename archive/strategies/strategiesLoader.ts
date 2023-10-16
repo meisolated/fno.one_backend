@@ -1,7 +1,7 @@
-import { Strategies } from "../model"
-import chatter from "../events"
 import fs from "fs"
-import logger from "../logger"
+import chatter from "../../events"
+import logger from "../../logger"
+import { Strategies } from "../../model"
 
 export default async function strategiesLoader() {
 	const strategiesFolders = fs

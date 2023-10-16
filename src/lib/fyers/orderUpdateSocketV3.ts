@@ -145,7 +145,7 @@ export default class FyersOrderSocket {
 		}
 	}
 
-	connect() {
+	async connect() {
 		try {
 			this.connection = new ws(this.url, {
 				headers: {
@@ -221,7 +221,7 @@ export default class FyersOrderSocket {
 	private stopPing() {
 		if (this.pingInterval) clearInterval(this.pingInterval)
 	}
-	private isConnected() {
+	public isConnected() {
 		return this.connection?.readyState === ws.OPEN
 	}
 	private autoReConnect() {
