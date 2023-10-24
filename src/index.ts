@@ -5,7 +5,6 @@ import http from "http"
 import * as path from "path"
 import { Server } from "socket.io"
 
-import { allIndiesOptionChainGenerator } from "./provider/symbols.provider"
 import middleware from "./api/middleware"
 import LoadRoutes from "./api/routesLoader"
 import socketLoader from "./api/socket"
@@ -14,7 +13,8 @@ import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
 import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
-// import strategiesLoader from "./strategies/strategiesLoader"
+import { allIndiesOptionChainGenerator } from "./provider/symbols.provider"
+import { periodicUpdatesWorker } from "./worker"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -47,9 +47,10 @@ initialize()
 			await subscribeToAllUsersSockets()
 			logger.info("Connecting to true data socket...", "index.ts")
 			await connectTrueDataMarketDataSocket()
-			// logger.info("Loading strategies...", "index.ts")
-			// await strategiesLoader()
-			// logger.info("Strategies loaded!")
+			logger.info("Connected to true data socket!", "index.ts")
+			logger.info("Starting periodic updates worker...", "index.ts")
+			periodicUpdatesWorker()
+			logger.info("Periodic updates worker started!", "index.ts")
 			logger.info("Starting server...")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "index.ts")

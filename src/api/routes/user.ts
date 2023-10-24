@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express"
-import * as fyers from "../../lib/fyers"
+import serverData from "../../config/serverData"
 import logger from "../../logger"
 import { Session, User } from "../../model"
 export default async function (app: Express, path: string) {
@@ -16,11 +16,6 @@ export default async function (app: Express, path: string) {
 					} else {
 						User.findOne({ _id: session.userId }).then(async (user) => {
 							if (user) {
-								// const userProfile = await fyers.getProfile(user.userAppsData.fyers.accessToken)
-								// if (userProfile.code !== 200) {
-								// 	res.clearCookie("fno.one")
-								// 	return res.redirect("/error/sessionTimeout")
-								// }
 								const userRawData = {
 									_id: user._id,
 									email: user.email,
@@ -31,8 +26,12 @@ export default async function (app: Express, path: string) {
 									apps: user.apps,
 									loggedIn: user.loggedIn,
 									lastLogin: user.lastLogin,
+									funds: user.funds,
+									positionTypeSettings: user.positionTypeSettings,
+									moneyManager: user.moneyManager,
 								}
-								return res.send({ message: "Logged in", code: 200, data: { ...userRawData } })
+
+								return res.send({ message: "Logged in", code: 200, data: { ...userRawData, serverData } })
 							} else {
 								res.clearCookie("fno.one")
 								return res.redirect("/error/userNotFound")

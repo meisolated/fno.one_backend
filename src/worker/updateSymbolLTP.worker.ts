@@ -2,7 +2,7 @@ import chatter from "../events"
 import logger from "../logger"
 import { SymbolData } from "../model/index"
 
-export default async function updateSymbolData() {
+export default async function updateSymbolLTP() {
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: symbolTicks) => {
 		const prepareData: symbolData = {
 			trueDataSymbolId: symbolData.symbolId,
@@ -21,7 +21,7 @@ export default async function updateSymbolData() {
 		if (result) {
 			return
 		} else {
-			return logger.error(`[updateSymbolLTP.ts] updateSymbolData: ${symbolData.symbol} not found in SymbolData`, "updateSymbolLTP.ts")
+			return logger.error(`[updateSymbolLTP.ts] updateSymbolLTP: ${symbolData.symbol} not found in SymbolData`, "updateSymbolLTP.ts")
 		}
 	})
 }

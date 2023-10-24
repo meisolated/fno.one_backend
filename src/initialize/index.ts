@@ -272,8 +272,6 @@ var tasks = [
 			}),
 	},
 
-
-
 	// {
 	// 	name: "historicalDataUpdate",
 	// 	status: false,

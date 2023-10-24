@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface rateLimitData {
@@ -213,16 +213,44 @@ declare global {
 		displayName: string
 		image: string
 		pan: string
-		status: string
+		status: Boolean
 		roles: string[]
-		settings: {
-			stopLoss: number
-			takeProfit: number
-			activeStrategies: string[]
-			dailyTrades: number
-		}
 		connectedApps: string[]
 		apps: string[]
+		funds: {
+			fyers: {
+				available: number
+				used: number
+				total: number
+			}
+		}
+		moneyManager: {
+			enabled: boolean
+			percentageOfFundsToUse: number
+			fundsToUse: string
+		}
+		positionTypeSettings: {
+			longPosition: {
+				percentageOfFundsToUse: number
+				fundsToUse: string
+
+			}
+			scalpingPosition: {
+				percentageOfFundsToUse: number
+				fundsToUse: string
+
+			}
+			swingPosition: {
+				percentageOfFundsToUse: number
+				fundsToUse: string
+
+			}
+			expiryPosition: {
+				percentageOfFundsToUse: number
+				fundsToUse: string
+
+			}
+		}
 		userAppsData: {
 			fyers: {
 				accessToken: string

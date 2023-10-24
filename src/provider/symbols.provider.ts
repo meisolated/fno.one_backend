@@ -75,7 +75,8 @@ export const allIndiesOptionChainGenerator = async () => {
 					}
 				})
 				const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
-				const symbols = generateOptionChainSymbolsList(index.optionPrefix, 10, roundOffCurrentPrice, upcomingExpiry[0])
+				const gaps = index.optionPrefix === "BANKNIFTY" ? 100 : 50
+				const symbols = generateOptionChainSymbolsList(index.optionPrefix, 10, roundOffCurrentPrice, upcomingExpiry[0], gaps)
 				await Promise.all(
 					symbols.map(async (symbol: any) => {
 						const query = { trueDataSymbol: { $in: [symbol.CE, symbol.PE] } }
@@ -130,7 +131,7 @@ export const baseSymbolsList = async () => {
 				})
 
 				// based on current price take 10 options above and below
-				const _symbols = generateOptionChainSymbolsList("BANKNIFTY", settings.numberOfOptions, roundOffCurrentPrice, BANKNIFTYUpcomingExpiry[0])
+				const _symbols = generateOptionChainSymbolsList("BANKNIFTY", settings.numberOfOptions, roundOffCurrentPrice, BANKNIFTYUpcomingExpiry[0], 100)
 				const symbols = _symbols.map((symbol: any) => symbol.CE).concat(_symbols.map((symbol: any) => symbol.PE))
 				const uniqueSymbols = [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets]
 				logger.info(`Total number of symbols: ${uniqueSymbols.length}`, "symbols.provider[baseSymbolsList]")
@@ -169,7 +170,7 @@ export const optionChainSymbols = async (symbol: string) => {
 					}
 				})
 				//---------------------------------------------
-				const symbols = generateOptionChainSymbolsList(symbol, numberOfOptions, roundOffCurrentPrice, UpcomingExpiry[0])
+				const symbols = generateOptionChainSymbolsList(symbol, numberOfOptions, roundOffCurrentPrice, UpcomingExpiry[0], 100)
 				const query = { trueDataSymbol: { $in: symbols.map((symbol: any) => symbol.CE).concat(symbols.map((symbol: any) => symbol.PE)) } }
 				const LTP = await SymbolData.find(query).then((data: any) => {
 					return data.reduce((map: any, obj: any) => {
@@ -205,13 +206,13 @@ export const optionChainSymbols = async (symbol: string) => {
  * @param upcomingExpiry DD-MM-YYYY
  * @returns Array of {CE: string, PE: string, strike: number, other: {fy: {PE: string, CE: string}}}
  */
-const generateOptionChainSymbolsList = (symbol: string, numberOfOptions: number, roundOffCurrentPrice: number, upcomingExpiry: string) => {
+const generateOptionChainSymbolsList = (symbol: string, numberOfOptions: number, roundOffCurrentPrice: number, upcomingExpiry: string, gaps: number) => {
 	const strikePrices = [roundOffCurrentPrice]
 	const symbols: Array<Object> = []
 	for (let i = 0; i < numberOfOptions; i++) {
 		if (i === 0) continue
-		strikePrices.push(roundOffCurrentPrice - 100 * i)
-		strikePrices.push(roundOffCurrentPrice + 100 * i)
+		strikePrices.push(roundOffCurrentPrice - gaps * i)
+		strikePrices.push(roundOffCurrentPrice + gaps * i)
 	}
 	strikePrices.sort((a, b) => a - b)
 	strikePrices.forEach(async (strikePrice) => {

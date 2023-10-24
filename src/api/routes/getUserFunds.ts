@@ -1,7 +1,7 @@
 import { Express, Request, Response } from "express"
-import { Session, User } from "../../model"
-
+import { getFunds } from "../../lib/fyers"
 import logger from "../../logger"
+import { Session, User } from "../../model"
 
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
@@ -12,7 +12,12 @@ export default async function (app: Express, path: string) {
 			if (userId) {
 				const user = await User.findOne({ _id: userId.userId })
 				if (user) {
-					return res.json({ message: "Success", code: 200, data: "Nothing" })
+					const userFyersFunds = await getFunds(user.userAppsData.fyers.accessToken)
+					user.funds.fyers.total = userFyersFunds.fund_limit.filter((fund: any) => fund.id === 1)[0].equityAmount
+					user.funds.fyers.available = userFyersFunds.fund_limit.filter((fund: any) => fund.id === 10)[0].equityAmount
+					user.funds.fyers.used = userFyersFunds.fund_limit.filter((fund: any) => fund.id === 2)[0].equityAmount
+					await user.save()
+					return res.json({ message: "User funds", code: 200, data: userFyersFunds })
 				} else {
 					return res.json({ message: "User not found", code: 404 })
 				}

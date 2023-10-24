@@ -1,8 +1,6 @@
 import { Express, Request, Response } from "express"
-import { Session, User } from "../../model"
-
-import { placeSingleOrder } from "../../lib/fyers"
 import logger from "../../logger"
+import { Session, User } from "../../model"
 
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
@@ -13,23 +11,19 @@ export default async function (app: Express, path: string) {
 			if (userId) {
 				const user = await User.findOne({ _id: userId.userId })
 				if (user) {
-					if (user.roles.includes("admin")) {
-						const data: any = req.body
-						const placeOrderResponse = await placeSingleOrder(user.userAppsData.fyers.accessToken, {
-							symbol: data.symbol,
-							qty: data.qty,
-							type: data.type,
-							side: data.side,
-							productType: data.productType,
-							limitPrice: data.limitPrice,
-							stopPrice: data.stopPrice,
-							disclosedQty: data.disclosedQty,
-							validity: data.validity,
-							offlineOrder: data.offlineOrder,
-							stopLoss: data.stopLoss,
-							takeProfit: data.takeProfit,
-						})
-						return res.json(placeOrderResponse)
+					const data: any = req.body
+					const symbol = data.symbol
+					const quantity = data.quantity
+					const riskToReward = data.riskToReward
+					const positionType = data.positionType
+					const stopLoss = data.stopLoss
+					const orderSide = data.orderSide
+					if (!symbol || !quantity || !riskToReward || !positionType || !stopLoss || !orderSide) {
+						console.log(data)
+						return res.json({ message: "Invalid request", code: 400 })
+					} else {
+						console.log(data)
+						return res.json({ message: "Order placed", code: 200 })
 					}
 				} else {
 					return res.json({ message: "User not found", code: 404 })

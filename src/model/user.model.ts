@@ -7,18 +7,42 @@ export default new Schema<user>(
 		displayName: { type: String, required: true },
 		image: { type: String, required: false },
 		pan: { type: String, required: false },
-		status: { type: String, required: true },
+		status: { type: Boolean, required: true },
 		roles: [{ type: String, required: true }],
-		settings: {
-			stopLoss: { type: Number, required: false },
-			takeProfit: { type: Number, required: false },
-			activeStrategies: [{ type: String, required: false }],
-			dailyTrades: { type: Number, required: false },
-		},
 		lastLogin: { type: Date, required: true },
 		loggedIn: { type: Boolean, required: true },
 		connectedApps: [{ type: String, required: false }],
 		apps: [{ type: String, required: false }],
+		funds: {
+			fyers: {
+				available: { type: Number, required: false },
+				used: { type: Number, required: false },
+				total: { type: Number, required: false },
+			},
+		},
+		moneyManager: {
+			enabled: { type: Boolean, required: false },
+			percentageOfFundsToUse: { type: Number, required: false },
+			fundsToUse: { type: String, required: false },
+		},
+		positionTypeSettings: {
+			longPosition: {
+				percentageOfFundsToUse: { type: Number, required: false },
+				fundsToUse: { type: String, required: false },
+			},
+			scalpingPosition: {
+				percentageOfFundsToUse: { type: Number, required: false },
+				fundsToUse: { type: String, required: false },
+			},
+			swingPosition: {
+				percentageOfFundsToUse: { type: Number, required: false },
+				fundsToUse: { type: String, required: false },
+			},
+			expiryPosition: {
+				percentageOfFundsToUse: { type: Number, required: false },
+				fundsToUse: { type: String, required: false },
+			},
+		},
 		userAppsData: {
 			fyers: {
 				accessToken: { type: String, required: false },
