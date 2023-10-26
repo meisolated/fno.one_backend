@@ -1,5 +1,5 @@
+import chatter from "../events"
 import { MarketAlters } from "../model"
-import chatter from "./index"
 let marketAlerts: any = []
 let symbolLTP: any = {}
 

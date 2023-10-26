@@ -5,7 +5,6 @@ import http from "http"
 import * as path from "path"
 import { Server } from "socket.io"
 
-import marketAlerts from "./events/marketAlerts"
 import middleware from "./api/middleware"
 import LoadRoutes from "./api/routesLoader"
 import socketLoader from "./api/socket"
@@ -15,7 +14,7 @@ import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
 import { allIndiesOptionChainGenerator } from "./provider/symbols.provider"
-import { periodicUpdatesWorker } from "./worker"
+import { marketAlerts, periodicUpdatesWorker } from "./worker"
 
 const app: Express = express()
 const server = http.createServer(app)

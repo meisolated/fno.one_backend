@@ -2,6 +2,7 @@ import { getFunds } from "../lib/fyers"
 import logger from "../logger"
 import { User } from "../model"
 import { isMarketOpen } from "../provider/marketData.provider"
+import marketAlerts from './marketAlerts.worker'
 import { updateHistoricalData } from "./updateHistoricalData.worker"
 import updateSymbolLTP from "./updateSymbolLTP.worker"
 
@@ -36,4 +37,5 @@ export const periodicUpdatesWorker = () => {
 	}, 1000 * 10) //10 seconds
 }
 
-export { updateHistoricalData, updateSymbolLTP }
+export { marketAlerts, updateHistoricalData, updateSymbolLTP }
+
