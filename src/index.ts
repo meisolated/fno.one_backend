@@ -5,6 +5,7 @@ import http from "http"
 import * as path from "path"
 import { Server } from "socket.io"
 
+import marketAlerts from "./events/marketAlerts"
 import middleware from "./api/middleware"
 import LoadRoutes from "./api/routesLoader"
 import socketLoader from "./api/socket"
@@ -51,6 +52,9 @@ initialize()
 			logger.info("Starting periodic updates worker...", "index.ts")
 			periodicUpdatesWorker()
 			logger.info("Periodic updates worker started!", "index.ts")
+			logger.info("Starting market alerts...", "index.ts")
+			marketAlerts()
+			logger.info("Market alerts started!", "index.ts")
 			logger.info("Starting server...")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "index.ts")

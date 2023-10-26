@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express"
-import logger from "../../../../logger"
-import { Session, User } from "../../../../model"
+import logger from "../../../logger"
+import { Session, User } from "../../../model"
 
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
@@ -26,12 +26,23 @@ export default async function (app: Express, path: string) {
 
 									positionTypeSettings.longPosition.percentageOfFundsToUse = longPositionSettings.percentageOfFundsToUse || 0
 									positionTypeSettings.longPosition.fundsToUse = longPositionSettings.fundsToUse || "0"
+									positionTypeSettings.longPosition.preferredOptionPrice = longPositionSettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.longPosition.riskToRewardRatio = longPositionSettings.riskToRewardRatio || 0
+
 									positionTypeSettings.scalpingPosition.percentageOfFundsToUse = scalpingPositionSettings.percentageOfFundsToUse || 0
 									positionTypeSettings.scalpingPosition.fundsToUse = scalpingPositionSettings.fundsToUse || "0"
+									positionTypeSettings.scalpingPosition.preferredOptionPrice = scalpingPositionSettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.scalpingPosition.riskToRewardRatio = scalpingPositionSettings.riskToRewardRatio || 0
+
 									positionTypeSettings.swingPosition.percentageOfFundsToUse = swingPositionSettings.percentageOfFundsToUse || 0
 									positionTypeSettings.swingPosition.fundsToUse = swingPositionSettings.fundsToUse || "0"
+									positionTypeSettings.swingPosition.preferredOptionPrice = swingPositionSettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.swingPosition.riskToRewardRatio = swingPositionSettings.riskToRewardRatio || 0
+
 									positionTypeSettings.expiryPosition.percentageOfFundsToUse = expiryPositionSettings.percentageOfFundsToUse || 0
 									positionTypeSettings.expiryPosition.fundsToUse = expiryPositionSettings.fundsToUse || "0"
+									positionTypeSettings.expiryPosition.preferredOptionPrice = expiryPositionSettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.expiryPosition.riskToRewardRatio = expiryPositionSettings.riskToRewardRatio || 0
 
 									moneyManager.percentageOfFundsToUse = req.body.moneyManager.percentageOfFundsToUse || 0
 									moneyManager.fundsToUse = req.body.moneyManager.fundsToUse || "0"

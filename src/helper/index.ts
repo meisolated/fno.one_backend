@@ -157,19 +157,35 @@ function timePassed(hours: number, minutes: number) {
 	}
 }
 
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+const getCurrentDateFormatted = () => {
+	const currentDate = new Date()
+	const day = currentDate.getDate()
+	const month = months[currentDate.getMonth()]
+	const year = currentDate.getFullYear()
+
+	// Add leading zeros to day if it's a single digit
+	const dayString = day < 10 ? `0${day}` : day
+
+	const formattedDate = `${dayString}-${month}-${year}`
+	return formattedDate
+}
+
 export {
 	FyersMonthStringToNumber,
 	TrueDataMonthStringToNumber,
 	calculatePivotPointsAndSupportResistance,
 	datePassed,
 	get,
+	getCurrentDateFormatted,
 	getDayOfWeekAsString,
 	getMarketCurrentPrice,
 	isNumberInRange,
 	setEpochTimeTo5_30,
 	setEpochTimeTo5_30AndOneDayBefore,
 	sum,
+	timePassed,
 	timeout,
 	timestampToStringDateNTime,
-	timePassed,
 }

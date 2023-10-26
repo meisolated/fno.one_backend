@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -233,22 +233,26 @@ declare global {
 			longPosition: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
-
+				preferredOptionPrice: number | "ATM"
+				riskToRewardRatio: number
 			}
 			scalpingPosition: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
-
+				preferredOptionPrice: number | "ATM"
+				riskToRewardRatio: number
 			}
 			swingPosition: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
-
+				preferredOptionPrice: number | "ATM"
+				riskToRewardRatio: number
 			}
 			expiryPosition: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
-
+				preferredOptionPrice: number | "ATM"
+				riskToRewardRatio: number
 			}
 		}
 		userAppsData: {
@@ -384,7 +388,14 @@ declare global {
 		ltp: number
 		lastUpdated: Date
 	}
-
+	interface marketAlerts {
+		id: string
+		userId: string
+		symbol: string
+		condition: string
+		value: number
+		alerted: boolean
+	}
 	// --------- model interfaces end ------------
 
 	// --------- socket interfaces start ------------

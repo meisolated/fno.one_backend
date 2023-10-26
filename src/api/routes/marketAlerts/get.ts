@@ -1,8 +1,7 @@
 import { Express, Request, Response } from "express"
-import serverData from "../../config/serverData"
-import logger from "../../logger"
-import { Session, User } from "../../model"
-import { isTodayHoliday } from "../../provider/marketData.provider"
+import logger from "../../../logger"
+import { MarketAlters, Session, User } from "../../../model"
+
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
 	app.get(path, (req: Request, res: Response) => {
@@ -17,22 +16,8 @@ export default async function (app: Express, path: string) {
 					} else {
 						User.findOne({ _id: session.userId }).then(async (user) => {
 							if (user) {
-								const userRawData = {
-									_id: user._id,
-									email: user.email,
-									roles: user.roles,
-									status: user.status,
-									image: user.image,
-									displayName: user.displayName,
-									apps: user.apps,
-									loggedIn: user.loggedIn,
-									lastLogin: user.lastLogin,
-									funds: user.funds,
-									positionTypeSettings: user.positionTypeSettings,
-									moneyManager: user.moneyManager,
-								}
-								const todayHoliday = await isTodayHoliday()
-								return res.send({ message: "Logged in", code: 200, data: { ...userRawData, serverData, todayHoliday } })
+								const marketAlerts = await MarketAlters.find({ userId: user._id })
+								return res.json({ message: "Success", code: 200, marketAlerts })
 							} else {
 								res.clearCookie("fno.one")
 								return res.redirect("/error/userNotFound")

@@ -21,5 +21,13 @@ export default function userSocketNamespace(socket: Namespace) {
 			_socket.join(userId)
 			_socket.to(userId).emit("orderUpdate", JSON.stringify({ message: "Order update socket connected" }))
 		})
+		_socket.on("subscribeMarketAlerts", async (data) => {
+			logger.info("subscribeMarketAlerts " + id, "UserSocket")
+			chatter.on("marketAlerts-", userId, (data) => {
+				_socket.to(userId).emit("marketAlerts", JSON.stringify(data))
+			})
+			_socket.join(userId)
+			_socket.to(userId).emit("marketAlerts", JSON.stringify({ message: "Market alerts socket connected" }))
+		})
 	})
 }

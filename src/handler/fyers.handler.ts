@@ -6,7 +6,7 @@ import logger from "../logger"
 import { User } from "../model"
 
 export const subscribeToAllUsersSockets = async () => {
-	let retryCount = 0
+	// let retryCount = 0
 	const subscribeToFyersUserSocket = async () => {
 		const user = await User.findOne({ email: "fisolatedx@gmail.com" })
 		if (user) {
@@ -29,12 +29,12 @@ export const subscribeToAllUsersSockets = async () => {
 		}
 	}
 	const subscribeInterval: any = setInterval(async () => {
-		retryCount++
-		if (retryCount > 10) return clearInterval(subscribeInterval)
+		// retryCount++
+		// if (retryCount > 10) return clearInterval(subscribeInterval)
 		const connected = await subscribeToFyersUserSocket()
 		if (connected) {
 			clearInterval(subscribeInterval)
 			logger.info("Subscribed to Fyers User Socket", "fyers.handler")
 		}
-	}, 5000)
+	}, 8000)
 }

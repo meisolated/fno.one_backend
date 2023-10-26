@@ -1,5 +1,6 @@
 import HistoricalDataModel from "./historicalData.model"
 import loggerModel from "./logger.model"
+import marketAlertsModel from "./marketAlerts.model"
 import marketDataModel from "./marketData.model"
 import Mongoose from "./mongoose"
 import openInterestsModel from "./openInterests.model"
@@ -21,4 +22,5 @@ export const Logger = connection.model("Logger", loggerModel)
 export const MarketData = connection.model("MarketData", marketDataModel)
 export const Strategies = connection.model("Strategies", strategiesModel)
 export const SymbolData = connection.model("SymbolData", symbolDataModel)
+export const MarketAlters = connection.model("MarketAlters", marketAlertsModel)
 // connection.collection("").createIndex({ title: "" })
