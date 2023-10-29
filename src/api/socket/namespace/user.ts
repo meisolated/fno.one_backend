@@ -9,6 +9,7 @@ export default function userSocketNamespace(socket: Namespace) {
 		const userId = _socket.data.userId
 		_socket.on("disconnect", () => {
 			chatter.removeAllListeners("fyersOrderUpdateSocket-", userId)
+			chatter.removeAllListeners("marketAlerts-", userId)
 		})
 		_socket.on("ping", () => {
 			_socket.emit("pong", "pong")

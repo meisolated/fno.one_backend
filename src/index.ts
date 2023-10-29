@@ -14,7 +14,7 @@ import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
 import { allIndiesOptionChainGenerator } from "./provider/symbols.provider"
-import { marketAlerts, periodicUpdatesWorker } from "./worker"
+import { marketAlerts } from "./worker"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -34,35 +34,34 @@ app.get("/", (_req: Request, res: Response) => {
 // -----------| Initializing |-----------
 initialize()
 	.then(async (_done) => {
-		logger.info("Loading routes...", "index.ts")
+		logger.info("Loading routes...", "Index")
 		LoadRoutes(app, routesDirPath, "", false).then(async () => {
-			logger.info("Routes loaded!", "index.ts")
+			logger.info("Routes loaded!", "Index")
 			const config = getConfigData()
 			const APIport: number = config.serverConf.APIPort
 			const socketPort: number = config.serverConf.socketPort
 			const io = new Server(socketPort)
-			logger.info("Loading socket.io events...", "index.ts")
+			logger.info("Loading socket.io events...", "Index")
 			socketLoader(io)
-			logger.info("Socket.io events loaded!", "index.ts")
+			logger.info("Socket.io events loaded!", "Index")
 			await subscribeToAllUsersSockets()
-			logger.info("Connecting to true data socket...", "index.ts")
+			logger.info("Connecting to true data socket...", "Index")
 			await connectTrueDataMarketDataSocket()
-			logger.info("Connected to true data socket!", "index.ts")
-			logger.info("Starting periodic updates worker...", "index.ts")
-			periodicUpdatesWorker()
-			logger.info("Periodic updates worker started!", "index.ts")
-			logger.info("Starting market alerts...", "index.ts")
+			logger.info("Connected to true data socket!", "Index")
+			logger.info("Starting periodic updates worker...", "Index")
+			logger.info("Periodic updates worker started!", "Index")
+			logger.info("Starting market alerts...", "Index")
 			marketAlerts()
-			logger.info("Market alerts started!", "index.ts")
-			logger.info("Starting server...")
+			logger.info("Market alerts started!", "Index")
+			logger.info("Starting server...", "Index")
 			server.listen(APIport, () => {
-				logger.info(`Server started on port ${APIport}`, "index.ts")
+				logger.info(`Server started on port ${APIport}`, "Index")
 			})
 			allIndiesOptionChainGenerator()
 		})
 	})
 	.catch((_err) => {
-		logger.error("Error while initializing", "index.ts")
-		logger.error("Exiting...", "index.ts")
+		logger.error("Error while initializing", "Index")
+		logger.error("Exiting...", "Index")
 		process.exit(1)
 	})

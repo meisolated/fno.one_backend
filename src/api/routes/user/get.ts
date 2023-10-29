@@ -1,8 +1,8 @@
 import { Express, Request, Response } from "express"
-import serverData from "../../config/serverData"
-import logger from "../../logger"
-import { Session, User } from "../../model"
-import { isTodayHoliday } from "../../provider/marketData.provider"
+import serverData from "../../../config/serverData"
+import logger from "../../../logger"
+import { Session, User } from "../../../model"
+import { isTodayHoliday } from "../../../provider/marketData.provider"
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
 	app.get(path, (req: Request, res: Response) => {

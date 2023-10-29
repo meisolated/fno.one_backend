@@ -6,13 +6,16 @@ export const indiesConfig = {
 	BANKNIFTY: {
 		lotSize: 15,
 		name: "NIFTY BANK",
+		strikePriceGap: 100,
 	},
 	NIFTY: {
 		lotSize: 50,
 		name: "NIFTY 50",
+		strikePriceGap: 50,
 	},
 	FINNIFTY: {
 		lotSize: 40,
 		name: "NIFTY FIN SERVICE",
+		strikePriceGap: 50,
 	},
 }

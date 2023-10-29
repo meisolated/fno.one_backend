@@ -26,25 +26,25 @@ export default new Schema<user>(
 			fundsToUse: { type: String, required: false },
 		},
 		positionTypeSettings: {
-			longPosition: {
+			long: {
 				percentageOfFundsToUse: { type: Number, required: false },
 				fundsToUse: { type: String, required: false },
 				preferredOptionPrice: { type: String, required: false },
 				riskToRewardRatio: { type: String, required: false },
 			},
-			scalpingPosition: {
+			scalping: {
 				percentageOfFundsToUse: { type: Number, required: false },
 				fundsToUse: { type: String, required: false },
 				preferredOptionPrice: { type: String, required: false },
 				riskToRewardRatio: { type: String, required: false },
 			},
-			swingPosition: {
+			swing: {
 				percentageOfFundsToUse: { type: Number, required: false },
 				fundsToUse: { type: String, required: false },
 				preferredOptionPrice: { type: String, required: false },
 				riskToRewardRatio: { type: String, required: false },
 			},
-			expiryPosition: {
+			expiry: {
 				percentageOfFundsToUse: { type: Number, required: false },
 				fundsToUse: { type: String, required: false },
 				preferredOptionPrice: { type: String, required: false },

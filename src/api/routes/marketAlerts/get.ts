@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express"
 import logger from "../../../logger"
-import { MarketAlters, Session, User } from "../../../model"
+import { MarketAlerts, Session, User } from "../../../model"
 
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
@@ -16,7 +16,7 @@ export default async function (app: Express, path: string) {
 					} else {
 						User.findOne({ _id: session.userId }).then(async (user) => {
 							if (user) {
-								const marketAlerts = await MarketAlters.find({ userId: user._id })
+								const marketAlerts = await MarketAlerts.find({ userId: user._id })
 								return res.json({ message: "Success", code: 200, marketAlerts })
 							} else {
 								res.clearCookie("fno.one")

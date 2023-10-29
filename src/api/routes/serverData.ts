@@ -14,7 +14,7 @@ export default async function (app: Express, path: string) {
 					const data = {
 						positionTypes: [
 							{
-								id: "longPosition",
+								id: "long",
 								name: "Long",
 								description: "Place a limit order to buy the option at the limit price or lower and very lenient stop loss",
 								maxRiskToRewardRatio: 5,
@@ -27,7 +27,7 @@ export default async function (app: Express, path: string) {
 								},
 							},
 							{
-								id: "scalpingPosition",
+								id: "scalping",
 								name: "Scalping",
 								description: "Place a limit order to buy the option at the limit price or lower and very strict stop loss",
 								maxRiskToRewardRatio: 1.5,
@@ -40,7 +40,7 @@ export default async function (app: Express, path: string) {
 								},
 							},
 							{
-								id: "swingPosition",
+								id: "swing",
 								name: "Swing",
 								description: "Place a limit order to buy the option at the limit price or lower and strict stop loss",
 								maxRiskToRewardRatio: 2,
@@ -53,7 +53,7 @@ export default async function (app: Express, path: string) {
 								},
 							},
 							{
-								id: "expiryPosition",
+								id: "expiry",
 								name: "Expiry",
 								description: "Place 2 orders on each side of the option chain like a straddle and wait for the market to move in one direction",
 								maxRiskToRewardRatio: 10,
@@ -80,5 +80,5 @@ export default async function (app: Express, path: string) {
 			return res.json({ message: "Invalid cookie", code: 401 })
 		}
 	})
-	app.get(path, (req: Request, res: Response) => {})
+	app.get(path, (req: Request, res: Response) => { })
 }

@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express"
 import logger from "../../../logger"
-import { MarketAlters, Session, User } from "../../../model"
+import { MarketAlerts, Session, User } from "../../../model"
 
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
@@ -22,7 +22,7 @@ export default async function (app: Express, path: string) {
 								const condition = data.condition
 								const value = data.value
 								const alerted = data.alerted
-								const createAlert = await MarketAlters.create({ symbol, userId, condition, value, alerted })
+								const createAlert = await MarketAlerts.create({ symbol, userId, condition, value, alerted })
 								return res.json({ message: "Success", code: 200, createAlert })
 							} else {
 								res.clearCookie("fno.one")

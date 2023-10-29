@@ -1,7 +1,7 @@
 export default {
 	positionTypes: {
-		longPosition: {
-			id: "longPosition",
+		long: {
+			id: "long",
 			name: "Long",
 			description: "Place a limit order to buy the option at the limit price or lower and very lenient stop loss",
 			maxRiskToRewardRatio: 5,
@@ -13,8 +13,8 @@ export default {
 				percentageType: "soft",
 			},
 		},
-		scalpingPosition: {
-			id: "scalpingPosition",
+		scalping: {
+			id: "scalping",
 			name: "Scalping",
 			description: "Place a limit order to buy the option at the limit price or lower and very strict stop loss",
 			maxRiskToRewardRatio: 1.5,
@@ -26,8 +26,8 @@ export default {
 				percentageType: "hard",
 			},
 		},
-		swingPosition: {
-			id: "swingPosition",
+		swing: {
+			id: "swing",
 			name: "Swing",
 			description: "Place a limit order to buy the option at the limit price or lower and strict stop loss",
 			maxRiskToRewardRatio: 2,
@@ -39,8 +39,8 @@ export default {
 				percentageType: "soft",
 			},
 		},
-		expiryPosition: {
-			id: "expiryPosition",
+		expiry: {
+			id: "expiry",
 			name: "Expiry",
 			description: "Place 2 orders on each side of the option chain like a straddle and wait for the market to move in one direction",
 			maxRiskToRewardRatio: 10,

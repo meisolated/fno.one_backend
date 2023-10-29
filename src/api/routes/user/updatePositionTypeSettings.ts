@@ -19,30 +19,30 @@ export default async function (app: Express, path: string) {
 								try {
 									const positionTypeSettings = user.positionTypeSettings
 									const moneyManager = user.moneyManager
-									const longPositionSettings = req.body.positionTypeSettings.longPosition
-									const scalpingPositionSettings = req.body.positionTypeSettings.scalpingPosition
-									const swingPositionSettings = req.body.positionTypeSettings.swingPosition
-									const expiryPositionSettings = req.body.positionTypeSettings.expiryPosition
+									const longSettings = req.body.positionTypeSettings.long
+									const scalpingSettings = req.body.positionTypeSettings.scalping
+									const swingSettings = req.body.positionTypeSettings.swing
+									const expirySettings = req.body.positionTypeSettings.expiry
 
-									positionTypeSettings.longPosition.percentageOfFundsToUse = longPositionSettings.percentageOfFundsToUse || 0
-									positionTypeSettings.longPosition.fundsToUse = longPositionSettings.fundsToUse || "0"
-									positionTypeSettings.longPosition.preferredOptionPrice = longPositionSettings.preferredOptionPrice || "ATM"
-									positionTypeSettings.longPosition.riskToRewardRatio = longPositionSettings.riskToRewardRatio || 0
+									positionTypeSettings.long.percentageOfFundsToUse = longSettings.percentageOfFundsToUse || 0
+									positionTypeSettings.long.fundsToUse = longSettings.fundsToUse || "0"
+									positionTypeSettings.long.preferredOptionPrice = longSettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.long.riskToRewardRatio = longSettings.riskToRewardRatio || 0
 
-									positionTypeSettings.scalpingPosition.percentageOfFundsToUse = scalpingPositionSettings.percentageOfFundsToUse || 0
-									positionTypeSettings.scalpingPosition.fundsToUse = scalpingPositionSettings.fundsToUse || "0"
-									positionTypeSettings.scalpingPosition.preferredOptionPrice = scalpingPositionSettings.preferredOptionPrice || "ATM"
-									positionTypeSettings.scalpingPosition.riskToRewardRatio = scalpingPositionSettings.riskToRewardRatio || 0
+									positionTypeSettings.scalping.percentageOfFundsToUse = scalpingSettings.percentageOfFundsToUse || 0
+									positionTypeSettings.scalping.fundsToUse = scalpingSettings.fundsToUse || "0"
+									positionTypeSettings.scalping.preferredOptionPrice = scalpingSettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.scalping.riskToRewardRatio = scalpingSettings.riskToRewardRatio || 0
 
-									positionTypeSettings.swingPosition.percentageOfFundsToUse = swingPositionSettings.percentageOfFundsToUse || 0
-									positionTypeSettings.swingPosition.fundsToUse = swingPositionSettings.fundsToUse || "0"
-									positionTypeSettings.swingPosition.preferredOptionPrice = swingPositionSettings.preferredOptionPrice || "ATM"
-									positionTypeSettings.swingPosition.riskToRewardRatio = swingPositionSettings.riskToRewardRatio || 0
+									positionTypeSettings.swing.percentageOfFundsToUse = swingSettings.percentageOfFundsToUse || 0
+									positionTypeSettings.swing.fundsToUse = swingSettings.fundsToUse || "0"
+									positionTypeSettings.swing.preferredOptionPrice = swingSettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.swing.riskToRewardRatio = swingSettings.riskToRewardRatio || 0
 
-									positionTypeSettings.expiryPosition.percentageOfFundsToUse = expiryPositionSettings.percentageOfFundsToUse || 0
-									positionTypeSettings.expiryPosition.fundsToUse = expiryPositionSettings.fundsToUse || "0"
-									positionTypeSettings.expiryPosition.preferredOptionPrice = expiryPositionSettings.preferredOptionPrice || "ATM"
-									positionTypeSettings.expiryPosition.riskToRewardRatio = expiryPositionSettings.riskToRewardRatio || 0
+									positionTypeSettings.expiry.percentageOfFundsToUse = expirySettings.percentageOfFundsToUse || 0
+									positionTypeSettings.expiry.fundsToUse = expirySettings.fundsToUse || "0"
+									positionTypeSettings.expiry.preferredOptionPrice = expirySettings.preferredOptionPrice || "ATM"
+									positionTypeSettings.expiry.riskToRewardRatio = expirySettings.riskToRewardRatio || 0
 
 									moneyManager.percentageOfFundsToUse = req.body.moneyManager.percentageOfFundsToUse || 0
 									moneyManager.fundsToUse = req.body.moneyManager.fundsToUse || "0"

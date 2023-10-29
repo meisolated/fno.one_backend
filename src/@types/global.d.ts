@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface rateLimitData {
@@ -230,25 +230,25 @@ declare global {
 			fundsToUse: string
 		}
 		positionTypeSettings: {
-			longPosition: {
+			long: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
 			}
-			scalpingPosition: {
+			scalping: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
 			}
-			swingPosition: {
+			swing: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
 			}
-			expiryPosition: {
+			expiry: {
 				percentageOfFundsToUse: number
 				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
