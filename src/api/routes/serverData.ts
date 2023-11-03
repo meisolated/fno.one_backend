@@ -80,5 +80,5 @@ export default async function (app: Express, path: string) {
 			return res.json({ message: "Invalid cookie", code: 401 })
 		}
 	})
-	app.get(path, (req: Request, res: Response) => { })
+	app.get(path, (req: Request, res: Response) => {})
 }

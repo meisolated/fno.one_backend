@@ -1,11 +1,8 @@
-//@ts-ignore
 import nodemailer from "nodemailer"
 import { getConfigData } from "../../config/initialize"
-const config = getConfigData()
 
-const template = ``
-
-function main() {
+export async function sendMail(to: string, subject: string, text?: string, html?: string) {
+	const config = getConfigData()
 	const mailer = nodemailer.createTransport({
 		host: config.serverConf.SMTP.host,
 		port: config.serverConf.SMTP.port,
@@ -17,15 +14,18 @@ function main() {
 	})
 
 	var message = {
-		from: config.serverConf.SMTP.auth.user,
-		to: "isolatedbot@gmail.com",
-		subject: "Message title",
-		envelope: {
-			from: `Vivek Mudgal <${config.serverConf.SMTP.auth.user}>`, // used as MAIL FROM: address for SMTP
-			to: "isolatedbot@gmail.com", // used as RCPT TO: address for SMTP
+		from: {
+			name: "Vedus",
+			address: config.serverConf.SMTP.auth.user,
 		},
-		text: "Plaintext version of the message",
-		html: template,
+		to: to,
+		subject: subject,
+		envelope: {
+			from: `FnO<${config.serverConf.SMTP.auth.user}>`, // used as MAIL FROM: address for SMTP
+			to: to, // used as RCPT TO: address for SMTP
+		},
+		text: text,
+		html: html || text,
 	}
 	mailer.sendMail(message, function (err: any, info: any) {
 		if (err) {
@@ -34,8 +34,4 @@ function main() {
 			console.log(info)
 		}
 	})
-}
-
-export const sendTestMail = () => {
-	main()
 }

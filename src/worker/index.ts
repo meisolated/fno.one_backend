@@ -2,7 +2,7 @@ import { getFunds } from "../lib/fyers"
 import logger from "../logger"
 import { User } from "../model"
 import { isMarketOpen } from "../provider/marketData.provider"
-import marketAlerts from './marketAlerts.worker'
+import marketAlerts from "./marketAlerts.worker"
 import { updateHistoricalData } from "./updateHistoricalData.worker"
 import updateSymbolLTP from "./updateSymbolLTP.worker"
 
