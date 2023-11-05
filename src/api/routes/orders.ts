@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express"
-import { getOrders } from "../../lib/fyers"
+import { getOrders } from "../../lib/broker/fyers"
 import logger from "../../logger"
 import { Session, User } from "../../model"
 export default async function (app: Express, path: string) {

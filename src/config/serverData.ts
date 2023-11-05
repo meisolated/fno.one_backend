@@ -1,3 +1,5 @@
+import { getCurrentDay } from "../helper"
+
 export default {
 	positionTypes: {
 		long: {
@@ -53,5 +55,8 @@ export default {
 			},
 		},
 	},
+	positionTypesList: ["long", "scalping", "swing", "expiry"],
 	optionSelectionTypes: ["ATM", "NAP", "ITM", "OTM"],
+	weekDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
+	todaysDay: getCurrentDay()
 }

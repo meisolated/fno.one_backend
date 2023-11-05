@@ -172,14 +172,20 @@ const getCurrentDateFormatted = () => {
 	return formattedDate
 }
 
+const getCurrentDay = () => {
+	const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+	const currentDate = new Date()
+	const dayIndex = currentDate.getDay()
+	return daysOfWeek[dayIndex].toLowerCase()
+}
+
 export {
 	FyersMonthStringToNumber,
 	TrueDataMonthStringToNumber,
 	calculatePivotPointsAndSupportResistance,
 	datePassed,
 	get,
-	getCurrentDateFormatted,
-	getDayOfWeekAsString,
+	getCurrentDateFormatted, getCurrentDay, getDayOfWeekAsString,
 	getMarketCurrentPrice,
 	isNumberInRange,
 	setEpochTimeTo5_30,
@@ -187,5 +193,6 @@ export {
 	sum,
 	timePassed,
 	timeout,
-	timestampToStringDateNTime,
+	timestampToStringDateNTime
 }
+

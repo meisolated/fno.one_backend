@@ -25,27 +25,33 @@ export default async function (app: Express, path: string) {
 									const expirySettings = req.body.positionTypeSettings.expiry
 
 									positionTypeSettings.long.percentageOfFundsToUse = longSettings.percentageOfFundsToUse || 0
-									positionTypeSettings.long.fundsToUse = longSettings.fundsToUse || "0"
 									positionTypeSettings.long.preferredOptionPrice = longSettings.preferredOptionPrice || "ATM"
 									positionTypeSettings.long.riskToRewardRatio = longSettings.riskToRewardRatio || 0
+									positionTypeSettings.long.stopLoss = longSettings.stopLoss || 0
 
 									positionTypeSettings.scalping.percentageOfFundsToUse = scalpingSettings.percentageOfFundsToUse || 0
-									positionTypeSettings.scalping.fundsToUse = scalpingSettings.fundsToUse || "0"
 									positionTypeSettings.scalping.preferredOptionPrice = scalpingSettings.preferredOptionPrice || "ATM"
 									positionTypeSettings.scalping.riskToRewardRatio = scalpingSettings.riskToRewardRatio || 0
+									positionTypeSettings.scalping.stopLoss = scalpingSettings.stopLoss || 0
 
 									positionTypeSettings.swing.percentageOfFundsToUse = swingSettings.percentageOfFundsToUse || 0
-									positionTypeSettings.swing.fundsToUse = swingSettings.fundsToUse || "0"
 									positionTypeSettings.swing.preferredOptionPrice = swingSettings.preferredOptionPrice || "ATM"
 									positionTypeSettings.swing.riskToRewardRatio = swingSettings.riskToRewardRatio || 0
+									positionTypeSettings.swing.stopLoss = swingSettings.stopLoss || 0
 
 									positionTypeSettings.expiry.percentageOfFundsToUse = expirySettings.percentageOfFundsToUse || 0
-									positionTypeSettings.expiry.fundsToUse = expirySettings.fundsToUse || "0"
 									positionTypeSettings.expiry.preferredOptionPrice = expirySettings.preferredOptionPrice || "ATM"
 									positionTypeSettings.expiry.riskToRewardRatio = expirySettings.riskToRewardRatio || 0
+									positionTypeSettings.expiry.stopLoss = expirySettings.stopLoss || 0
 
 									moneyManager.percentageOfFundsToUse = req.body.moneyManager.percentageOfFundsToUse || 0
 									moneyManager.fundsToUse = req.body.moneyManager.fundsToUse || "0"
+									moneyManager.weekDays.monday = req.body.moneyManager.weekDays.monday || 0
+									moneyManager.weekDays.tuesday = req.body.moneyManager.weekDays.tuesday || 0
+									moneyManager.weekDays.wednesday = req.body.moneyManager.weekDays.wednesday || 0
+									moneyManager.weekDays.thursday = req.body.moneyManager.weekDays.thursday || 0
+									moneyManager.weekDays.friday = req.body.moneyManager.weekDays.friday || 0
+
 									user.positionTypeSettings = positionTypeSettings
 									user.moneyManager = moneyManager
 

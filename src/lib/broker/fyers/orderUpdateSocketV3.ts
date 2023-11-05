@@ -4,9 +4,9 @@ import {
 	fyersSocketPositionsUpdateDataProcessing,
 	fyersSocketTradeUpdateDataProcessing,
 	fyersSocketUnknownDataProcessing,
-} from "../../dataProcessingUnit/fyersAPI.dpu"
-import { fyersPingHandler } from "../../handler/ping.handler"
-import logger from "../../logger"
+} from "../../../dataProcessingUnit/fyersAPI.dpu"
+import { fyersPingHandler } from "../../../handler/ping.handler"
+import logger from "../../../logger"
 
 const orderSocketUrl = "wss://socket.fyers.in/trade/v3"
 

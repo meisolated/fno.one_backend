@@ -1,4 +1,4 @@
-import { getFunds } from "../lib/fyers"
+import { getFunds } from "../lib/broker/fyers"
 import logger from "../logger"
 import { User } from "../model"
 import { isMarketOpen } from "../provider/marketData.provider"

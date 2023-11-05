@@ -10,7 +10,7 @@
  */
 
 import { timeout, updateTaskLastUpdate } from "../helper"
-import { getHistoricalData } from "../lib/fyers"
+import { getHistoricalData } from "../lib/broker/fyers"
 import HistoricalTrueData from "../lib/trueData/historical"
 import logger from "../logger"
 import { HistoricalData, Settings, User } from "../model"

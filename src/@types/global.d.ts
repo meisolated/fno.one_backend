@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface rateLimitData {
@@ -217,6 +217,9 @@ declare global {
 		roles: string[]
 		connectedApps: string[]
 		apps: string[]
+		riskManager: {
+			numberOfTradesAllowedPerDay: number
+		}
 		funds: {
 			fyers: {
 				available: number
@@ -225,34 +228,56 @@ declare global {
 			}
 		}
 		moneyManager: {
-			enabled: boolean
 			percentageOfFundsToUse: number
-			fundsToUse: string
+			fundsToUse: number
+			maxLossPerDay: number // in percentage and this percentage is going to get calculated from money manager funds to use -> weekday funds to use (PERCENTAGE OF THIS AMOUNT)
+			weekDays: {
+				monday: {
+					percentageOfFundsToUse: number
+					fundsToUse: number
+				}
+				tuesday: {
+					percentageOfFundsToUse: number
+					fundsToUse: number
+				}
+				wednesday: {
+					percentageOfFundsToUse: number
+					fundsToUse: number
+				}
+				thursday: {
+					percentageOfFundsToUse: number
+					fundsToUse: number
+				}
+				friday: {
+					percentageOfFundsToUse: number
+					fundsToUse: number
+				}
+			}
 		}
 		positionTypeSettings: {
 			long: {
 				percentageOfFundsToUse: number
-				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
+				stopLoss: number
 			}
 			scalping: {
 				percentageOfFundsToUse: number
-				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
+				stopLoss: number
 			}
 			swing: {
 				percentageOfFundsToUse: number
-				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
+				stopLoss: number
 			}
 			expiry: {
 				percentageOfFundsToUse: number
-				fundsToUse: string
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
+				stopLoss: number
 			}
 		}
 		userAppsData: {

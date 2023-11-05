@@ -6,16 +6,17 @@ let numberOfLosses = 0
 let numberOfProfits = 0
 function simulateTradeDay(tradingDay, capital) {
 	if (capital <= 0) console.log("-----------------| Capital exhausted |-----------------")
-	const riskRewardRatio = tradingDay === "Monday" || tradingDay === "Tuesday" || tradingDay === "Wednesday" ? 3 : 4
+	const riskRewardRatio = tradingDay === "Monday" || tradingDay === "Tuesday" || tradingDay === "Wednesday" ? 2 : 3
 	const maxRisk = 30 // Maximum risk per trade
 	const quantity = tradingDay === "Monday" || tradingDay === "Tuesday" || tradingDay === "Wednesday" ? 105 : 45
+	const permanentLoss = tradingDay === "Friday" && true
 	function takeTrade() {
 		let pOrL = 0
 		const strategyProbability = getRandomCoinFlip()
 		const marketFavorProbability = getRandomCoinFlip()
 		const luckProbability = getRandomCoinFlip()
 
-		if (strategyProbability === marketFavorProbability && marketFavorProbability === luckProbability) {
+		if (strategyProbability === marketFavorProbability && !permanentLoss) {
 			// Profit scenario
 			const profit = riskRewardRatio * maxRisk * quantity
 			capital += profit
@@ -47,7 +48,7 @@ function simulateTradeDay(tradingDay, capital) {
 }
 
 function simulateTradingMonth() {
-	let useableCapital = 70000 // Initial capital
+	let useableCapital = 50000 // Initial capital
 	const tradingDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
 	//12 months

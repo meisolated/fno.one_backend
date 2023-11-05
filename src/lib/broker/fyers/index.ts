@@ -1,6 +1,6 @@
 import axios from "axios"
-import { getConfigData } from "../../config/initialize"
-import logger from "../../logger"
+import { getConfigData } from "../../../config/initialize"
+import logger from "../../../logger"
 import * as helper from "./helper"
 import * as url from "./urlTemplate"
 

@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express"
 import { getConfigData } from "../../config/initialize"
-import * as url from "../../lib/fyers/urlTemplate"
+import * as url from "../../lib/broker/fyers/urlTemplate"
 import logger from "../../logger"
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
