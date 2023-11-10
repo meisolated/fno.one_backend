@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -56,12 +56,12 @@ declare global {
 	interface historicalData {
 		symbol: string
 		resolution: string
-		t: string // timestamp
-		o: string // candle open
-		h: string // candle high
-		l: string // candle low
-		c: string // candle close
-		v: string // candle volume
+		t: number // timestamp
+		o: number // candle open
+		h: number // candle high
+		l: number // candle low
+		c: number // candle close
+		v: number // candle volume
 	}
 	interface openInterest {
 		symbol: string

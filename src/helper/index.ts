@@ -185,7 +185,9 @@ export {
 	calculatePivotPointsAndSupportResistance,
 	datePassed,
 	get,
-	getCurrentDateFormatted, getCurrentDay, getDayOfWeekAsString,
+	getCurrentDateFormatted,
+	getCurrentDay,
+	getDayOfWeekAsString,
 	getMarketCurrentPrice,
 	isNumberInRange,
 	setEpochTimeTo5_30,
@@ -193,6 +195,5 @@ export {
 	sum,
 	timePassed,
 	timeout,
-	timestampToStringDateNTime
+	timestampToStringDateNTime,
 }
-

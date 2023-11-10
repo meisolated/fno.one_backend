@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express"
-import { updateUserBrokerFunds } from "../../../handler/fyers.handler"
+import { updateFyersUserBrokerFunds } from "../../../handler/fyers.handler"
 import logger from "../../../logger"
 import { Session, User } from "../../../model"
 
@@ -12,7 +12,7 @@ export default async function (app: Express, path: string) {
 			if (userId) {
 				const user = await User.findOne({ _id: userId.userId })
 				if (user) {
-					const userFyersFunds = await updateUserBrokerFunds(user)
+					const userFyersFunds = await updateFyersUserBrokerFunds(user)
 					return res.json({ message: "User funds", code: 200, data: userFyersFunds })
 				} else {
 					return res.json({ message: "User not found", code: 404 })

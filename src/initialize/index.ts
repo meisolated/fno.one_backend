@@ -52,7 +52,7 @@ var tasks = [
 			}),
 	},
 	{
-		name: "CheckIfLastUpdatedInLast1Days",
+		name: "CheckIfLastUpdatedInLast5Days",
 		importance: 1,
 		status: false,
 		tries: 0,
@@ -67,7 +67,7 @@ var tasks = [
 					const diff = now - lastUpdated
 					const diffInDays = diff / (1000 * 3600 * 24)
 					if (diffInDays < 5) {
-						logger.info("Market Data is updated in last 1 days, no need to update again", "initialize/index.ts[CheckIfLastUpdatedInLast1Days]")
+						logger.info("Market Data is updated in last 5 days, no need to update again", "initialize/index.ts[CheckIfLastUpdatedInLast5Days]")
 						tasks.forEach((task) => {
 							if (
 								task.name === "NSEBankNiftyData" ||
@@ -77,12 +77,12 @@ var tasks = [
 								task.name === "SaveMarketDataToDB"
 							) {
 								task.status = true
-								logger.info(`Task ${task.name} is skipped`, "initialize/index.ts[CheckIfLastUpdatedInLast1Days]")
+								logger.info(`Task ${task.name} is skipped`, "initialize/index.ts[CheckIfLastUpdatedInLast5Days]")
 							}
 						})
 						return resolve(true)
 					} else {
-						logger.info("Market Data is not updated in last 1 days", "initialize/index.ts[CheckIfLastUpdatedInLast1Days]")
+						logger.info("Market Data is not updated in last 1 days", "initialize/index.ts[CheckIfLastUpdatedInLast5Days]")
 						return resolve(true)
 					}
 				}
@@ -272,17 +272,17 @@ var tasks = [
 			}),
 	},
 
-	// {
-	// 	name: "historicalDataUpdate",
-	// 	status: false,
-	// 	tries: 0,
-	// 	importance: 1,
-	// 	execute: async () =>
-	// 		new Promise(async (resolve, reject) => {
-	// 			await updateHistoricalData()
-	// 			return resolve(true)
-	// 		}),
-	// },
+	{
+		name: "historicalDataUpdate",
+		status: false,
+		tries: 0,
+		importance: 1,
+		execute: async () =>
+			new Promise(async (resolve, reject) => {
+				await updateHistoricalData()
+				return resolve(true)
+			}),
+	},
 	// {
 	// 	name: "startOptionRelativeMovementCalculator",
 	// 	status: false,

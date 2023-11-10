@@ -4,12 +4,12 @@ export default new Schema<historicalData>(
 	{
 		symbol: { type: String, require: true },
 		resolution: { type: String, require: true },
-		t: { type: String, required: true },
-		o: { type: String, required: true },
-		h: { type: String, required: true },
-		l: { type: String, required: true },
-		c: { type: String, required: true },
-		v: { type: String, required: true },
+		t: { type: Number, required: true },
+		o: { type: Number, required: true },
+		h: { type: Number, required: true },
+		l: { type: Number, required: true },
+		c: { type: Number, required: true },
+		v: { type: Number, required: true },
 	},
 	{ timestamps: true },
 )

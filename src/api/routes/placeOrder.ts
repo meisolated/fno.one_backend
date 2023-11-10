@@ -1,4 +1,5 @@
 import { Express, Request, Response } from "express"
+import { tradesChatterInstance } from "../../events"
 import logger from "../../logger"
 import { Session, User } from "../../model"
 
@@ -22,7 +23,7 @@ export default async function (app: Express, path: string) {
 						console.log(data)
 						return res.json({ message: "Invalid request", code: 400 })
 					} else {
-						console.log(data)
+						tradesChatterInstance.emit("tradeManager-", "newTradeDetails", { data, userId: user._id })
 						return res.json({ message: "Order placed", code: 200 })
 					}
 				} else {

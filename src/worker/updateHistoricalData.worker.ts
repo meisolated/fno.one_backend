@@ -95,12 +95,12 @@ const getHistoricalDataFyers = async (symbol: string) => {
 					return {
 						symbol,
 						resolution: interval,
-						t: candle[0],
-						o: candle[1],
-						h: candle[2],
-						l: candle[3],
-						c: candle[4],
-						v: candle[5],
+						t: parseFloat(candle[0]),
+						o: parseFloat(candle[1]),
+						h: parseFloat(candle[2]),
+						l: parseFloat(candle[3]),
+						c: parseFloat(candle[4]),
+						v: parseFloat(candle[5]),
 					}
 				})
 				await timeout(2000)

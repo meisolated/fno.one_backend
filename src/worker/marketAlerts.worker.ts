@@ -5,64 +5,67 @@ import { MarketAlerts, User } from "../model"
 let marketAlerts: any = []
 let symbolLTP: any = {}
 
+// ! to be removed and shifted to frontend
 export default () => {
-	const getMarketAlerts = async () => {
-		marketAlerts = await MarketAlerts.find({}).then((alerts) => alerts.filter((alert: any) => !alert.alerted))
-		return
-	}
-	chatter.on("symbolUpdateTicks-", "tick", (data) => {
-		return (symbolLTP[data.symbol] = data.lp)
-	})
+    const getMarketAlerts = async () => {
+        marketAlerts = await MarketAlerts.find({}).then((alerts) => alerts.filter((alert: any) => !alert.alerted))
+        return
+    }
+    chatter.on("symbolUpdateTicks-", "tick", (data) => {
+        return (symbolLTP[data.symbol] = data.lp)
+    })
 
-	setInterval(async () => {
-		await getMarketAlerts()
-	}, 2000)
+    setInterval(async () => {
+        await getMarketAlerts()
+    }, 2000)
 
-	setInterval(async () => {
-		marketAlerts.forEach(async (alert: any) => {
-			if (!alert.alerted) {
-				if (alert.condition === "greaterThan") {
-					if (symbolLTP[alert.symbol] > alert.value) {
-						alert.alerted = true
-						await alert.save()
-						chatter.emit("marketAlerts-", alert.userId, {
-							status: "triggered",
-							symbol: alert.symbol,
-							condition: alert.condition,
-							value: alert.value,
-						})
-						console.log("alert triggered")
-						console.log(alert.symbol, alert.value, symbolLTP[alert.symbol])
-						const user = await User.findById(alert.userId)
-						if (user) {
-							await sendMail(user.email, "Market Alert Triggered", "", emailTemplate(alert, user))
-						} else {
-							logger.error("User not found", "marketAlerts.worker.ts")
-						}
-					}
-				} else if (alert.condition === "lessThan") {
-					if (symbolLTP[alert.symbol] < alert.value) {
-						alert.alerted = true
-						await alert.save()
-						chatter.emit("marketAlerts-", alert.userId, {
-							status: "triggered",
-							symbol: alert.symbol,
-							condition: alert.condition,
-							value: alert.value,
-						})
-						console.log("alert triggered")
-						console.log(alert.symbol, alert.value, symbolLTP[alert.symbol])
-						const user = await User.findById(alert.userId)
-						if (user) {
-							await sendMail(user.email, "Market Alert Triggered", "", emailTemplate(alert, user))
-						} else {
-							logger.error("User not found", "marketAlerts.worker.ts")
-						}
-					}
-				}
-			}
-		})
-	}, 500)
+    setInterval(async () => {
+        marketAlerts.forEach(async (alert: any) => {
+            if (!alert.alerted) {
+                if (alert.condition === "greaterThan") {
+                    if (symbolLTP[alert.symbol] > alert.value) {
+                        alert.alerted = true
+                        await alert.save()
+                        chatter.emit("marketAlerts", "", {
+                            userId: alert.userId,
+                            status: "triggered",
+                            symbol: alert.symbol,
+                            condition: alert.condition,
+                            value: alert.value,
+                        })
+                        console.log("alert triggered")
+                        console.log(alert.symbol, alert.value, symbolLTP[alert.symbol])
+                        const user = await User.findById(alert.userId)
+                        if (user) {
+                            // await sendMail(user.email, "Market Alert Triggered", "", emailTemplate(alert, user))
+                        } else {
+                            logger.error("User not found", "marketAlerts.worker.ts")
+                        }
+                    }
+                } else if (alert.condition === "lessThan") {
+                    if (symbolLTP[alert.symbol] < alert.value) {
+                        alert.alerted = true
+                        await alert.save()
+                        chatter.emit("marketAlerts", "", {
+                            userId: alert.userId,
+                            status: "triggered",
+                            symbol: alert.symbol,
+                            condition: alert.condition,
+                            value: alert.value,
+                        })
+                        console.log("alert triggered")
+                        console.log(alert.symbol, alert.value, symbolLTP[alert.symbol])
+                        const user = await User.findById(alert.userId)
+                        if (user) {
+                            // await sendMail(user.email, "Market Alert Triggered", "", emailTemplate(alert, user))
+                        } else {
+                            logger.error("User not found", "marketAlerts.worker.ts")
+                        }
+                    }
+                }
+            }
+        })
+    }, 500)
 }
 
 const emailTemplate = (alert: any, user: any) => `<!DOCTYPE html>

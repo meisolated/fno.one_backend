@@ -4,7 +4,6 @@ import express, { Express, Request, Response, json, urlencoded } from "express"
 import http from "http"
 import * as path from "path"
 import { Server } from "socket.io"
-
 import middleware from "./api/middleware"
 import LoadRoutes from "./api/routesLoader"
 import socketLoader from "./api/socket"
@@ -13,7 +12,9 @@ import { subscribeToAllUsersSockets } from "./handler/fyers.handler"
 import { connectTrueDataMarketDataSocket } from "./handler/trueData.handler"
 import initialize from "./initialize"
 import logger from "./logger"
-import { allIndiesOptionChainGenerator } from "./provider/symbols.provider"
+import tradeManager from "./manager/trade.manager"
+// import { allIndiesOptionChainGenerator } from "./provider/symbols.provider" // ! will think about it later
+import handler from "./events/handler"
 import { marketAlerts } from "./worker"
 
 const app: Express = express()
@@ -53,11 +54,16 @@ initialize()
 			logger.info("Starting market alerts...", "Index")
 			marketAlerts()
 			logger.info("Market alerts started!", "Index")
+			logger.info("Starting Trade Manager...", "Index")
+			tradeManager()
+			logger.info("Trade Manager started!", "Index")
+			logger.info("Starting events handler", "Index")
+			handler()
+			logger.info("Events handler started", "Index")
 			logger.info("Starting server...", "Index")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "Index")
 			})
-			allIndiesOptionChainGenerator()
 		})
 	})
 	.catch((_err) => {

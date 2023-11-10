@@ -1,5 +1,6 @@
 import { Express, Request, Response } from "express"
 import serverData from "../../config/serverData"
+import { getCurrentDay } from "../../helper"
 import logger from "../../logger"
 import { Session, User } from "../../model"
 
@@ -12,7 +13,7 @@ export default async function (app: Express, path: string) {
 			if (userId) {
 				const user = await User.findOne({ _id: userId.userId })
 				if (user) {
-					return res.json({ message: "Success", code: 200, data: { ...serverData } })
+					return res.json({ message: "Success", code: 200, data: { ...serverData, todaysDay: getCurrentDay() } })
 				} else {
 					return res.json({ message: "User not found", code: 404 })
 				}
