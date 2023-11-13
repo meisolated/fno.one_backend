@@ -17,7 +17,7 @@ export default async function (user: any, newTradeDetails: any) {
 			: _fyersUserProfitOrLoss
 				? "updateFyersUserBrokerFunds"
 				: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
-		sensitiveLog(_error + _errorIn)
+		tradesChatterInstance.emit("tradeManager-", "log", { status: "rejectedByMoneyManager", message: _error + _errorIn, tradeDetails: newTradeDetails, userId: user._id })
 		return false
 	} else {
 		const _totalFunds = user.funds.fyers.total
@@ -32,7 +32,7 @@ export default async function (user: any, newTradeDetails: any) {
 				tradesChatterInstance.emit("tradeManager-", "log", {
 					status: "rejectedByMoneyManager",
 					message: "Profit is more than 5% of total funds",
-					data: newTradeDetails,
+					tradeDetails: newTradeDetails,
 					userId: user._id,
 				})
 				return false
@@ -40,12 +40,12 @@ export default async function (user: any, newTradeDetails: any) {
 			tradesChatterInstance.emit("tradeManager-", "log", {
 				status: "approvedByMoneyManager",
 				message: "Profit is less than 5% of total funds",
-				data: newTradeDetails,
+				tradeDetails: newTradeDetails,
 				userId: user._id,
 			})
 			return true
 		}
-		tradesChatterInstance.emit("tradeManager-", "log", { status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds", data: newTradeDetails, userId: user._id })
+		tradesChatterInstance.emit("tradeManager-", "tradeApprovedByMoneyManager", { status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds", tradeDetails: newTradeDetails, userId: user._id })
 		return true
 	}
 }

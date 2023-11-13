@@ -21,7 +21,8 @@ export default async function (app: Express, path: string) {
 								const userId = user._id
 								const condition = data.condition
 								const value = data.value
-								const alerted = data.alerted
+								const alerted = data.alerted || false
+								if (!symbol || !userId || !condition || !value) return res.json({ message: "Missing data", code: 400 })
 								const createAlert = await MarketAlerts.create({ symbol, userId, condition, value, alerted })
 								return res.json({ message: "Success", code: 200, createAlert })
 							} else {

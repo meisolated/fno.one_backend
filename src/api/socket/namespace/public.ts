@@ -18,5 +18,4 @@ export default function publicSocketNamespace(socket: Namespace) {
 			_socket.emit("marketDataUpdate", JSON.stringify(data))
 		})
 	})
-
 }

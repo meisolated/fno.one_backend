@@ -23,7 +23,7 @@ export default async function (app: Express, path: string) {
 						console.log(data)
 						return res.json({ message: "Invalid request", code: 400 })
 					} else {
-						tradesChatterInstance.emit("tradeManager-", "newTradeDetails", { data, userId: user._id })
+						tradesChatterInstance.emit("tradeManager-", "newTradeDetails", { ...data, userId: user._id })
 						return res.json({ message: "Order placed", code: 200 })
 					}
 				} else {

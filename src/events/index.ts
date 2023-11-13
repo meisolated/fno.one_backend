@@ -4,7 +4,7 @@ const chatter = new events.EventEmitter()
 const tradesChatter = new events.EventEmitter()
 class Chatter {
 	chatter: events.EventEmitter = chatter
-	constructor() { }
+	constructor() {}
 	emit(eventPrefix: string, event: string, data: any) {
 		this.chatter.emit(eventPrefix + event, data)
 	}
@@ -21,7 +21,7 @@ class Chatter {
 
 class TradesChatter {
 	chatter: events.EventEmitter = tradesChatter
-	constructor() { }
+	constructor() {}
 	emit(eventPrefix: string, event: string, data: any) {
 		const dateNTime = new Date().toLocaleString()
 		const dataString = JSON.stringify(data)

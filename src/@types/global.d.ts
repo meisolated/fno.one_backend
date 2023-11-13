@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface rateLimitData {
@@ -8,7 +8,17 @@ declare global {
 		}
 	}
 
-	// Models interfaces
+	//   ----------------| Types | ----------------
+	//! Not using these for now because fyers and kite both have different types for these
+	//! will process data coming from fyers and kite and then convert them to our types
+	// type positionType = "long" | "scalping" | "swing" | "expiry"
+	// type orderType = 1 | 2 | 3 | 4 // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
+	// type orderSide = 1 | -1 // 1 - Buy, -1 - Sell
+	// type productType = "CNC" | "INTRADAY" | "MARGIN" | "CO" | "BO"
+	// type orderStatus = 1 | 2 | 3 | 4 | 5 | 6 // 1 - Cancelled, 2 - Traded/Filled, 3 - For Future Use, 4 - Transit, 5 - Rejected, 6 - Pending
+	// type positionSide = 1 | -1 | 0 // 1 - Long, -1 - Short, 0 - Closed Position
+	// type orderSource = "M" | "W" | "R" | "A" | "ITS" // M - Mobile, W - Web, R - Fyers One, A - Admin, ITS - API
+	//   ----------------| Models interfaces | ----------------
 	interface logger {
 		message: string
 		type: string
@@ -183,6 +193,57 @@ declare global {
 		}
 		lastUpdated: Date
 	}
+
+	interface order {
+		id: string
+		orderDateTime: string
+		orderId: string
+		exchOrdId: string
+		side: number
+		segment: number
+		instrument: string
+		productType: string
+		status: number
+		qty: number
+		remainingQuantity: number
+		filledQty: number
+		limitPrice: number
+		stopPrice: number
+		type: number
+		discloseQty: number
+		dqQtyRem: number
+		orderValidity: string
+		source: string
+		slNo: number
+		fyToken: string
+		offlineOrder: boolean
+		message: string
+		orderNumStatus: string
+		tradedPrice: number
+		exchange: number
+		pan: string
+		clientId: string
+		symbol: string
+		ch: string
+		chp: string
+		lp: string
+		ex_sym: string
+		description: string
+	}
+	interface positions {
+		id: string
+		paper: boolean
+		whichBroker: string
+		buyAvgPrice: number
+		buyQty: number
+		sellAvgPrice: number
+		sellQty: number
+		netAvgPrice: number
+		netQty: number
+		side: number
+		qty: number
+		productType: string
+	}
 	interface trades {
 		id: string
 		paper: boolean
@@ -204,6 +265,24 @@ declare global {
 		tradedQty: number
 		madeBy: string
 		strategyName: string
+		createdAt: Date
+		updatedAt: Date
+	}
+	interface tradeManager {
+		tradeId: string
+		userId: string
+		symbol: string
+		side: number
+		riskToRewardRatio: number
+		quantity: number
+		buyPrice: number
+		sellPrice: number
+		stopLoss: number
+		positionType: string
+		enteredAt: number
+		exitedAt: number
+		status: string
+		message: string
 		createdAt: Date
 		updatedAt: Date
 	}
@@ -303,42 +382,7 @@ declare global {
 		lastLogin: Date
 		loggedIn: boolean
 	}
-	interface order {
-		id: string
-		orderDateTime: string
-		orderId: string
-		exchOrdId: string
-		side: number
-		segment: number
-		instrument: string
-		productType: string
-		status: number
-		qty: number
-		remainingQuantity: number
-		filledQty: number
-		limitPrice: number
-		stopPrice: number
-		type: number
-		discloseQty: number
-		dqQtyRem: number
-		orderValidity: string
-		source: string
-		slNo: number
-		fyToken: string
-		offlineOrder: boolean
-		message: string
-		orderNumStatus: string
-		tradedPrice: number
-		exchange: number
-		pan: string
-		clientId: string
-		symbol: string
-		ch: string
-		chp: string
-		lp: string
-		ex_sym: string
-		description: string
-	}
+
 	interface marketData {
 		id: string
 		BANKNIFTY: {
@@ -382,20 +426,7 @@ declare global {
 		createdAt: Date
 		updatedAt: Date
 	}
-	interface positions {
-		id: string
-		paper: boolean
-		whichBroker: string
-		buyAvgPrice: number
-		buyQty: number
-		sellAvgPrice: number
-		sellQty: number
-		netAvgPrice: number
-		netQty: number
-		side: number
-		qty: number
-		productType: string
-	}
+
 
 	interface keepLTP {
 		symbolTD: string

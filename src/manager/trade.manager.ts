@@ -8,33 +8,76 @@ export default async () => {
 	logger.info("Loaded Trade Manager", "Trade Manager")
 	tradesChatterInstance.on("tradeManager-", "newTradeDetails", async (newTradeDetails: any) => {
 		const user = await User.findById(newTradeDetails.userId)
-		if (!user) return sensitiveLog({ message: "New Trade information received but user not found", data: newTradeDetails, userId: newTradeDetails.userId })
-		tradesChatterInstance.emit("tradeManager-", "log", { message: "New trade details received", data: newTradeDetails, userId: user._id })
+		if (!user) return sensitiveLog({ message: "New Trade information received but user not found", tradeDetails: newTradeDetails, userId: newTradeDetails.userId })
+		tradesChatterInstance.emit("tradeManager-", "log", { message: "New trade details received", tradeDetails: newTradeDetails, userId: user._id })
 		// awaiting for money manager approval
 		const moneyManagerApproval = await moneyManager(user, newTradeDetails)
 		if (moneyManagerApproval) {
-			tradesChatterInstance.emit("tradeManager-", "tradeApprovedByMoneyManager", {
-				status: "approvedByMoneyManager",
-				message: "Trade approved by money manager",
-				data: newTradeDetails,
-				userId: user._id,
-			})
+
 			// awaiting for risk manager approval
 			const riskManagerApproval = await riskManager(user, newTradeDetails)
 			if (riskManagerApproval) {
-				tradesChatterInstance.emit("tradeManager-", "tradeApprovedByRiskManager", {
-					status: "approvedByRiskManager",
-					message: "Trade approved by risk manager",
-					data: newTradeDetails,
-					userId: user._id,
-				})
 				tradesChatterInstance.emit("tradeManager-", "tradeApproved", {
 					status: "approved",
 					message: "Trade approved by money manager and risk manager",
-					data: newTradeDetails,
+					tradeDetails: newTradeDetails,
 					userId: user._id,
 				})
 			}
 		}
 	})
+}
+
+
+const positionStatuses = {
+	sentToMoneyManager: "sentToMoneyManager",
+	approvedByMoneyManager: "approvedByMoneyManager",
+	rejectedByMoneyManager: "rejectedByMoneyManager",
+	sentToRiskManager: "sentToRiskManager",
+	approvedByRiskManager: "approvedByRiskManager",
+	rejectedByRiskManager: "rejectedByRiskManager",
+	orderBeingPlaced: "orderBeingPlaced",
+	orderPlaced: "orderPlaced",
+	orderRejected: "orderRejected",
+	orderCancelled: "orderCancelled",
+	orderFilled: "orderFilled",
+	orderPartiallyFilled: "orderPartiallyFilled",
+	orderPending: "orderPending",
+	orderFailed: "orderFailed",
+	orderExpired: "orderExpired",
+	inPosition: "inPosition",
+	positionClosed: "positionClosed",
+	positionCancelled: "positionCancelled",
+	positionFailed: "positionFailed",
+	positionExpired: "positionExpired",
+	handedOverToUser: "handedOverToUser",
+}
+const positionMessages = {
+	sentToMoneyManager: "Sent to money manager",
+	approvedByMoneyManager: "Approved by money manager",
+	rejectedByMoneyManager: "Rejected by money manager",
+	sentToRiskManager: "Sent to risk manager",
+	approvedByRiskManager: "Approved by risk manager",
+	rejectedByRiskManager: "Rejected by risk manager",
+	orderBeingPlaced: "Order being placed",
+	orderPlaced: "Order placed",
+	orderRejected: "Order rejected",
+	orderCancelled: "Order cancelled",
+	orderFilled: "Order filled",
+	orderPartiallyFilled: "Order partially filled",
+	orderPending: "Order pending",
+	orderFailed: "Order failed",
+	orderExpired: "Order expired",
+	inPosition: "In position",
+	positionClosed: "Position closed",
+	positionCancelled: "Position cancelled",
+	positionFailed: "Position failed",
+	positionExpired: "Position expired",
+	handedOverToUser: "Handed over to user",
+	positionNearStopLoss: "Position near stop loss",
+	positionNearTarget: "Position near target",
+	trailingPositionStopLoss: "Trailing position stop loss",
+	positionClosedWithTarget: "Position closed with target",
+	positionClosedWithStopLoss: "Position closed with stop loss",
+	positionClosedWithTrailingStopLoss: "Position closed with trailing stop loss",
 }
