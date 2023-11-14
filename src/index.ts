@@ -16,7 +16,6 @@ import tradeManager from "./manager/trade.manager"
 // import { allIndiesOptionChainGenerator } from "./provider/symbols.provider" // ! will think about it later
 import handler from "./events/handler"
 import { marketAlerts } from "./worker"
-
 const app: Express = express()
 const server = http.createServer(app)
 const routesDirPath = path.join(__dirname, "/api/routes")

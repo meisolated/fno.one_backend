@@ -2,7 +2,7 @@ import { Express, Request, Response } from "express"
 import serverData from "../../../config/serverData"
 import logger from "../../../logger"
 import { Session, User } from "../../../model"
-import { isTodayHoliday } from "../../../provider/marketData.provider"
+import { isTodayHoliday, isTomorrowHoliday } from "../../../provider/marketData.provider"
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
 	app.get(path, (req: Request, res: Response) => {
@@ -32,7 +32,8 @@ export default async function (app: Express, path: string) {
 									moneyManager: user.moneyManager,
 								}
 								const todayHoliday = await isTodayHoliday()
-								return res.send({ message: "Logged in", code: 200, data: { ...userRawData, serverData, todayHoliday } })
+								const tomorrowHoliday = await isTomorrowHoliday()
+								return res.send({ message: "Logged in", code: 200, data: { ...userRawData, serverData, todayHoliday, tomorrowHoliday } })
 							} else {
 								res.clearCookie("fno.one")
 								return res.redirect("/error/userNotFound")

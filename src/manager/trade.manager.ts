@@ -9,15 +9,13 @@ export default async () => {
 	tradesChatterInstance.on("tradeManager-", "newTradeDetails", async (newTradeDetails: any) => {
 		const user = await User.findById(newTradeDetails.userId)
 		if (!user) return sensitiveLog({ message: "New Trade information received but user not found", tradeDetails: newTradeDetails, userId: newTradeDetails.userId })
-		tradesChatterInstance.emit("tradeManager-", "log", { message: "New trade details received", tradeDetails: newTradeDetails, userId: user._id })
-		// awaiting for money manager approval
+		tradesChatterInstance.emit("tradeManager-", "tradeDetailsReceived", { status: "received", message: "New trade details received", tradeDetails: newTradeDetails, userId: user._id })
+
 		const moneyManagerApproval = await moneyManager(user, newTradeDetails)
 		if (moneyManagerApproval) {
-
-			// awaiting for risk manager approval
 			const riskManagerApproval = await riskManager(user, newTradeDetails)
 			if (riskManagerApproval) {
-				tradesChatterInstance.emit("tradeManager-", "tradeApproved", {
+				return tradesChatterInstance.emit("tradeManager-", "tradeApproved", {
 					status: "approved",
 					message: "Trade approved by money manager and risk manager",
 					tradeDetails: newTradeDetails,
@@ -28,6 +26,7 @@ export default async () => {
 	})
 }
 
+const createNewTrade = async (user: any, newTradeDetails: any) => {}
 
 const positionStatuses = {
 	sentToMoneyManager: "sentToMoneyManager",

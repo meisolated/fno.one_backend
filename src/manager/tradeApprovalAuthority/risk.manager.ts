@@ -10,6 +10,11 @@ export default async function (user: any, newTradeDetails: any) {
 		tradesChatterInstance.emit("tradeManager-", "tradeRejected", { status: "rejected", message: "Today is holiday", tradeDetails: newTradeDetails, userId: user._id })
 		return false
 	}
-	tradesChatterInstance.emit("tradeManager-", "tradeApprovedByRiskManager", { status: "approvedByRiskManager", message: "Trade approved by Risk manager", tradeDetails: newTradeDetails, userId: user._id })
+	tradesChatterInstance.emit("tradeManager-", "tradeApprovedByRiskManager", {
+		status: "approvedByRiskManager",
+		message: "Trade approved by Risk manager",
+		tradeDetails: newTradeDetails,
+		userId: user._id,
+	})
 	return true
 }

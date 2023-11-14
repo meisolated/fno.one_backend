@@ -1,4 +1,4 @@
-import { datePassed, getCurrentDateFormatted, timePassed } from "../helper"
+import { datePassed, getCurrentDateFormatted, getDateFormatter, timePassed } from "../helper"
 import { MarketData } from "../model"
 
 export const getExpiryList = async (symbol: string) => {
@@ -69,4 +69,19 @@ export const isMarketOpen = async () => {
 	} else {
 		return isCurrentTimeIsInMarketHours()
 	}
+}
+export const isTomorrowHoliday = async () => {
+	const currentTime = new Date()
+	const currentDay = currentTime.getDay()
+	if (currentDay === 0 || currentDay === 6) return true
+	const marketData = await MarketData.findOne({ id: 1 })
+	if (marketData) {
+		const tomorrow = new Date()
+		tomorrow.setDate(tomorrow.getDate() + 1)
+		const tomorrowFormatted = getDateFormatter(tomorrow)
+		const holidays = marketData.FnOHolidayList.map((holiday) => holiday.holidayDate)
+		const isHoliday = holidays.includes(tomorrowFormatted)
+		return isHoliday
+	}
+	return false
 }

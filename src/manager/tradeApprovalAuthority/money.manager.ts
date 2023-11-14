@@ -15,8 +15,8 @@ export default async function (user: any, newTradeDetails: any) {
 		const _errorIn = _updateUserBrokerFunds
 			? "getFyersUserProfitOrLossOfTheDay"
 			: _fyersUserProfitOrLoss
-				? "updateFyersUserBrokerFunds"
-				: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
+			? "updateFyersUserBrokerFunds"
+			: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
 		tradesChatterInstance.emit("tradeManager-", "log", { status: "rejectedByMoneyManager", message: _error + _errorIn, tradeDetails: newTradeDetails, userId: user._id })
 		return false
 	} else {
@@ -29,15 +29,15 @@ export default async function (user: any, newTradeDetails: any) {
 		if (_fyersUserProfitOrLoss.realized > 0) {
 			const percentageOfProfit = (_fyersUserProfitOrLoss.realized / _totalFunds) * 100
 			if (percentageOfProfit > 5) {
-				tradesChatterInstance.emit("tradeManager-", "log", {
-					status: "rejectedByMoneyManager",
+				tradesChatterInstance.emit("tradeManager-", "rejectedByMoneyManager", {
+					status: "tradeRejected",
 					message: "Profit is more than 5% of total funds",
 					tradeDetails: newTradeDetails,
 					userId: user._id,
 				})
 				return false
 			}
-			tradesChatterInstance.emit("tradeManager-", "log", {
+			tradesChatterInstance.emit("tradeManager-", "tradeApprovedByMoneyManager", {
 				status: "approvedByMoneyManager",
 				message: "Profit is less than 5% of total funds",
 				tradeDetails: newTradeDetails,
@@ -45,7 +45,12 @@ export default async function (user: any, newTradeDetails: any) {
 			})
 			return true
 		}
-		tradesChatterInstance.emit("tradeManager-", "tradeApprovedByMoneyManager", { status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds", tradeDetails: newTradeDetails, userId: user._id })
+		tradesChatterInstance.emit("tradeManager-", "tradeApprovedByMoneyManager", {
+			status: "approvedByMoneyManager",
+			message: "Profit is less than 5% of total funds",
+			tradeDetails: newTradeDetails,
+			userId: user._id,
+		})
 		return true
 	}
 }

@@ -1,16 +1,16 @@
 {
-    "compilerOptions": {
-        "target": "ES2016",
-        "allowSyntheticDefaultImports": true,
-        "module": "CommonJS",
-        "baseUrl": "./src",
-        "outDir": "./dist",
-        "types": ["node", "jest"],
-        "moduleResolution": "node",
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "resolveJsonModule": true,
-        "esModuleInterop": true
-    },
-    "include": ["src", "src/@types/trueData.d.ts"]
+	"compilerOptions": {
+		"target": "ES2016",
+		"allowSyntheticDefaultImports": true,
+		"module": "CommonJS",
+		"baseUrl": "./src",
+		"outDir": "./dist",
+		"types": ["node", "jest"],
+		"moduleResolution": "node",
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true
+	},
+	"include": ["src"]
 }

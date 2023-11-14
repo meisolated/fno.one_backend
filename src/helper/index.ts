@@ -3,12 +3,15 @@ import { Settings } from "../model"
 import { getMarketCurrentPrice } from "./marketData.helper"
 import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "./optionChain.helper"
 
-const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-function sum(a: number, b: number) {
+export { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed, getMarketCurrentPrice }
+
+export const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export function sum(a: number, b: number) {
 	return a + b
 }
 
-const get = async (url: string) => {
+export const get = async (url: string) => {
 	const googleChromeUserAgent = "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36"
 	const headers = {
 		"User-Agent": googleChromeUserAgent,
@@ -51,7 +54,7 @@ export async function updateTaskLastUpdate(taskName: string, time: any) {
 	}
 }
 
-const timestampToStringDateNTime = (timestamp: number) => {
+export const timestampToStringDateNTime = (timestamp: number) => {
 	let date_ob = new Date(timestamp * 1000)
 
 	// current date
@@ -76,14 +79,14 @@ const timestampToStringDateNTime = (timestamp: number) => {
 	return year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds
 }
 
-function setEpochTimeTo5_30(epochTimestamp: number) {
+export function setEpochTimeTo5_30(epochTimestamp: number) {
 	const date = new Date(epochTimestamp * 1000)
 	date.setHours(5, 30, 0, 0)
 	const updatedEpochTimestamp = date.getTime() / 1000
 	return updatedEpochTimestamp
 }
 
-function setEpochTimeTo5_30AndOneDayBefore(epochTimestamp: number) {
+export function setEpochTimeTo5_30AndOneDayBefore(epochTimestamp: number) {
 	const date = new Date(epochTimestamp * 1000)
 	const oneDayInMilliseconds = 24 * 60 * 60 * 1000
 	date.setTime(date.getTime() - oneDayInMilliseconds)
@@ -93,7 +96,7 @@ function setEpochTimeTo5_30AndOneDayBefore(epochTimestamp: number) {
 }
 
 //To be moved to physiology  later
-function calculatePivotPointsAndSupportResistance(high: number, low: number, close: number) {
+export function calculatePivotPointsAndSupportResistance(high: number, low: number, close: number) {
 	const pivotPoint = (high + low + close) / 3
 
 	const support1 = 2 * pivotPoint - high
@@ -126,7 +129,7 @@ function calculatePivotPointsAndSupportResistance(high: number, low: number, clo
 		resistance6,
 	}
 }
-function getDayOfWeekAsString(date: number) {
+export function getDayOfWeekAsString(date: number) {
 	const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 	const dayIndex = date
 
@@ -136,11 +139,11 @@ function getDayOfWeekAsString(date: number) {
 		return "Invalid Day"
 	}
 }
-function isNumberInRange(number: number, min: number, max: number) {
+export function isNumberInRange(number: number, min: number, max: number) {
 	return number >= min && number <= max
 }
 
-function timePassed(hours: number, minutes: number) {
+export function timePassed(hours: number, minutes: number) {
 	const currentTime = new Date()
 	const currentHours = currentTime.getHours()
 	const currentMinutes = currentTime.getMinutes()
@@ -159,7 +162,18 @@ function timePassed(hours: number, minutes: number) {
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-const getCurrentDateFormatted = () => {
+export const getDateFormatter = (date: Date) => {
+	const day = date.getDate()
+	const month = months[date.getMonth()]
+	const year = date.getFullYear()
+
+	// Add leading zeros to day if it's a single digit
+	const dayString = day < 10 ? `0${day}` : day
+
+	const formattedDate = `${dayString}-${month}-${year}`
+	return formattedDate
+}
+export const getCurrentDateFormatted = () => {
 	const currentDate = new Date()
 	const day = currentDate.getDate()
 	const month = months[currentDate.getMonth()]
@@ -172,28 +186,9 @@ const getCurrentDateFormatted = () => {
 	return formattedDate
 }
 
-const getCurrentDay = () => {
+export const getCurrentDay = () => {
 	const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 	const currentDate = new Date()
 	const dayIndex = currentDate.getDay()
 	return daysOfWeek[dayIndex].toLowerCase()
-}
-
-export {
-	FyersMonthStringToNumber,
-	TrueDataMonthStringToNumber,
-	calculatePivotPointsAndSupportResistance,
-	datePassed,
-	get,
-	getCurrentDateFormatted,
-	getCurrentDay,
-	getDayOfWeekAsString,
-	getMarketCurrentPrice,
-	isNumberInRange,
-	setEpochTimeTo5_30,
-	setEpochTimeTo5_30AndOneDayBefore,
-	sum,
-	timePassed,
-	timeout,
-	timestampToStringDateNTime,
 }

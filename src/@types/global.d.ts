@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface rateLimitData {
@@ -18,6 +18,7 @@ declare global {
 	// type orderStatus = 1 | 2 | 3 | 4 | 5 | 6 // 1 - Cancelled, 2 - Traded/Filled, 3 - For Future Use, 4 - Transit, 5 - Rejected, 6 - Pending
 	// type positionSide = 1 | -1 | 0 // 1 - Long, -1 - Short, 0 - Closed Position
 	// type orderSource = "M" | "W" | "R" | "A" | "ITS" // M - Mobile, W - Web, R - Fyers One, A - Admin, ITS - API
+
 	//   ----------------| Models interfaces | ----------------
 	interface logger {
 		message: string
@@ -426,7 +427,6 @@ declare global {
 		createdAt: Date
 		updatedAt: Date
 	}
-
 
 	interface keepLTP {
 		symbolTD: string
