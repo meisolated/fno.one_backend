@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<historicalData>(
+export default new Schema<iHistoricalData>(
 	{
 		symbol: { type: String, require: true },
 		resolution: { type: String, require: true },

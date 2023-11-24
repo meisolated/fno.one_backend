@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<marketAlerts>({
+export default new Schema<iMarketAlerts>({
 	userId: { type: String, required: true },
 	symbol: { type: String, required: true },
 	condition: { type: String, required: true }, // "greaterThan" | "lessThan" | "crossesAbove" | "crossesBelow"

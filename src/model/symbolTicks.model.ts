@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<symbolTicks>(
+export default new Schema<iSymbolTicks>(
 	{
 		highPrice: { type: Number },
 		prevClosePrice: { type: Number },

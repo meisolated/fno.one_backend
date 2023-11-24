@@ -1,7 +1,7 @@
 import logger from "../logger"
 import { Settings } from "../model"
 
-let settings: settings
+let settings: iSettings
 
 const checkIsConfigured = async () => {
 	const settings = await Settings.findOne({ id: 1 })
@@ -11,7 +11,7 @@ const checkIsConfigured = async () => {
 	return true
 }
 const initializeEmptySettings = async () => {
-	const settings: settings = {
+	const settingsiSettings = {
 		id: 1,
 		state: "development",
 		simulateTicks: false,

@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<settings>(
+export default new Schema<iSettings>(
 	{
 		id: { type: Number, required: false, unique: true },
 		state: { type: String, required: false },

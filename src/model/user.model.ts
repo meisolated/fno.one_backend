@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<user>(
+export default new Schema<iUser>(
 	{
 		email: { type: String, required: true, unique: true },
 		name: { type: String, required: true },
@@ -15,6 +15,7 @@ export default new Schema<user>(
 		apps: [{ type: String, required: false }],
 		riskManager: {
 			numberOfTradesAllowedPerDay: { type: Number, required: false },
+			takeControlOfManualTrades: { type: Boolean, required: false },
 		},
 		funds: {
 			fyers: {

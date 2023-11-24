@@ -1,5 +1,5 @@
 import {
-	trueDataHandleBarDataProcessing,
+	iTrueDataHandleBarDataProcessing,
 	trueDataMarketFeedsHandleBidAskDataProcessing,
 	trueDataMarketFeedsHandleTouchlineDataProcessing,
 	trueDataMarketFeedsRealTimeDataProcessing,
@@ -297,7 +297,7 @@ class MarketFeeds {
 			Volume: +barArray[6],
 			OI: +barArray[7],
 		}
-		trueDataHandleBarDataProcessing(data)
+		iTrueDataHandleBarDataProcessing(data)
 		return
 	}
 }

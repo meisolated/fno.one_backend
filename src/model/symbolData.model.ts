@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<symbolData>({
+export default new Schema<iSymbolData>({
 	trueDataSymbolId: { type: String, required: true },
 	symbol: { type: String, required: true },
 	fyersSymbol: { type: String, required: false },

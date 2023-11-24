@@ -12,18 +12,19 @@ export default async function (app: Express, path: string) {
 			if (userId) {
 				const user = await User.findOne({ _id: userId.userId })
 				if (user) {
-					const data: any = req.body
+					const data = req.body
 					const symbol = data.symbol
 					const quantity = data.quantity
 					const riskToReward = data.riskToReward
 					const positionType = data.positionType
 					const stopLoss = data.stopLoss
 					const orderSide = data.orderSide
+					const newTradeDetails: iNewTradeDetails = { ...data, userId: user._id }
 					if (!symbol || !quantity || !riskToReward || !positionType || !stopLoss || !orderSide) {
 						console.log(data)
 						return res.json({ message: "Invalid request", code: 400 })
 					} else {
-						tradesChatterInstance.emit("tradeManager-", "newTradeDetails", { ...data, userId: user._id })
+						tradesChatterInstance.emit("tradeManager-", "newTradeDetails", newTradeDetails)
 						return res.json({ message: "Order placed", code: 200 })
 					}
 				} else {

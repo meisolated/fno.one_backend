@@ -45,7 +45,7 @@ export const subscribeToAllUsersSockets = async () => {
  * @param user User
  * @returns  {fund_limit: [{id: number, equityAmount: number}], margin: number, net: number, total: number}
  */
-export const updateFyersUserBrokerFunds = async (user: user) => {
+export const updateFyersUserBrokerFunds = async (user: iUser) => {
 	const userFyersFunds = await getFunds(user.userAppsData.fyers.accessToken)
 	//update user funds
 	user.funds.fyers.total = userFyersFunds.fund_limit.filter((fund: any) => fund.id === 1)[0].equityAmount.toFixed(2)
@@ -63,7 +63,7 @@ export const updateFyersUserBrokerFunds = async (user: user) => {
  * @param user User
  * @returns  {realized: number, unrealized: number, total: number}
  */
-export const getFyersUserProfitOrLossOfTheDay = async (user: user) => {
+export const getFyersUserProfitOrLossOfTheDay = async (user: iUser) => {
 	const positionsData = await getPositions(user.userAppsData.fyers.accessToken)
 	if (positionsData.code == 200) {
 		const overAll = positionsData.overall

@@ -9,7 +9,7 @@ export const checkIfAllMarketDataTicksAreBeingProvidedByProvider = async (symbol
 			try {
 				const filter = { trueDataSymbolId: symbol[1] }
 				const tryToFind = await SymbolData.findOne(filter)
-				const prepareData: symbolData = {
+				const prepareData: iSymbolData = {
 					trueDataSymbolId: symbol[1],
 					symbol: symbol[0],
 					fyersSymbol: "",

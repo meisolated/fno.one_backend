@@ -4,7 +4,7 @@ import logger from "../../../logger"
 import * as helper from "./helper"
 import * as url from "./urlTemplate"
 
-var rateLimitData: rateLimitData = {}
+var rateLimitData: iRateLimitData = {}
 
 const rateLimit = (token: string) => {
 	const currentTime = new Date().getTime()
@@ -254,15 +254,21 @@ export const getHistoricalData = async (token: string, symbol: string, resolutio
 	}
 }
 
-export const placeSingleOrder = async (token: string, data: newOrder) => {
-	const rateLimitCheck = rateLimit(token)
+/**
+ * Place Single Order
+ * @param accessToken user fyers accessToken
+ * @param data new Order Data
+ * @returns 
+ */
+export const placeSingleOrder = async (accessToken: string, data: iNewOrder) => {
+	const rateLimitCheck = rateLimit(accessToken)
 	if (!rateLimitCheck) {
 		return {
 			status: "error",
 			message: "Rate limit exceeded",
 		}
 	} else {
-		const AuthorizationToken = await getAuthToken(token)
+		const AuthorizationToken = await getAuthToken(accessToken)
 		const reqConfig = {
 			"url": url.placeSingleOrderUrl(),
 			"method": "post",

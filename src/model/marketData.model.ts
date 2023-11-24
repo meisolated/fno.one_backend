@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<marketData>({
+export default new Schema<iMarketData>({
 	id: { type: String, required: false, unique: true },
 	BANKNIFTY: {
 		derivativeName: { type: String, required: false },

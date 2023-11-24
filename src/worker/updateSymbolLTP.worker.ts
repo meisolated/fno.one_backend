@@ -3,8 +3,8 @@ import logger from "../logger"
 import { SymbolData } from "../model/index"
 
 export default async function updateSymbolLTP() {
-	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: symbolTicks) => {
-		const prepareData: symbolData = {
+	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
+		const prepareData: iSymbolData = {
 			trueDataSymbolId: symbolData.symbolId,
 			symbol: symbolData.symbol,
 			fyersSymbol: "",

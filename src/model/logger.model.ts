@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<logger>({
+export default new Schema<iLogger>({
 	message: { type: String, required: true },
 	type: { type: String, required: true },
 	by: { type: String, required: true },

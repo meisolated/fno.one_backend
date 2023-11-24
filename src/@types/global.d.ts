@@ -1,7 +1,7 @@
-export {}
+export { }
 
 declare global {
-	interface rateLimitData {
+	interface iRateLimitData {
 		[key: string]: {
 			count: number
 			lastRequest: Date
@@ -11,16 +11,62 @@ declare global {
 	//   ----------------| Types | ----------------
 	//! Not using these for now because fyers and kite both have different types for these
 	//! will process data coming from fyers and kite and then convert them to our types
-	// type positionType = "long" | "scalping" | "swing" | "expiry"
-	// type orderType = 1 | 2 | 3 | 4 // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
-	// type orderSide = 1 | -1 // 1 - Buy, -1 - Sell
-	// type productType = "CNC" | "INTRADAY" | "MARGIN" | "CO" | "BO"
-	// type orderStatus = 1 | 2 | 3 | 4 | 5 | 6 // 1 - Cancelled, 2 - Traded/Filled, 3 - For Future Use, 4 - Transit, 5 - Rejected, 6 - Pending
-	// type positionSide = 1 | -1 | 0 // 1 - Long, -1 - Short, 0 - Closed Position
-	// type orderSource = "M" | "W" | "R" | "A" | "ITS" // M - Mobile, W - Web, R - Fyers One, A - Admin, ITS - API
+	type tPositionType = "long" | "scalping" | "swing" | "expiry"
+	type tOrderType = 1 | 2 | 3 | 4 // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
+	type tOrderSide = 1 | -1 // 1 - Buy, -1 - Sell
+	type tProductType = "CNC" | "INTRADAY" | "MARGIN" | "CO" | "BO"
+	type tOrderStatus = 1 | 2 | 3 | 4 | 5 | 6 // 1 - Cancelled, 2 - Traded/Filled, 3 - For Future Use, 4 - Transit, 5 - Rejected, 6 - Pending
+	type tPositionSide = 1 | -1 | 0 // 1 - Long, -1 - Short, 0 - Closed Position
+	type tOrderSource = "M" | "W" | "R" | "A" | "ITS" // M - Mobile, W - Web, R - Fyers One, A - Admin, ITS - API
 
+	//? ---------| enums start |------------
+	enum _positionType {
+		long = "long",
+		scalping = "scalping",
+		swing = "swing",
+		expiry = "expiry",
+	}
+	enum _orderType {
+		limitOrder = 1,
+		marketOrder = 2,
+		stopLoss = 3,
+		stopLimit = 4,
+	}
+	enum _orderSide {
+		buy = 1,
+		sell = -1,
+	}
+	enum _productType {
+		CNC = "CNC",
+		INTRADAY = "INTRADAY",
+		MARGIN = "MARGIN",
+		CO = "CO",
+		BO = "BO",
+	}
+	enum _orderStatus {
+		cancelled = 1,
+		traded = 2,
+		futureUse = 3,
+		transit = 4,
+		rejected = 5,
+		pending = 6,
+	}
+	enum _positionSide {
+		long = 1,
+		short = -1,
+		closed = 0,
+	}
+	enum _orderSource {
+		mobile = "M",
+		web = "W",
+		fyersOne = "R",
+		admin = "A",
+		API = "ITS",
+	}
+
+	//? -------------------| enums end |-------------------
 	//   ----------------| Models interfaces | ----------------
-	interface logger {
+	interface iLogger {
 		message: string
 		type: string
 		by: string //[user, server]
@@ -28,7 +74,7 @@ declare global {
 		date: Date
 		loggedFrom: string
 	}
-	interface symbolTicks {
+	interface iSymbolTicks {
 		symbolId: string
 		symbol: string
 		originalName: string
@@ -64,7 +110,7 @@ declare global {
 		spread: number
 		marketStat: number
 	}
-	interface historicalData {
+	interface iHistoricalData {
 		symbol: string
 		resolution: string
 		t: number // timestamp
@@ -74,7 +120,7 @@ declare global {
 		c: number // candle close
 		v: number // candle volume
 	}
-	interface openInterest {
+	interface iOpenInterest {
 		symbol: string
 		timestamp: number
 		strikePrice: number
@@ -122,12 +168,12 @@ declare global {
 			underlying: string
 		}
 	}
-	interface session {
+	interface iSession {
 		session: string
 		expires: number
 		userId: string
 	}
-	interface settings {
+	interface iSettings {
 		id: Number
 		state: string
 		simulateTicks: boolean
@@ -195,7 +241,7 @@ declare global {
 		lastUpdated: Date
 	}
 
-	interface order {
+	interface iOrder {
 		id: string
 		orderDateTime: string
 		orderId: string
@@ -231,7 +277,7 @@ declare global {
 		ex_sym: string
 		description: string
 	}
-	interface positions {
+	interface iPositions {
 		id: string
 		paper: boolean
 		whichBroker: string
@@ -245,13 +291,13 @@ declare global {
 		qty: number
 		productType: string
 	}
-	interface trades {
+	interface iTrades {
 		id: string
 		paper: boolean
 		clientId: string
 		exchange: string
 		exchangeOrderNo: string
-		fyToken: string
+		brokerToken: string
 		orderDateTime: string
 		orderNumber: string
 		orderType: number
@@ -269,7 +315,7 @@ declare global {
 		createdAt: Date
 		updatedAt: Date
 	}
-	interface tradeManager {
+	interface iTradeManager {
 		tradeId: string
 		userId: string
 		symbol: string
@@ -287,7 +333,7 @@ declare global {
 		createdAt: Date
 		updatedAt: Date
 	}
-	interface user {
+	interface iUser {
 		email: string
 		name: string
 		displayName: string
@@ -299,6 +345,7 @@ declare global {
 		apps: string[]
 		riskManager: {
 			numberOfTradesAllowedPerDay: number
+			takeControlOfManualTrades: boolean
 		}
 		funds: {
 			fyers: {
@@ -384,7 +431,7 @@ declare global {
 		loggedIn: boolean
 	}
 
-	interface marketData {
+	interface iMarketData {
 		id: string
 		BANKNIFTY: {
 			derivativeName: string
@@ -414,7 +461,7 @@ declare global {
 		lastUpdated: Number
 	}
 
-	interface strategies {
+	interface iStrategies {
 		id: string
 		name: string
 		description: string
@@ -428,14 +475,14 @@ declare global {
 		updatedAt: Date
 	}
 
-	interface keepLTP {
+	interface iKeepLTP {
 		symbolTD: string
 		symbolKite: string
 		symbolFY: string
 		ltp: number
 		lastUpdated: Date
 	}
-	interface symbolData {
+	interface iSymbolData {
 		trueDataSymbolId: string
 		symbol: string
 		fyersSymbol: string
@@ -444,7 +491,7 @@ declare global {
 		ltp: number
 		lastUpdated: Date
 	}
-	interface marketAlerts {
+	interface iMarketAlerts {
 		id: string
 		userId: string
 		symbol: string
@@ -452,17 +499,27 @@ declare global {
 		value: number
 		alerted: boolean
 	}
-	// --------- model interfaces end ------------
-
-	// --------- socket interfaces start ------------
-	// --------- socket interfaces end ------------
-	// --------- fyers interfaces start ------------
-	interface newOrder {
+	//? --------- model interfaces end ------------
+	//? --------- api interfaces start ------------
+	interface iNewTradeDetails {
+		symbol: string
+		quantity: number
+		riskToReward: number
+		positionType: tPositionType
+		stopLoss: number
+		orderSide: number
+		userId: string
+	}
+	//? ---------| api interfaces end |------------
+	//? ---------| socket interfaces start |------------
+	//? ---------| socket interfaces end |------------
+	//? ---------| trade interfaces start |------------
+	interface iNewOrder {
 		symbol: string
 		qty: number
-		type: number // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
-		side: 1 | -1
-		productType: "CND" | "INTRADAY" | "MARGIN" | "CO" | "BO"
+		type: tOrderType // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
+		side: tOrderSide
+		productType: tProductType
 		limitPrice: 0 | number
 		stopPrice: 0 | number
 		disclosedQty: 0 | number
@@ -471,15 +528,17 @@ declare global {
 		stopLoss: 0 | number
 		takeProfit: 0 | number
 	}
-	// --------- fyers interfaces end ------------
+	//? ---------| trade interfaces end |------------
 
-	// general interfaces
-	interface AccessToken {
+	//? ---------| general interfaces start |------------
+	interface iAccessToken {
 		accessToken: string
 		email: string
 	}
 
-	interface trueDataMarketFeedsTouchlineData {
+	//? ---------| general interfaces end |------------
+	//? ---------- DataProcessingUnit interfaces start ------------
+	interface iTrueDataMarketFeedsTouchlineData {
 		symbol: string
 		lastUpdateTime: string
 		symbolId: string
@@ -497,7 +556,7 @@ declare global {
 		ask: number
 		askQty: number
 	}
-	interface trueDataMarketFeedsBidAskData {
+	interface iTrueDataMarketFeedsBidAskData {
 		symbol: string
 		time: string
 		bid: string
@@ -505,7 +564,7 @@ declare global {
 		ask: string
 		askQty: string
 	}
-	interface trueDataHandleBarData {
+	interface iTrueDataHandleBarData {
 		symbol: string
 		bar: string
 		time: string

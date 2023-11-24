@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<strategies>(
+export default new Schema<iStrategies>(
 	{
 		id: { type: String, required: true },
 		name: { type: String, required: true },

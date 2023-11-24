@@ -1,6 +1,9 @@
 import { tradesChatterInstance } from "../events"
+import { placeSingleOrder } from "../lib/broker/fyers"
 
-export default async () => {}
+export default async (user: iUser, orderData: iNewOrder) => {
+}
+
 
 /**
  * Position Types

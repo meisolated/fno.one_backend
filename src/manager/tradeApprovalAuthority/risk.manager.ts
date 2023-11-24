@@ -2,7 +2,7 @@ import { tradesChatterInstance } from "../../events"
 import { isTodayHoliday } from "../../provider/marketData.provider"
 let lastTradeRequest: any = null
 
-export default async function (user: any, newTradeDetails: any) {
+export default async function (user: any, newTradeDetails: iNewTradeDetails) {
 	// to be done later, so approving all trades for now
 
 	const _isTodayHoliday = await isTodayHoliday()

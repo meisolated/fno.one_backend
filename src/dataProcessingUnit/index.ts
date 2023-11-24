@@ -5,7 +5,7 @@ import { SymbolTicks } from "../model"
 export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 	// console.log(data)
 	// try {
-	const processData: symbolTicks = {
+	const processData: iSymbolTicks = {
 		symbolId: data.Symbol_ID,
 		symbol: data.Symbol,
 		originalName: data.Symbol,
@@ -49,7 +49,7 @@ export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 	// }
 }
 export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
-	const processData: trueDataMarketFeedsTouchlineData = {
+	const processData: iTrueDataMarketFeedsTouchlineData = {
 		symbolId: data.Symbol_ID,
 		symbol: data.Symbol,
 		lastUpdateTime: data.LastUpdateTime,
@@ -71,7 +71,7 @@ export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 	return processData
 }
 export const trueDataMarketFeedsHandleBidAskDataProcessing = (data: any) => {
-	const processData: trueDataMarketFeedsBidAskData = {
+	const processData: iTrueDataMarketFeedsBidAskData = {
 		symbol: data.Symbol,
 		time: data.Time,
 		bid: data.Bid,
@@ -81,8 +81,8 @@ export const trueDataMarketFeedsHandleBidAskDataProcessing = (data: any) => {
 	}
 	return processData
 }
-export const trueDataHandleBarDataProcessing = (data: any) => {
-	const processData: trueDataHandleBarData = {
+export const iTrueDataHandleBarDataProcessing = (data: any) => {
+	const processData: iTrueDataHandleBarData = {
 		symbol: data.Symbol,
 		bar: data.Bar,
 		time: data.Time,

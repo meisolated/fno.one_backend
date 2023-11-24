@@ -4,9 +4,10 @@ import sensitiveLog from "../logger/sensitiveLog"
 import { User } from "../model"
 import moneyManager from "./tradeApprovalAuthority/money.manager"
 import riskManager from "./tradeApprovalAuthority/risk.manager"
+
 export default async () => {
 	logger.info("Loaded Trade Manager", "Trade Manager")
-	tradesChatterInstance.on("tradeManager-", "newTradeDetails", async (newTradeDetails: any) => {
+	tradesChatterInstance.on("tradeManager-", "newTradeDetails", async (newTradeDetails: iNewTradeDetails) => {
 		const user = await User.findById(newTradeDetails.userId)
 		if (!user) return sensitiveLog({ message: "New Trade information received but user not found", tradeDetails: newTradeDetails, userId: newTradeDetails.userId })
 		tradesChatterInstance.emit("tradeManager-", "tradeDetailsReceived", { status: "received", message: "New trade details received", tradeDetails: newTradeDetails, userId: user._id })
@@ -26,7 +27,7 @@ export default async () => {
 	})
 }
 
-const createNewTrade = async (user: any, newTradeDetails: any) => {}
+
 
 const positionStatuses = {
 	sentToMoneyManager: "sentToMoneyManager",

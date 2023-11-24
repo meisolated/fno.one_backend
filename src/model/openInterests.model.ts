@@ -1,6 +1,6 @@
 import { Schema } from "mongoose"
 
-export default new Schema<openInterest>(
+export default new Schema<iOpenInterest>(
 	{
 		symbol: { type: String, required: true },
 		strikePrice: { type: Number, required: true },

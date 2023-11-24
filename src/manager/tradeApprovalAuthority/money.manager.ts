@@ -1,7 +1,7 @@
 import { tradesChatterInstance } from "../../events"
 import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../handler/fyers.handler"
 import sensitiveLog from "../../logger/sensitiveLog"
-export default async function (user: any, newTradeDetails: any) {
+export default async function (user: any, newTradeDetails: iNewTradeDetails) {
 	/**
 	 * first update user funds
 	 * then check if new trade funds requirement is less than allowed funds
@@ -15,8 +15,8 @@ export default async function (user: any, newTradeDetails: any) {
 		const _errorIn = _updateUserBrokerFunds
 			? "getFyersUserProfitOrLossOfTheDay"
 			: _fyersUserProfitOrLoss
-			? "updateFyersUserBrokerFunds"
-			: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
+				? "updateFyersUserBrokerFunds"
+				: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
 		tradesChatterInstance.emit("tradeManager-", "log", { status: "rejectedByMoneyManager", message: _error + _errorIn, tradeDetails: newTradeDetails, userId: user._id })
 		return false
 	} else {
