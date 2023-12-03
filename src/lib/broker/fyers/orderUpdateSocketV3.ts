@@ -187,8 +187,7 @@ export default class FyersOrderSocket {
 					} else if (parsedData.hasOwnProperty("trades")) {
 						let tradeData = dataMapper(parsedData.trades, mapper.tradebook)
 						fyersSocketTradeUpdateDataProcessing(tradeData, this.userId)
-					}
-					else {
+					} else {
 						fyersSocketGeneralDataProcessing(parsedData, this.userId)
 					}
 				} catch (error) {

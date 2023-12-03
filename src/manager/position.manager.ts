@@ -49,7 +49,6 @@ export default async () => {
 		const takePositionResponse = await placeOrder(newPositionDetails.userId, prepareSingleOrderDetails)
 	})
 
-
 	chatter.on("fyersOrderUpdateSocket-", "order", async (orderData: iFyersSocketOrderUpdateData) => {
 		console.log(orderData)
 	})

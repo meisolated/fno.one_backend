@@ -28,7 +28,6 @@ export const fyersSocketOrderUpdateDataProcessing = (orderData: any, userId: str
 		clientId: orderData.clientId,
 		exchange: orderData.exchange,
 		instrument: orderData.instrument,
-
 	}
 	chatter.emit("fyersOrderUpdateSocket-", "order", processData)
 	return processData
