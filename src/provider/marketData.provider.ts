@@ -47,7 +47,7 @@ export const isTodayHoliday = async () => {
 	const marketData = await MarketData.findOne({ id: 1 })
 	if (marketData) {
 		const today = getCurrentDateFormatted()
-		const holidays = marketData.FnOHolidayList.map((holiday) => holiday.holidayDate)
+		const holidays: any = marketData.FnOHolidayList.map((holiday) => holiday.holidayDate)
 		const isHoliday = holidays.includes(today)
 		return isHoliday
 	}
@@ -61,6 +61,7 @@ export const isCurrentTimeIsInMarketHours = async () => {
 			return true
 		}
 	}
+	return false
 }
 export const isMarketOpen = async () => {
 	const todayHoliday = await isTodayHoliday()
@@ -71,13 +72,12 @@ export const isMarketOpen = async () => {
 	}
 }
 export const isTomorrowHoliday = async () => {
-	const currentTime = new Date()
-	const currentDay = currentTime.getDay()
-	if (currentDay === 0 || currentDay === 6) return true
+	const tomorrow = new Date()
+	tomorrow.setDate(tomorrow.getDate() + 1)
+	const tomorrowDay = tomorrow.getDay()
+	if (tomorrowDay === 0 || tomorrowDay === 6) return true
 	const marketData = await MarketData.findOne({ id: 1 })
 	if (marketData) {
-		const tomorrow = new Date()
-		tomorrow.setDate(tomorrow.getDate() + 1)
 		const tomorrowFormatted = getDateFormatter(tomorrow)
 		const holidays = marketData.FnOHolidayList.map((holiday) => holiday.holidayDate)
 		const isHoliday = holidays.includes(tomorrowFormatted)

@@ -1,4 +1,5 @@
-import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "../helper"
+import { indiesConfig } from "../config/symbols"
+import { FyersMonthStringToNumberInMFormat, TrueDataMonthStringToNumber, datePassed } from "../helper"
 import HistoricalData from "../lib/trueData/historical"
 import logger from "../logger"
 import { MarketData, SymbolData } from "../model"
@@ -7,35 +8,6 @@ export const bankNiftyUnderlyingAssets = ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN
 
 export var _baseSymbolsList: any = []
 export var _optionChainSymbolsList: any = {}
-
-export const generateSymbolsList = async () => {
-	const marketData = await MarketData.findOne({ id: 1 })
-	if (marketData) {
-		const BANKNIFTYUpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
-			if (!datePassed(expiryDate)) {
-				return expiryDate
-			}
-		})
-		SymbolData.deleteMany({}).then(() => logger.info("Deleted all symbols", "symbols.provider[generateSymbolsList]"))
-		marketData.BANKNIFTY.strikePrices.forEach(async (strikePrice) => {
-			await SymbolData.create({
-				trueDataSymbol: TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE"),
-				fyersSymbol: FyersSymbolMaker("NSE", "BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "CE"),
-				ltp: 0,
-				lastUpdated: new Date(),
-			})
-			await SymbolData.create({
-				trueDataSymbol: TrueDataSymbolMaker("BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE"),
-				fyersSymbol: FyersSymbolMaker("NSE", "BANKNIFTY", BANKNIFTYUpcomingExpiry[0], strikePrice, "PE"),
-				ltp: 0,
-				lastUpdated: new Date(),
-			})
-		})
-	} else {
-		logger.error("Market Data not found", "symbols.provider[generateSymbolsList]")
-		return false
-	}
-}
 
 export const allIndiesOptionChainGenerator = async () => {
 	const indies = [
@@ -75,7 +47,7 @@ export const allIndiesOptionChainGenerator = async () => {
 					}
 				})
 				const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
-				const gaps = index.optionPrefix === "BANKNIFTY" ? 100 : 50
+				const gaps = indiesConfig[index.optionPrefix].strikePriceGap
 				const symbols = generateOptionChainSymbolsList(index.optionPrefix, 10, roundOffCurrentPrice, upcomingExpiry[0], gaps)
 				await Promise.all(
 					symbols.map(async (symbol: any) => {
@@ -94,107 +66,6 @@ export const allIndiesOptionChainGenerator = async () => {
 			}),
 		)
 		return optionChain
-	}
-}
-export const baseSymbolsList = async () => {
-	if (_baseSymbolsList.length > 0) return _baseSymbolsList
-	const settings = {
-		numberOfOptions: 10, // Number of options to be fetched both above and below the current price
-		numberOfSymbolsAllowed: 200,
-		includeUnderlyingAssets: true, // Include the underlying asset in the list of symbols
-		onlyIncludeSymbolsOfCurrentExpiry: true, // Only include symbols of the current expiry
-		whichMarketOptionsToInclude: "BANKNIFTY", // "all" or "nifty" or "banknifty" or "finnifty"
-		whichMarketUnderlyingToInclude: "BANKNIFTY", // "all" or "nifty" or "banknifty" or "finnifty"
-		indicesSymbol: indicesSymbol,
-		bankNiftyUnderlyingAssets: bankNiftyUnderlyingAssets,
-	}
-	if (settings.whichMarketOptionsToInclude === "BANKNIFTY") {
-		const marketData = await MarketData.findOne({ id: 1 })
-		if (marketData) {
-			try {
-				let currentPrice: any = await SymbolData.findOne({ trueDataSymbol: "NIFTY BANK" }).then(async (data: any) => {
-					if (!data || data.ltp == 0) {
-						const historical = new HistoricalData()
-						const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
-						return BankNiftyCurrentPrice.Records[0][4]
-					} else {
-						return data.ltp
-					}
-				})
-				const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
-
-				// get upcoming expiry date
-				const BANKNIFTYUpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
-					if (!datePassed(expiryDate)) {
-						return expiryDate
-					}
-				})
-
-				// based on current price take 10 options above and below
-				const _symbols = generateOptionChainSymbolsList("BANKNIFTY", settings.numberOfOptions, roundOffCurrentPrice, BANKNIFTYUpcomingExpiry[0], 100)
-				const symbols = _symbols.map((symbol: any) => symbol.CE).concat(_symbols.map((symbol: any) => symbol.PE))
-				const uniqueSymbols = [...symbols, ...settings.indicesSymbol, ...settings.bankNiftyUnderlyingAssets]
-				logger.info(`Total number of symbols: ${uniqueSymbols.length}`, "symbols.provider[baseSymbolsList]")
-				_baseSymbolsList = uniqueSymbols
-				return uniqueSymbols
-
-				//---------------------------------------------
-			} catch (error) {
-				logger.error(`Error in fetching symbols list: ${error}`, "symbols.provider[baseSymbolsList]")
-			}
-		}
-	}
-}
-
-export const optionChainSymbols = async (symbol: string) => {
-	const numberOfOptions = 10
-	if (symbol.includes("BANKNIFTY")) {
-		// if (_optionChainSymbolsList[symbol]) return _optionChainSymbolsList[symbol]
-		try {
-			let currentPrice: any = await SymbolData.findOne({ trueDataSymbol: "NIFTY BANK" }).then(async (data: any) => {
-				if (data.ltp == 0) {
-					const historical = new HistoricalData()
-					const BankNiftyCurrentPrice: any = await historical.getLastNBars("NIFTY BANK", 1, "1min")
-					return BankNiftyCurrentPrice.Records[0][4]
-				} else {
-					return data.ltp
-				}
-			})
-			const roundOffCurrentPrice = Math.round(currentPrice / 100) * 100
-			const marketData = await MarketData.findOne({ id: 1 })
-			if (marketData) {
-				// get upcoming expiry date
-				let UpcomingExpiry = marketData.BANKNIFTY.expiryDates.filter((expiryDate) => {
-					if (!datePassed(expiryDate)) {
-						return expiryDate
-					}
-				})
-				//---------------------------------------------
-				const symbols = generateOptionChainSymbolsList(symbol, numberOfOptions, roundOffCurrentPrice, UpcomingExpiry[0], 100)
-				const query = { trueDataSymbol: { $in: symbols.map((symbol: any) => symbol.CE).concat(symbols.map((symbol: any) => symbol.PE)) } }
-				const LTP = await SymbolData.find(query).then((data: any) => {
-					return data.reduce((map: any, obj: any) => {
-						map[obj.trueDataSymbol] = obj.ltp
-						return map
-					}, {})
-				})
-				symbols.forEach((symbol: any) => {
-					symbol.PE_LTP = LTP[symbol.PE]
-					symbol.CE_LTP = LTP[symbol.CE]
-				})
-				_optionChainSymbolsList = { [symbol]: symbols }
-				return symbols
-			} else {
-				logger.error("Market Data not found", "symbols.provider[optionChainSymbols]")
-				return false
-			}
-		} catch (error) {
-			logger.error(`Error in fetching symbols list: ${error}`, "symbols.provider[optionChainSymbols]")
-			return false
-		}
-	} else {
-		logger.error("Symbol not found")
-		return false
 	}
 }
 
@@ -250,12 +121,29 @@ const TrueDataSymbolMaker = (symbol: string, expiryDate: string, strikePrice: nu
  * @param optionType CE or PE
  * @returns ${ex}:${symbol}${prepareExpiryDate}${strikePrice}${optionType}
  */
-const FyersSymbolMaker = (ex: string, symbol: string, expiryDate: string, strikePrice: number, optionType: string) => {
+const FyersSymbolMaker = (ex: string, symbol: string, expiryDate: string, strikePrice: number, optionType: string): string => {
+	//for monthly expiry we have to use different format
 	const DD = expiryDate.split("-")[0]
-	const M = FyersMonthStringToNumber(expiryDate.split("-")[1])
+	const M = FyersMonthStringToNumberInMFormat(expiryDate.split("-")[1])
+	const MMM = expiryDate.split("-")[1].slice(0, 3).toUpperCase()
 	const YY = expiryDate.split("-")[2].slice(2, 4)
 	const prepareExpiryDate = YY + M + DD
-	return `${ex}:${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
+	if (hasAnotherOccurrenceAfterExpiry(expiryDate, indiesConfig[symbol].monthlyExpiryDay)) {
+		return `${ex}:${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
+	} else {
+		return `${ex}:${symbol}${YY}${MMM}${strikePrice}${optionType}`
+	}
+}
+
+function hasAnotherOccurrenceAfterExpiry(expiryDateStr: string, expiryDay: string) {
+	// expiryDateStr format is DD-MM-YYYY
+	const expiryDate = new Date(expiryDateStr)
+	const expiryDateDay = expiryDate.getDate()
+	const numberOfDaysInTheExpiryMonth = new Date(expiryDate.getFullYear(), expiryDate.getMonth() + 1, 0).getDate()
+	if (expiryDateDay + 7 >= numberOfDaysInTheExpiryMonth) {
+		return false
+	}
+	return true
 }
 
 // Symbols mapping for WebSocket API:

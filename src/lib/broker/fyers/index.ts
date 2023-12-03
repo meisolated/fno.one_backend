@@ -258,7 +258,7 @@ export const getHistoricalData = async (token: string, symbol: string, resolutio
  * Place Single Order
  * @param accessToken user fyers accessToken
  * @param data new Order Data
- * @returns 
+ * @returns
  */
 export const placeSingleOrder = async (accessToken: string, data: iNewOrder) => {
 	const rateLimitCheck = rateLimit(accessToken)
@@ -284,6 +284,111 @@ export const placeSingleOrder = async (accessToken: string, data: iNewOrder) => 
 			return orderPlacementResponse.data
 		} catch (error: any) {
 			logger.error(error, "fyers/index.ts[placeSingleOrder]")
+			return error.response.data
+		}
+	}
+}
+
+/**
+ * Place Single Order
+ * @param accessToken user fyers accessToken
+ * @param data new Order Data
+ * @returns
+ */
+export const placeMultiOrder = async (accessToken: string, data: iNewOrder[]) => {
+	const rateLimitCheck = rateLimit(accessToken)
+	if (!rateLimitCheck) {
+		return {
+			status: "error",
+			message: "Rate limit exceeded",
+		}
+	} else {
+		const AuthorizationToken = await getAuthToken(accessToken)
+		const reqConfig = {
+			"url": url.placeMultiOrderUrl(),
+			"method": "post",
+			"maxBodyLength": Infinity,
+			"Content-Type": "application/json",
+			"headers": {
+				Authorization: AuthorizationToken,
+			},
+			"data": JSON.stringify(data),
+		}
+		try {
+			const orderPlacementResponse = await axios.request(reqConfig)
+			return orderPlacementResponse.data
+		} catch (error: any) {
+			logger.error(error, "fyers/index.ts[placeMultiOrder]")
+			return error.response.data
+		}
+	}
+}
+
+/**
+ *
+ * @param accessToken user fyers accessToken
+ * @param data list of iCancelOrder
+ * @returns
+ */
+export const cancelSingleOrder = async (accessToken: string, data: iCancelOrder) => {
+	const rateLimitCheck = rateLimit(accessToken)
+	if (!rateLimitCheck) {
+		return {
+			status: "error",
+			message: "Rate limit exceeded",
+		}
+	} else {
+		const AuthorizationToken = await getAuthToken(accessToken)
+		const reqConfig = {
+			"url": url.cancelOrderUrl(),
+			"method": "post",
+			"maxBodyLength": Infinity,
+			"Content-Type": "application/json",
+			"headers": {
+				Authorization: AuthorizationToken,
+			},
+			"data": JSON.stringify(data),
+		}
+		try {
+			const orderCancellationResponse = await axios.request(reqConfig)
+			return orderCancellationResponse.data
+		} catch (error: any) {
+			logger.error(error, "fyers/index.ts[cancelOrder]")
+			return error.response.data
+		}
+	}
+}
+
+/**
+ *
+ * @param accessToken user fyers accessToken
+ * @param data list of iCancelOrder
+ * @returns
+ */
+export const cancelMultiOrder = async (accessToken: string, data: iCancelOrder[]) => {
+	const rateLimitCheck = rateLimit(accessToken)
+	if (!rateLimitCheck) {
+		return {
+			status: "error",
+			message: "Rate limit exceeded",
+		}
+	} else {
+		const AuthorizationToken = await getAuthToken(accessToken)
+		const reqConfig = {
+			"url": url.cancelMultiOrderUrl(),
+			"method": "post",
+			"maxBodyLength": Infinity,
+			"Content-Type": "application/json",
+			"headers": {
+				Authorization: AuthorizationToken,
+			},
+			"data": JSON.stringify(data),
+		}
+		try {
+			const orderCancellationResponse = await axios.request(reqConfig)
+			return orderCancellationResponse.data
+		} catch (error: any) {
+			logger.error(error, "fyers/index.ts[cancelOrder]")
 			return error.response.data
 		}
 	}

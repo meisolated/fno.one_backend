@@ -16,7 +16,7 @@ export const subscribeToAllUsersSockets = async () => {
 			const appId = config.apis.fyers.appId
 			const userProfileData = await getProfile(accessToken)
 			if (userProfileData.code == 200) {
-				const orderSocketConnection = new FyersOrderSocket(`${appId}:${accessToken}`, false, true)
+				const orderSocketConnection = new FyersOrderSocket(`${appId}:${accessToken}`, user._id.toString(), false, true)
 				await orderSocketConnection.connect()
 				await timeout(1000)
 				return orderSocketConnection.isConnected()

@@ -1,33 +1,12 @@
-import { tradesChatterInstance } from "../events"
+import chatter from "../events"
 import logger from "../logger"
-import sensitiveLog from "../logger/sensitiveLog"
 import { User } from "../model"
 import moneyManager from "./tradeApprovalAuthority/money.manager"
 import riskManager from "./tradeApprovalAuthority/risk.manager"
 
 export default async () => {
 	logger.info("Loaded Trade Manager", "Trade Manager")
-	tradesChatterInstance.on("tradeManager-", "newTradeDetails", async (newTradeDetails: iNewTradeDetails) => {
-		const user = await User.findById(newTradeDetails.userId)
-		if (!user) return sensitiveLog({ message: "New Trade information received but user not found", tradeDetails: newTradeDetails, userId: newTradeDetails.userId })
-		tradesChatterInstance.emit("tradeManager-", "tradeDetailsReceived", { status: "received", message: "New trade details received", tradeDetails: newTradeDetails, userId: user._id })
-
-		const moneyManagerApproval = await moneyManager(user, newTradeDetails)
-		if (moneyManagerApproval) {
-			const riskManagerApproval = await riskManager(user, newTradeDetails)
-			if (riskManagerApproval) {
-				return tradesChatterInstance.emit("tradeManager-", "tradeApproved", {
-					status: "approved",
-					message: "Trade approved by money manager and risk manager",
-					tradeDetails: newTradeDetails,
-					userId: user._id,
-				})
-			}
-		}
-	})
 }
-
-
 
 const positionStatuses = {
 	sentToMoneyManager: "sentToMoneyManager",
@@ -51,6 +30,12 @@ const positionStatuses = {
 	positionFailed: "positionFailed",
 	positionExpired: "positionExpired",
 	handedOverToUser: "handedOverToUser",
+	positionNearStopLoss: "positionNearStopLoss",
+	positionNearTarget: "positionNearTarget",
+	trailingPositionStopLoss: "trailingPositionStopLoss",
+	positionClosedWithTarget: "positionClosedWithTarget",
+	positionClosedWithStopLoss: "positionClosedWithStopLoss",
+	positionClosedWithTrailingStopLoss: "positionClosedWithTrailingStopLoss",
 }
 const positionMessages = {
 	sentToMoneyManager: "Sent to money manager",

@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express"
-import { tradesChatterInstance } from "../../events"
+import chatter from "../../events"
 import logger from "../../logger"
 import { Session, User } from "../../model"
 
@@ -14,17 +14,18 @@ export default async function (app: Express, path: string) {
 				if (user) {
 					const data = req.body
 					const symbol = data.symbol
+					const limitPrice = data.limitPrice
 					const quantity = data.quantity
 					const riskToReward = data.riskToReward
 					const positionType = data.positionType
 					const stopLoss = data.stopLoss
 					const orderSide = data.orderSide
-					const newTradeDetails: iNewTradeDetails = { ...data, userId: user._id }
-					if (!symbol || !quantity || !riskToReward || !positionType || !stopLoss || !orderSide) {
+					const newPositionDetails: iNewPositionDetails = { ...data, userId: user._id.toString() }
+					if (!symbol || !quantity || !riskToReward || !positionType || !stopLoss || !orderSide || !limitPrice) {
 						console.log(data)
 						return res.json({ message: "Invalid request", code: 400 })
 					} else {
-						tradesChatterInstance.emit("tradeManager-", "newTradeDetails", newTradeDetails)
+						chatter.emit("positionManager-", "newPositionDetails", newPositionDetails)
 						return res.json({ message: "Order placed", code: 200 })
 					}
 				} else {

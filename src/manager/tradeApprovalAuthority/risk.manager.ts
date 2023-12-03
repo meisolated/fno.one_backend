@@ -1,19 +1,22 @@
-import { tradesChatterInstance } from "../../events"
-import { isTodayHoliday } from "../../provider/marketData.provider"
-let lastTradeRequest: any = null
+import chatter from "../../events"
+import { isCurrentTimeIsInMarketHours, isTodayHoliday } from "../../provider/marketData.provider"
 
-export default async function (user: any, newTradeDetails: iNewTradeDetails) {
-	// to be done later, so approving all trades for now
-
+export default async function (user: any, newPositionDetails: iNewPositionDetails) {
 	const _isTodayHoliday = await isTodayHoliday()
-	if (_isTodayHoliday) {
-		tradesChatterInstance.emit("tradeManager-", "tradeRejected", { status: "rejected", message: "Today is holiday", tradeDetails: newTradeDetails, userId: user._id })
+	const _isCurrentTimeIsInMarketHours = await isCurrentTimeIsInMarketHours()
+	if (_isTodayHoliday || !_isCurrentTimeIsInMarketHours) {
+		chatter.emit("positionManager-", "positionRejectedByRiskManager", {
+			status: "rejectedByRiskManager",
+			message: "Today is holiday or current time is not in market hours.",
+			positionDetails: newPositionDetails,
+			userId: user._id,
+		})
 		return false
 	}
-	tradesChatterInstance.emit("tradeManager-", "tradeApprovedByRiskManager", {
+	chatter.emit("positionManager-", "positionApprovedByRiskManager", {
 		status: "approvedByRiskManager",
 		message: "Trade approved by Risk manager",
-		tradeDetails: newTradeDetails,
+		positionDetails: newPositionDetails,
 		userId: user._id,
 	})
 	return true

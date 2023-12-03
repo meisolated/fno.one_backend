@@ -14,8 +14,9 @@ import initialize from "./initialize"
 import logger from "./logger"
 import tradeManager from "./manager/trade.manager"
 // import { allIndiesOptionChainGenerator } from "./provider/symbols.provider" // ! will think about it later
-import handler from "./events/handler"
+import positionManager from "./manager/position.manager"
 import { marketAlerts } from "./worker"
+
 const app: Express = express()
 const server = http.createServer(app)
 const routesDirPath = path.join(__dirname, "/api/routes")
@@ -36,29 +37,21 @@ initialize()
 	.then(async (_done) => {
 		logger.info("Loading routes...", "Index")
 		LoadRoutes(app, routesDirPath, "", false).then(async () => {
-			logger.info("Routes loaded!", "Index")
 			const config = getConfigData()
 			const APIport: number = config.serverConf.APIPort
 			const socketPort: number = config.serverConf.socketPort
 			const io = new Server(socketPort)
 			logger.info("Loading socket.io events...", "Index")
 			socketLoader(io)
-			logger.info("Socket.io events loaded!", "Index")
 			await subscribeToAllUsersSockets()
 			logger.info("Connecting to true data socket...", "Index")
 			await connectTrueDataMarketDataSocket()
-			logger.info("Connected to true data socket!", "Index")
 			logger.info("Starting periodic updates worker...", "Index")
-			logger.info("Periodic updates worker started!", "Index")
 			logger.info("Starting market alerts...", "Index")
 			marketAlerts()
-			logger.info("Market alerts started!", "Index")
-			logger.info("Starting Trade Manager...", "Index")
+			logger.info("Starting Trade Manager and Position Manager...", "Index")
 			tradeManager()
-			logger.info("Trade Manager started!", "Index")
-			logger.info("Starting events handler", "Index")
-			handler()
-			logger.info("Events handler started", "Index")
+			positionManager()
 			logger.info("Starting server...", "Index")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "Index")

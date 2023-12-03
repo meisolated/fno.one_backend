@@ -16,6 +16,8 @@ export default new Schema<iUser>(
 		riskManager: {
 			numberOfTradesAllowedPerDay: { type: Number, required: false },
 			takeControlOfManualTrades: { type: Boolean, required: false },
+			percentageOfMaxProfitPerDay: { type: String, required: false },
+			percentageOfMaxLossPerDay: { type: String, required: false },
 		},
 		funds: {
 			fyers: {

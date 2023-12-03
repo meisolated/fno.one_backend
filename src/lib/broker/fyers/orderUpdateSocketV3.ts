@@ -1,9 +1,9 @@
 import ws from "ws"
 import {
+	fyersSocketGeneralDataProcessing,
 	fyersSocketOrderUpdateDataProcessing,
 	fyersSocketPositionsUpdateDataProcessing,
 	fyersSocketTradeUpdateDataProcessing,
-	fyersSocketUnknownDataProcessing,
 } from "../../../dataProcessingUnit/fyersAPI.dpu"
 import { fyersPingHandler } from "../../../handler/ping.handler"
 import logger from "../../../logger"
@@ -128,6 +128,7 @@ export default class FyersOrderSocket {
 	private url: string
 	private connection: ws | null = null
 	private authorizationKey: string = ""
+	private userId: string
 	private reconnectTries = 0
 	private reconnectInterval: any = null
 	private reconnectIntervalTime = 5000
@@ -136,10 +137,11 @@ export default class FyersOrderSocket {
 	private isPingEnabled = true
 	private subscribeTo = ["orders", "trades", "positions", "edis", "pricealerts"]
 
-	constructor(authorizationKey: string, autoConnect: boolean = true, isPingEnabled: boolean) {
+	constructor(authorizationKey: string, userId: string, autoConnect: boolean = true, isPingEnabled: boolean) {
 		this.url = orderSocketUrl
 		this.authorizationKey = authorizationKey
 		this.isPingEnabled = isPingEnabled
+		this.userId = userId
 		if (autoConnect) {
 			this.connect()
 		}
@@ -178,15 +180,16 @@ export default class FyersOrderSocket {
 						let orderData = dataMapper(parsedData.orders, mapper.orders)
 						orderData.status = ordStatObj[orderData.status]
 						orderData.orderNumStatus = `${orderData.id}:${orderData.status}`
-						fyersSocketOrderUpdateDataProcessing(orderData)
+						fyersSocketOrderUpdateDataProcessing(orderData, this.userId)
 					} else if (parsedData.hasOwnProperty("positions")) {
 						let positionData = dataMapper(parsedData.positions, mapper.position)
-						fyersSocketPositionsUpdateDataProcessing(positionData)
+						fyersSocketPositionsUpdateDataProcessing(positionData, this.userId)
 					} else if (parsedData.hasOwnProperty("trades")) {
 						let tradeData = dataMapper(parsedData.trades, mapper.tradebook)
-						fyersSocketTradeUpdateDataProcessing(tradeData)
-					} else {
-						fyersSocketUnknownDataProcessing(parsedData)
+						fyersSocketTradeUpdateDataProcessing(tradeData, this.userId)
+					}
+					else {
+						fyersSocketGeneralDataProcessing(parsedData, this.userId)
 					}
 				} catch (error) {
 					console.log(_data.toString())

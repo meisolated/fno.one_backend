@@ -43,7 +43,7 @@ const TrueDataMonthStringToNumber = (month: string) => {
 			return "12"
 	}
 }
-const FyersMonthStringToNumber = (month: string) => {
+const FyersMonthStringToNumberInMFormat = (month: string) => {
 	switch (month) {
 		case "Jan":
 			return "1"
@@ -72,4 +72,4 @@ const FyersMonthStringToNumber = (month: string) => {
 	}
 }
 
-export { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed }
+export { FyersMonthStringToNumberInMFormat, TrueDataMonthStringToNumber, datePassed }

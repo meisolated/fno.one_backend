@@ -8,17 +8,6 @@ declare global {
 		}
 	}
 
-	//   ----------------| Types | ----------------
-	//! Not using these for now because fyers and kite both have different types for these
-	//! will process data coming from fyers and kite and then convert them to our types
-	type tPositionType = "long" | "scalping" | "swing" | "expiry"
-	type tOrderType = 1 | 2 | 3 | 4 // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
-	type tOrderSide = 1 | -1 // 1 - Buy, -1 - Sell
-	type tProductType = "CNC" | "INTRADAY" | "MARGIN" | "CO" | "BO"
-	type tOrderStatus = 1 | 2 | 3 | 4 | 5 | 6 // 1 - Cancelled, 2 - Traded/Filled, 3 - For Future Use, 4 - Transit, 5 - Rejected, 6 - Pending
-	type tPositionSide = 1 | -1 | 0 // 1 - Long, -1 - Short, 0 - Closed Position
-	type tOrderSource = "M" | "W" | "R" | "A" | "ITS" // M - Mobile, W - Web, R - Fyers One, A - Admin, ITS - API
-
 	//? ---------| enums start |------------
 	enum _positionType {
 		long = "long",
@@ -242,6 +231,7 @@ declare global {
 	}
 
 	interface iOrder {
+		positionId: string
 		id: string
 		orderDateTime: string
 		orderId: string
@@ -277,61 +267,48 @@ declare global {
 		ex_sym: string
 		description: string
 	}
-	interface iPositions {
+	interface iPosition {
+		userId: string
 		id: string
 		paper: boolean
 		whichBroker: string
-		buyAvgPrice: number
-		buyQty: number
-		sellAvgPrice: number
-		sellQty: number
-		netAvgPrice: number
-		netQty: number
-		side: number
-		qty: number
-		productType: string
+		side: tOrderSide
+		symbol: string
+		price: number
+		quantity: number
+		stopLoss: number
+		riskToRewardRatio: number
+		orderType: tOrderType
+		productType: tProductType
+		positionType: tPositionType
+		enteredAt: number
+		exitedAt: number
+		madeBy: string
+		strategyName: string
+		orderStatus: tOrderStatus
+		status: string
+		message: string
 	}
-	interface iTrades {
+	interface iTrade {
+		positionId: string
+		userId: string
 		id: string
-		paper: boolean
 		clientId: string
 		exchange: string
 		exchangeOrderNo: string
 		brokerToken: string
 		orderDateTime: string
 		orderNumber: string
-		orderType: number
-		productType: string
+		orderType: tOrderType
+		productType: tProductType
 		row: number
 		segment: string
-		side: number
+		side: tOrderSide
 		symbol: string
 		tradeNumber: string
 		tradePrice: number
 		tradeValue: number
 		tradedQty: number
-		madeBy: string
-		strategyName: string
-		createdAt: Date
-		updatedAt: Date
-	}
-	interface iTradeManager {
-		tradeId: string
-		userId: string
-		symbol: string
-		side: number
-		riskToRewardRatio: number
-		quantity: number
-		buyPrice: number
-		sellPrice: number
-		stopLoss: number
-		positionType: string
-		enteredAt: number
-		exitedAt: number
-		status: string
-		message: string
-		createdAt: Date
-		updatedAt: Date
 	}
 	interface iUser {
 		email: string
@@ -499,15 +476,31 @@ declare global {
 		value: number
 		alerted: boolean
 	}
-	//? --------- model interfaces end ------------
-	//? --------- api interfaces start ------------
-	interface iNewTradeDetails {
+	interface IOrderQueue {
 		symbol: string
 		quantity: number
+		price: number
+		stopPrice: number
+		stopLoss: number
+		takeProfit: number
+		offlineOrder: boolean
+		validity: "IOC" | "DAY"
+		disclosedQuantity: number
+		orderType: tOrderType
+		orderSide: tOrderSide
+		productType: tProductType
+		status: tOrderStatus
+	}
+	//? --------- model interfaces end ------------
+	//? --------- api interfaces start ------------
+	interface iNewPositionDetails {
+		symbol: string
+		quantity: number
+		limitPrice: number
 		riskToReward: number
 		positionType: tPositionType
 		stopLoss: number
-		orderSide: number
+		orderSide: tOrderSide
 		userId: string
 	}
 	//? ---------| api interfaces end |------------
@@ -538,6 +531,81 @@ declare global {
 
 	//? ---------| general interfaces end |------------
 	//? ---------- DataProcessingUnit interfaces start ------------
+	interface iFyersSocketOrderUpdateData {
+		userId: string
+		orderId: string
+		exchangeOrderId: string
+		symbol: string
+		quantity: number
+		remainingQuantity: number
+		filledQuantity: number
+		status: tOrderStatus
+		message: string
+		segment: tOrderSegment
+		limitPrice: number
+		stopPrice: number
+		productType: tProductType
+		orderType: tOrderType
+		orderSide: tOrderSide
+		orderValidity: string
+		orderDateTime: string
+		parentId: string
+		tradedPrice: number
+		source: tOrderSource
+		fyToken: string
+		offlineOrder: boolean
+		pan: string
+		clientId: string
+		exchange: string
+		instrument: string
+	}
+
+	interface iFyersSocketTradeUpdateData {
+		userId: string
+		symbol: string
+		tradeId: string
+		orderDateTime: string
+		orderNumber: string
+		tradeNumber: string
+		tradePrice: number
+		tradeValue: number
+		tradeQuantity: number
+		orderSide: tOrderSide
+		productType: tProductType
+		exchangeOrderNo: string
+		segment: tOrderSegment
+		exchange: string
+		fyToken: string
+	}
+
+	interface iFyersSocketPositionUpdateData {
+		userId: string
+		symbol: string
+		positionId: string
+		buyAvg: number
+		buyQty: number
+		sellAvg: number
+		sellQty: number
+		netAvg: number
+		netQty: number
+		side: number
+		qty: number
+		productType: tProductType
+		realizedProfit: number
+		pl: number
+		crossCurrency: string // Y or N
+		rbiRefRate: number
+		qtyMultiCom: number
+		segment: tOrderSegment
+		exchange: string
+		slNo: number
+		ltp: number
+		fyToken: string
+		cfBuyQty: number // Carry Forward Buy Quantity
+		cfSellQty: number // Carry Forward Sell Quantity
+		dayBuyQty: number // Day Buy Quantity
+		daySellQty: number // Day Sell Quantity
+	}
 	interface iTrueDataMarketFeedsTouchlineData {
 		symbol: string
 		lastUpdateTime: string
@@ -574,5 +642,35 @@ declare global {
 		close: string
 		volume: string
 		oi: string
+	}
+	//? ----------| DataProcessingUnit interfaces end |------------
+
+	//? ----------| fyers broker interfaces start |------------
+	//   ----------------| Fyers Types | ----------------
+	//! Not using these for now because fyers and kite both have different types for these
+	//! will process data coming from fyers and kite and then convert them to our types
+	type tPositionType = "long" | "scalping" | "swing" | "expiry"
+	type tOrderType = 1 | 2 | 3 | 4 // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
+	type tOrderSide = "1" | "-1" // 1 - Buy, -1 - Sell
+	type tProductType = "CNC" | "INTRADAY" | "MARGIN" | "CO" | "BO"
+	type tOrderStatus = 1 | 2 | 3 | 4 | 5 | 6 // 1 - Cancelled, 2 - Traded/Filled, 3 - For Future Use, 4 - Transit, 5 - Rejected, 6 - Pending
+	type tOrderSource = "M" | "W" | "R" | "A" | "ITS" // M - Mobile, W - Web, R - Fyers One, A - Admin, ITS - API
+	type tOrderSegment = 10 | 11 | 12 | 20 // 10 - E (Equity), 11 - D (F&O), 12 - C (Currency), 20 - M (Commodity)
+	interface iSingleOrder {
+		symbol: string
+		qty: number
+		type: tOrderType // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
+		side: tOrderSide
+		productType: tProductType
+		limitPrice: 0 | number
+		stopPrice: 0 | number
+		disclosedQty: 0 | number
+		validity: "DAY" | "IOC"
+		offlineOrder: boolean
+		stopLoss: 0 | number
+		takeProfit: 0 | number
+	}
+	interface iCancelOrder {
+		id: string
 	}
 }

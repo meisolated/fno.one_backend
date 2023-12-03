@@ -110,7 +110,6 @@ const getHistoricalDataFyers = async (symbol: string) => {
 		}
 	}
 }
-
 export const updateHistoricalData = async () => {
 	async function update() {
 		const symbol = "NSE:NIFTYBANK-INDEX"

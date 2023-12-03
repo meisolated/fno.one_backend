@@ -1,7 +1,6 @@
-import { tradesChatterInstance } from "../../events"
+import chatter from "../../events"
 import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../handler/fyers.handler"
-import sensitiveLog from "../../logger/sensitiveLog"
-export default async function (user: any, newTradeDetails: iNewTradeDetails) {
+export default async function (user: any, newPositionDetails: iNewPositionDetails) {
 	/**
 	 * first update user funds
 	 * then check if new trade funds requirement is less than allowed funds
@@ -15,9 +14,9 @@ export default async function (user: any, newTradeDetails: iNewTradeDetails) {
 		const _errorIn = _updateUserBrokerFunds
 			? "getFyersUserProfitOrLossOfTheDay"
 			: _fyersUserProfitOrLoss
-				? "updateFyersUserBrokerFunds"
-				: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
-		tradesChatterInstance.emit("tradeManager-", "log", { status: "rejectedByMoneyManager", message: _error + _errorIn, tradeDetails: newTradeDetails, userId: user._id })
+			? "updateFyersUserBrokerFunds"
+			: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
+		chatter.emit("positionManager-", "rejectedByMoneyManager", { status: "rejectedByMoneyManager", message: _error + _errorIn, positionDetails: newPositionDetails, userId: user._id })
 		return false
 	} else {
 		const _totalFunds = user.funds.fyers.total
@@ -29,26 +28,26 @@ export default async function (user: any, newTradeDetails: iNewTradeDetails) {
 		if (_fyersUserProfitOrLoss.realized > 0) {
 			const percentageOfProfit = (_fyersUserProfitOrLoss.realized / _totalFunds) * 100
 			if (percentageOfProfit > 5) {
-				tradesChatterInstance.emit("tradeManager-", "rejectedByMoneyManager", {
-					status: "tradeRejected",
+				chatter.emit("positionManager-", "rejectedByMoneyManager", {
+					status: "tradeRejectedByMoneyManager",
 					message: "Profit is more than 5% of total funds",
-					tradeDetails: newTradeDetails,
+					positionDetails: newPositionDetails,
 					userId: user._id,
 				})
 				return false
 			}
-			tradesChatterInstance.emit("tradeManager-", "tradeApprovedByMoneyManager", {
+			chatter.emit("positionManager-", "positionApprovedByMoneyManager", {
 				status: "approvedByMoneyManager",
 				message: "Profit is less than 5% of total funds",
-				tradeDetails: newTradeDetails,
+				positionDetails: newPositionDetails,
 				userId: user._id,
 			})
 			return true
 		}
-		tradesChatterInstance.emit("tradeManager-", "tradeApprovedByMoneyManager", {
+		chatter.emit("positionManager-", "positionApprovedByMoneyManager", {
 			status: "approvedByMoneyManager",
 			message: "Profit is less than 5% of total funds",
-			tradeDetails: newTradeDetails,
+			positionDetails: newPositionDetails,
 			userId: user._id,
 		})
 		return true

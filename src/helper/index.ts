@@ -1,9 +1,10 @@
 import axios from "axios"
 import { Settings } from "../model"
 import { getMarketCurrentPrice } from "./marketData.helper"
-import { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed } from "./optionChain.helper"
+import { FyersMonthStringToNumberInMFormat, TrueDataMonthStringToNumber, datePassed } from "./optionChain.helper"
+export { FyersMonthStringToNumberInMFormat, TrueDataMonthStringToNumber, datePassed, getMarketCurrentPrice }
 
-export { FyersMonthStringToNumber, TrueDataMonthStringToNumber, datePassed, getMarketCurrentPrice }
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 export const timeout = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -129,6 +130,7 @@ export function calculatePivotPointsAndSupportResistance(high: number, low: numb
 		resistance6,
 	}
 }
+
 export function getDayOfWeekAsString(date: number) {
 	const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 	const dayIndex = date
@@ -139,6 +141,7 @@ export function getDayOfWeekAsString(date: number) {
 		return "Invalid Day"
 	}
 }
+
 export function isNumberInRange(number: number, min: number, max: number) {
 	return number >= min && number <= max
 }
@@ -160,8 +163,6 @@ export function timePassed(hours: number, minutes: number) {
 	}
 }
 
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
 export const getDateFormatter = (date: Date) => {
 	const day = date.getDate()
 	const month = months[date.getMonth()]
@@ -173,15 +174,14 @@ export const getDateFormatter = (date: Date) => {
 	const formattedDate = `${dayString}-${month}-${year}`
 	return formattedDate
 }
+
 export const getCurrentDateFormatted = () => {
 	const currentDate = new Date()
 	const day = currentDate.getDate()
 	const month = months[currentDate.getMonth()]
 	const year = currentDate.getFullYear()
-
 	// Add leading zeros to day if it's a single digit
 	const dayString = day < 10 ? `0${day}` : day
-
 	const formattedDate = `${dayString}-${month}-${year}`
 	return formattedDate
 }

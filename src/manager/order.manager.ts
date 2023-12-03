@@ -1,9 +1,23 @@
-import { tradesChatterInstance } from "../events"
-import { placeSingleOrder } from "../lib/broker/fyers"
+import * as fyers from "../lib/broker/fyers"
+import { User } from "../model"
 
-export default async (user: iUser, orderData: iNewOrder) => {
+export const placeOrder = async (userId: string, orderDetails: iSingleOrder) => {
+	const userData = await User.findOne({ _id: userId })
+	if (!userData) return false
+	const orderPlacementResponse = await fyers.placeSingleOrder(userData?.userAppsData.fyers.accessToken, orderDetails)
+	if (orderPlacementResponse.s !== "ok" && orderPlacementResponse.message.includes("successfully")) return false
+	return orderPlacementResponse
 }
+export const cancelOrder = async (userId: string, orderId: iCancelOrder) => {
+	const userData = await User.findOne({ _id: userId })
+	if (!userData) return false
+	const orderCancellationResponse = await fyers.cancelSingleOrder(userData?.userAppsData.fyers.accessToken, orderId)
+	if (orderCancellationResponse.s != "ok" && orderCancellationResponse.code != 200) return false
+}
+export const exitPositionById = async (positionId: string) => {}
 
+export const placeMultiOrder = async (orderDetails: iSingleOrder[]) => {}
+export const cancelMultiOrder = async (orderDetails: iSingleOrder[]) => {}
 
 /**
  * Position Types

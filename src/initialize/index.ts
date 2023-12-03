@@ -261,7 +261,7 @@ var tasks = [
 			}),
 	},
 	{
-		name: "startSymbolDataUpdate",
+		name: "symbolLTPUpdate",
 		status: false,
 		tries: 0,
 		importance: 1,
