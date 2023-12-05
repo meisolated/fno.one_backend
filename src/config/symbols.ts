@@ -2,7 +2,18 @@ export const indicesSymbol = ["NIFTY 50", "NIFTY BANK", "NIFTY FIN SERVICE", "NI
 export const bankNiftyUnderlyingAssets = ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"]
 export default [...indicesSymbol, ...bankNiftyUnderlyingAssets]
 
-export const indiesConfig: any = {
+
+interface iIndiesConfig {
+	[key: string]: {
+		lotSize: number,
+		name: string,
+		strikePriceGap: number,
+		expiryDay: string,
+		monthlyExpiryDay: string,
+	}
+}
+
+export const indiesConfig: iIndiesConfig = {
 	BANKNIFTY: {
 		lotSize: 15,
 		name: "NIFTY BANK",

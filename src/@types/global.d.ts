@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface iRateLimitData {
@@ -170,6 +170,7 @@ declare global {
 		realTimeMarketsToWatch: string[]
 		keepRealTimeMarketsData: boolean
 		activeStrategies: string[]
+		developmentMode: boolean
 		primaryFyersAccountEmail: string
 		serverConf: {
 			APIPort: number
@@ -268,8 +269,8 @@ declare global {
 		description: string
 	}
 	interface iPosition {
+		id: number
 		userId: string
-		id: string
 		paper: boolean
 		whichBroker: string
 		side: tOrderSide
@@ -277,17 +278,19 @@ declare global {
 		price: number
 		quantity: number
 		stopLoss: number
+		peakLTP: number
+		trailingStopLoss: Boolean
 		riskToRewardRatio: number
 		orderType: tOrderType
 		productType: tProductType
 		positionType: tPositionType
-		enteredAt: number
-		exitedAt: number
 		madeBy: string
 		strategyName: string
 		orderStatus: tOrderStatus
 		status: string
 		message: string
+		enteredAt: number
+		exitedAt: number
 	}
 	interface iTrade {
 		positionId: string

@@ -10,6 +10,7 @@ export default new Schema<iSettings>(
 		keepRealTimeMarketsData: { type: Boolean, required: false },
 		activeStrategies: [{ type: String, required: false }],
 		primaryFyersAccountEmail: { type: String, required: false },
+		developmentMode: { type: Boolean, required: false },
 		global: {
 			maxProfit: { type: Number, required: false },
 			maxLoss: { type: Number, required: false },

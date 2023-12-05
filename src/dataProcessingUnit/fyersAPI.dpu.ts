@@ -75,7 +75,7 @@ export const fyersSocketTradeUpdateDataProcessing = (tradeData: any, userId: str
 		tradeNumber: tradeData.tradeNumber,
 		tradePrice: tradeData.tradePrice,
 		tradeValue: tradeData.tradeValue,
-		tradeQuantity: tradeData.tradeQty,
+		tradeQuantity: tradeData.tradedQty,
 		orderSide: tradeData.side,
 		productType: tradeData.productType,
 		exchangeOrderNo: tradeData.exchangeOrderNo,
