@@ -1,49 +1,21 @@
-const indiesConfig = {
-	BANKNIFTY: {
-		lotSize: 15,
-		name: "NIFTY BANK",
-		strikePriceGap: 100,
-		expiryDay: "wednesday",
-		monthlyExpiryDay: "thursday",
-	},
-	NIFTY: {
-		lotSize: 50,
-		name: "NIFTY 50",
-		strikePriceGap: 50,
-		expiryDay: "thursday",
-		monthlyExpiryDay: "thursday",
-	},
-	FINNIFTY: {
-		lotSize: 40,
-		name: "NIFTY FIN SERVICE",
-		strikePriceGap: 50,
-		expiryDay: "tuesday",
-		monthlyExpiryDay: "thursday",
-	},
-}
+function splitLots(lot, quantity) {
+	const lots = []
 
-function getLotSize(symbol) {
-	const match = symbol.match(/([A-Z]+)\d+/)
-	console.log(match)
-	if (match) {
-		const indiesKey = match[1]
-		const indiesInfo = indiesConfig[indiesKey]
+	while (quantity > 0) {
+		// Determine the current lot size (minimum between lot and quantity)
+		const currentLotSize = Math.min(lot, quantity)
 
-		if (indiesInfo) {
-			return indiesInfo.lotSize
-		}
+		// Subtract the current lot size from the remaining quantity
+		quantity -= currentLotSize
+
+		// Push the current lot size to the array
+		lots.push(currentLotSize)
 	}
 
-	// Symbol not found in the config
-	return undefined
+	return lots
 }
 
 // Example usage:
-const symbol = "NSE:BANKNIFTY23D0647300CE"
-const lotSize = getLotSize(symbol)
-
-if (lotSize !== undefined) {
-	console.log(`Lot Size for ${symbol}: ${lotSize}`)
-} else {
-	console.log(`Symbol ${symbol} not found in the configuration`)
-}
+const result = splitLots(900, 50000)
+console.log(result)
+console.log(result.length)

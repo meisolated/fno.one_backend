@@ -279,6 +279,7 @@ export const placeSingleOrder = async (accessToken: string, data: iNewOrder) => 
 			},
 			"data": JSON.stringify(data),
 		}
+		console.log("reqConfig", reqConfig)
 		try {
 			const orderPlacementResponse = await axios.request(reqConfig)
 			return orderPlacementResponse.data

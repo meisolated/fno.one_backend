@@ -1,6 +1,6 @@
 import chatter from "../../events"
 import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../handler/fyers.handler"
-export default async function (positionId: number, user: any, newPositionDetails: iNewPositionDetails) {
+export default async function (positionId: number, user: any, newPositionDetails: iPosition) {
 	/**
 	 * first update user funds
 	 * then check if new trade funds requirement is less than allowed funds

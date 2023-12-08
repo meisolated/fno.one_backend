@@ -233,25 +233,24 @@ declare global {
 
 	interface iOrder {
 		positionId: string
-		id: string
 		orderDateTime: string
 		orderId: string
 		exchOrdId: string
-		side: number
+		side: tOrderSide
 		segment: number
 		instrument: string
-		productType: string
+		productType: tProductType
 		status: number
-		qty: number
+		quantity: number
 		remainingQuantity: number
-		filledQty: number
+		filledQuantity: number
 		limitPrice: number
 		stopPrice: number
-		type: number
+		orderType: tOrderType
 		discloseQty: number
 		dqQtyRem: number
 		orderValidity: string
-		source: string
+		source: tOrderSource
 		slNo: number
 		fyToken: string
 		offlineOrder: boolean
@@ -326,6 +325,8 @@ declare global {
 		riskManager: {
 			numberOfTradesAllowedPerDay: number
 			takeControlOfManualTrades: boolean
+			percentageOfMaxProfitPerDay: number
+			percentageOfMaxLossPerDay: number
 		}
 		funds: {
 			fyers: {
@@ -335,6 +336,7 @@ declare global {
 			}
 		}
 		moneyManager: {
+			mode: string // percentage or amount
 			percentageOfFundsToUse: number
 			fundsToUse: number
 			maxLossPerDay: number // in percentage and this percentage is going to get calculated from money manager funds to use -> weekday funds to use (PERCENTAGE OF THIS AMOUNT)
@@ -654,7 +656,7 @@ declare global {
 	//! will process data coming from fyers and kite and then convert them to our types
 	type tPositionType = "long" | "scalping" | "swing" | "expiry"
 	type tOrderType = 1 | 2 | 3 | 4 // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
-	type tOrderSide = "1" | "-1" // 1 - Buy, -1 - Sell
+	type tOrderSide = 1 | -1 // 1 - Buy, -1 - Sell
 	type tProductType = "CNC" | "INTRADAY" | "MARGIN" | "CO" | "BO"
 	type tOrderStatus = 1 | 2 | 3 | 4 | 5 | 6 // 1 - Cancelled, 2 - Traded/Filled, 3 - For Future Use, 4 - Transit, 5 - Rejected, 6 - Pending
 	type tOrderSource = "M" | "W" | "R" | "A" | "ITS" // M - Mobile, W - Web, R - Fyers One, A - Admin, ITS - API

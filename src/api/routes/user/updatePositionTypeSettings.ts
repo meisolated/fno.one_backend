@@ -46,6 +46,8 @@ export default async function (app: Express, path: string) {
 
 									moneyManager.percentageOfFundsToUse = req.body.moneyManager.percentageOfFundsToUse || 0
 									moneyManager.fundsToUse = req.body.moneyManager.fundsToUse || "0"
+									moneyManager.mode = req.body.moneyManager.mode || "percentage"
+									moneyManager.maxLossPerDay = req.body.moneyManager.maxLossPerDay || 0
 									moneyManager.weekDays.monday = req.body.moneyManager.weekDays.monday || 0
 									moneyManager.weekDays.tuesday = req.body.moneyManager.weekDays.tuesday || 0
 									moneyManager.weekDays.wednesday = req.body.moneyManager.weekDays.wednesday || 0

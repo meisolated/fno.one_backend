@@ -61,6 +61,11 @@ export default function userSocketNamespace(socket: Namespace) {
 		const userId = data.userId.toString()
 		socket.to(userId + "-positionUpdates").emit("positionUpdates", JSON.stringify(data))
 	})
+	chatter.on("positionManager-", "positionUpdated", async (data: any) => {
+		const userId = data.userId
+		console.log(data)
+		socket.to(userId + "-positionUpdates").emit("positionUpdates", JSON.stringify(data))
+	})
 
 	chatter.on("newTradeUpdates", "", (data) => {
 		const userId = data.userId.toString()

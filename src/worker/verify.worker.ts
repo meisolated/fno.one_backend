@@ -8,7 +8,6 @@ export const checkIfAllMarketDataTicksAreBeingProvidedByProvider = async (symbol
 			if (symbolsAsked.includes(symbol[0])) notFoundList.splice(notFoundList.indexOf(symbol[0]), 1)
 			try {
 				const filter = { trueDataSymbolId: symbol[1] }
-				const tryToFind = await SymbolData.findOne(filter)
 				const prepareData: any = {
 					trueDataSymbolId: symbol[1],
 					symbol: symbol[0],
@@ -16,11 +15,7 @@ export const checkIfAllMarketDataTicksAreBeingProvidedByProvider = async (symbol
 					ltp: symbol[3],
 					lastUpdated: new Date(),
 				}
-				if (tryToFind) {
-					await SymbolData.updateOne(filter, prepareData)
-				} else {
-					await SymbolData.create(prepareData)
-				}
+				await SymbolData.findOneAndUpdate(filter, prepareData, { new: true, upsert: true })
 			} catch (error) {
 				return logger.error(`checkIfAllMarketDataTicksAreBeingProvidedByProvider: ${error}`, "verify.ts")
 			}

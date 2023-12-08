@@ -15,7 +15,7 @@ export default new Schema<iTrade>(
 		productType: { type: String, required: true, unique: false },
 		row: { type: Number, required: true, unique: false },
 		segment: { type: String, required: true, unique: false },
-		side: { type: String, required: true, unique: false },
+		side: { type: Number, required: true, unique: false },
 		symbol: { type: String, required: true, unique: false },
 		tradeNumber: { type: String, required: true, unique: false },
 		tradePrice: { type: Number, required: true, unique: false },

@@ -7,7 +7,8 @@ const positions = new Schema<iPosition>(
 		userId: { type: String, required: true, unique: false },
 		paper: { type: Boolean, required: true, default: false },
 		whichBroker: { type: String, required: true, default: "user" },
-		side: { type: String, required: true, default: "1" },
+		symbol: { type: String, required: true, default: "user" },
+		side: { type: Number, required: true, default: 1 },
 		price: { type: Number, required: true, default: 0 },
 		quantity: { type: Number, required: true, default: 0 },
 		stopLoss: { type: Number, required: true, default: 0 },
@@ -22,6 +23,8 @@ const positions = new Schema<iPosition>(
 		orderStatus: { type: Number, required: true, default: 6 },
 		status: { type: String, required: true, default: "created" },
 		message: { type: String, required: true, default: "created" },
+		enteredAt: { type: Number, required: true, default: 0 },
+		exitedAt: { type: Number, required: true, default: 0 },
 	},
 	{ timestamps: true },
 )

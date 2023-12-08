@@ -16,8 +16,8 @@ export default new Schema<iUser>(
 		riskManager: {
 			numberOfTradesAllowedPerDay: { type: Number, required: false },
 			takeControlOfManualTrades: { type: Boolean, required: false },
-			percentageOfMaxProfitPerDay: { type: String, required: false },
-			percentageOfMaxLossPerDay: { type: String, required: false },
+			percentageOfMaxProfitPerDay: { type: Number, required: false },
+			percentageOfMaxLossPerDay: { type: Number, required: false },
 		},
 		funds: {
 			fyers: {
@@ -27,6 +27,7 @@ export default new Schema<iUser>(
 			},
 		},
 		moneyManager: {
+			mode: { type: String, required: false, default: "percentage" },// percentage or amount
 			percentageOfFundsToUse: { type: Number, required: false },
 			fundsToUse: { type: String, required: false },
 			maxLossPerDay: { type: String, required: false }, // in percentage and this percentage is going to get calculated from money manager funds to use -> weekday funds to use (PERCENTAGE OF THIS AMOUNT)

@@ -16,9 +16,7 @@ export default async function updateSymbolLTP() {
 			upsert: true, // Create if not exists
 			new: true, // Return updated document
 		})
-		if (result) {
-		} else {
-			return logger.error(`[updateSymbolLTP.ts] updateSymbolLTP: ${symbolData.symbol} not found in SymbolData`, "updateSymbolLTP.ts")
-		}
+
+		if (!result) return logger.error(`[updateSymbolLTP.ts] updateSymbolLTP: ${symbolData.symbol} not found in SymbolData`, "updateSymbolLTP.ts")
 	})
 }

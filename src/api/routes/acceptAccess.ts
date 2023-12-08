@@ -33,7 +33,7 @@ export default async function (app: Express, path: string) {
 		} else {
 			if (req.headers.referer !== "https://api-t1.fyers.in/") return res.redirect("/error/invalidRequest")
 			if (req.query.auth_code || req.query.s == "ok") {
-				const maxAge = 1000 * 60 * 60 * 24 * 1 // 1 days
+				const maxAge = 1000 * 60 * 60 * 12 // 12 hours
 				const currentTimeUnixMs = Date.now()
 				const cookie = crypto.randomBytes(64).toString("hex")
 				const cookieHash = `fno.one-${crypto
