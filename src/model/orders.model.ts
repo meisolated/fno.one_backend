@@ -4,7 +4,7 @@ export default new Schema<iOrder>(
 	{
 		positionId: { type: String, required: true, unique: false },
 		orderDateTime: { type: String, required: false, unique: false },
-		orderId: { type: String, required: false, unique: false },
+		orderId: { type: String, required: false, unique: true },
 		exchOrdId: { type: String, required: false, unique: false },
 		side: { type: Number, required: false, unique: false },
 		segment: { type: Number, required: false, unique: false },

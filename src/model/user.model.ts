@@ -27,7 +27,7 @@ export default new Schema<iUser>(
 			},
 		},
 		moneyManager: {
-			mode: { type: String, required: false, default: "percentage" },// percentage or amount
+			mode: { type: String, required: false, default: "percentage" }, // percentage or amount
 			percentageOfFundsToUse: { type: Number, required: false },
 			fundsToUse: { type: String, required: false },
 			maxLossPerDay: { type: String, required: false }, // in percentage and this percentage is going to get calculated from money manager funds to use -> weekday funds to use (PERCENTAGE OF THIS AMOUNT)

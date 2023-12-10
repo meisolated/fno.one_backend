@@ -6,6 +6,10 @@ import { placeOrder } from "./order.manager"
 import moneyManager from "./tradeApprovalAuthority/money.manager"
 import riskManager from "./tradeApprovalAuthority/risk.manager"
 
+export const positions = [] as iPosition[]
+export const orders = [] as iOrder[]
+export const trades = [] as iTrade[]
+
 // Handle new position request
 export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) => {
 	const user = await User.findById(newPositionDetails.userId)
@@ -34,27 +38,33 @@ export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) =
 		message: "created",
 		enteredAt: 0,
 		exitedAt: 0,
-	}).then((position) => {
-		return position.toObject({ getters: true })
-	}).catch((err) => {
-		chatter.emit("positionManager-", "positionDetailsReceived", { status: "error", message: "Error while creating position", positionDetails: newPositionDetails, userId: newPositionDetails.userId })
-		return logger.error("Error while creating position " + err.message, "trade.manager",)
 	})
-	if (!position) return
-	const positionId = position.id
+		.then((position) => {
+			return position.toObject()
+		})
+		.catch((err) => {
+			chatter.emit("positionManager-", "positionDetailsReceived", {
+				status: "error",
+				message: "Error while creating position",
+				positionDetails: newPositionDetails,
+				userId: newPositionDetails.userId,
+			})
+			return logger.error("Error while creating position " + err.message, "trade.manager")
+		})
+	if (!position) return logger.error("Error while creating position", "trade.manager")
 	chatter.emit("positionManager-", "positionDetailsReceived", { status: "received", message: "New position details received", positionDetails: position, userId: user._id })
-	console.log(position)
+	positions.push(position)
 
-	await moneyManager(positionId, user, position).then(async (moneyManagerApprovalResponse) => {
+	await moneyManager(position.id, user, position).then(async (moneyManagerApprovalResponse) => {
 		if (moneyManagerApprovalResponse) {
-			await riskManager(positionId, user, position).then((riskManagerApprovalResponse) => {
+			await riskManager(position.id, user, position).then((riskManagerApprovalResponse) => {
 				if (riskManagerApprovalResponse) {
 					chatter.emit("positionManager-", "handOverToPositionManager", position)
 					return chatter.emit("positionManager-", "positionApproved", {
 						status: "approved",
 						message: "Position approved by money manager and risk manager",
 						positionDetails: position,
-						positionId,
+						positionId: position.id,
 						userId: user._id,
 					})
 				}
@@ -63,10 +73,12 @@ export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) =
 	})
 }
 
-export const handleSelfEnteredPosition = async () => { }
-
 export default async () => {
 	logger.info("Loaded Position Manager", "Position Manager")
+	const _positions = await Positions.find({ status: { $nin: ["positionClosed", "positionCancelled", "positionFailed", "positionExpired"] } })
+	_positions.forEach((position) => {
+		positions.push(position.toObject())
+	})
 	chatter.on("positionManager-", "handOverToPositionManager", async (newPositionDetails: iPosition) => {
 		const takePositionResponse = await executeOrder(newPositionDetails.userId, newPositionDetails)
 		chatter.emit("positionManager-", "log", { status: "info", message: "Order placed", positionDetails: newPositionDetails, userId: newPositionDetails.userId, takePositionResponse })
@@ -80,21 +92,31 @@ export default async () => {
 		const _position = await Positions.findOne({ id: _order.positionId })
 		if (!_position) return logger.error("Position not found", "position.manager")
 
-		if (orderData.status === 2) { // order filled
-			await updatePosition({ ..._position, status: positionStatuses.orderFilled, message: orderData.message })
-		} else if (orderData.status === 5) {// order rejected
-			await updatePosition({ ..._position, status: positionStatuses.orderRejected, message: orderData.message })
-
-		} else if (orderData.status === 1) {// order cancelled
-			await updatePosition({ ..._position, status: positionStatuses.orderCancelled, message: orderData.message })
-		} else if (orderData.status === 6) {//
-			await updatePosition({ ..._position, status: positionStatuses.orderPending, message: orderData.message })
+		if (orderData.status == 2) {
+			// order filled
+			await updatePosition({ ..._position.toObject(), status: positionStatuses.orderFilled, message: orderData.message })
+		} else if (orderData.status == 5) {
+			// order rejected
+			await updatePosition({ ..._position.toObject(), status: positionStatuses.orderRejected, message: orderData.message })
+		} else if (orderData.status == 1) {
+			// order cancelled
+			await updatePosition({ ..._position.toObject(), status: positionStatuses.orderCancelled, message: orderData.message })
+		} else if (orderData.status == 6) {
+			// order pending
+			await updatePosition({ ..._position.toObject(), status: positionStatuses.orderPending, message: orderData.message })
+		} else if (orderData.status == 4) {
+			// in transit
+			await updatePosition({ ..._position.toObject(), status: positionStatuses.orderBeingPlaced, message: orderData.message })
 		}
+
+		if (orderData.filledQuantity > 0 && orderData.remainingQuantity > 0) {
+			await updatePosition({ ..._position.toObject(), status: positionStatuses.orderPartiallyFilled, message: orderData.message })
+		}
+
 		// } else if (orderData.status === 3) { // for future use
 		// 	await updatePosition({ ..._position, status: positionStatuses.orderExpired, message: orderData.message })
 
 		//update order details in db
-
 		_order.status = orderData.status
 		_order.message = orderData.message
 		_order.exchOrdId = orderData.exchangeOrderId
@@ -121,9 +143,7 @@ export default async () => {
 		_order.instrument = orderData.instrument
 		await _order.save()
 
-		function handleManualPositionExit() { }
-		function handleManualPositionEntry() { }
-
+		// handle position update
 	})
 
 	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => {
@@ -131,6 +151,10 @@ export default async () => {
 	})
 	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => {
 		console.log("tradeData", tradeData)
+	})
+	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
+		if (!symbolData) return
+
 	})
 }
 
@@ -154,23 +178,27 @@ const executeOrder = async (userId: string, position: iPosition) => {
 		await updatePosition({ ...position, status: positionStatuses.positionCancelled, message: "Position quantity is more than 900, splitting into multiple orders is currently disabled" })
 	} else {
 		const orderResponse = await placeOrder(userId, prepareOrderFrame)
-		console.log("orderResponse", orderResponse)
 		if (orderResponse.message.includes("Successfully placed order")) {
 			await updatePosition({ ...position, status: positionStatuses.orderPlaced, message: orderResponse.message })
 			// create order in db and update position
+		} else {
+			await updatePosition({ ...position, status: positionStatuses.orderFailed, message: orderResponse.message })
+		}
+		if (orderResponse.id) {
 			await Orders.create({
 				positionId: position.id,
 				orderId: orderResponse.id,
 			})
-		} else {
-			await updatePosition({ ...position, status: positionStatuses.orderFailed, message: orderResponse.message })
 		}
 	}
 }
 
 export async function updatePosition(positionData: iPosition) {
-	console.log("positionData", positionData)
-	await Positions.findOneAndUpdate({ id: positionData.id }, positionData)
+	positions.forEach((position, index) => {
+		if (position.id === positionData.id) {
+			positions[index] = positionData
+		}
+	})
 	chatter.emit("positionManager-", "positionUpdated", {
 		status: positionData.status,
 		message: positionData.message,
@@ -178,6 +206,18 @@ export async function updatePosition(positionData: iPosition) {
 		positionId: positionData.id,
 		userId: positionData.userId,
 	})
+	await Positions.findOneAndUpdate({ id: positionData.id }, positionData)
+}
+async function createPosition(positionData: iPosition) {
+	const _position = await Positions.create(positionData)
+	chatter.emit("positionManager-", "positionCreated", {
+		status: positionData.status,
+		message: positionData.message,
+		positionDetails: positionData,
+		positionId: positionData.id,
+		userId: positionData.userId,
+	})
+	return _position.toObject()
 }
 
 function splitLots(lot: number, quantity: number): number[] {
@@ -218,3 +258,31 @@ const positionStatuses = {
 	positionClosedWithStopLoss: "positionClosedWithStopLoss",
 	positionClosedWithTrailingStopLoss: "positionClosedWithTrailingStopLoss",
 }
+
+const activePositionStatuses = [
+	positionStatuses.approvedByMoneyManager,
+	positionStatuses.approvedByRiskManager,
+	positionStatuses.orderBeingPlaced,
+	positionStatuses.orderPlaced,
+	positionStatuses.orderFilled,
+	positionStatuses.orderPartiallyFilled,
+	positionStatuses.orderPending,
+	positionStatuses.inPosition,
+	positionStatuses.positionNearStopLoss,
+	positionStatuses.positionNearTarget,
+	positionStatuses.trailingPositionStopLoss,
+]
+const closedPositionStatuses = [
+	positionStatuses.orderRejected,
+	positionStatuses.orderCancelled,
+	positionStatuses.orderFailed,
+	positionStatuses.orderExpired,
+	positionStatuses.positionClosed,
+	positionStatuses.positionCancelled,
+	positionStatuses.positionFailed,
+	positionStatuses.positionExpired,
+	positionStatuses.handedOverToUser,
+	positionStatuses.positionClosedWithTarget,
+	positionStatuses.positionClosedWithStopLoss,
+	positionStatuses.positionClosedWithTrailingStopLoss,
+]

@@ -5,6 +5,6 @@ export default new Schema<iLogger>({
 	type: { type: String, required: true },
 	by: { type: String, required: true },
 	user: { type: String, required: false },
-	date: { type: Date, required: true },
+	timestamp: { type: Date, required: true },
 	loggedFrom: { type: String, required: true },
 })

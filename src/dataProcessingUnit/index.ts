@@ -1,13 +1,15 @@
 import { getConfigData } from "../config/initialize"
 import chatter from "../events"
-import logger from "../logger"
 import { SymbolTicks } from "../model"
+import { _trueDataSymbolToFyersSymbol } from "../provider/symbols.provider"
 export const trueDataMarketFeedsRealTimeDataProcessing = (data: any) => {
 	// console.log(data)
 	// try {
+
 	const processData: iSymbolTicks = {
 		symbolId: data.Symbol_ID,
 		symbol: data.Symbol,
+		fySymbol: _trueDataSymbolToFyersSymbol[data.Symbol],
 		originalName: data.Symbol,
 		shortName: data.Symbol,
 		description: data.Symbol,
@@ -52,6 +54,7 @@ export const trueDataMarketFeedsHandleTouchlineDataProcessing = (data: any) => {
 	const processData: iTrueDataMarketFeedsTouchlineData = {
 		symbolId: data.Symbol_ID,
 		symbol: data.Symbol,
+		fySymbol: _trueDataSymbolToFyersSymbol[data.Symbol],
 		lastUpdateTime: data.LastUpdateTime,
 		lp: data.LTP,
 		tickVolume: data.TickVolume,

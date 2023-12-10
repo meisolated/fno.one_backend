@@ -13,12 +13,12 @@ export const cancelOrder = async (userId: string, orderId: iCancelOrder) => {
 	const orderCancellationResponse = await fyers.cancelSingleOrder(userData?.userAppsData.fyers.accessToken, orderId)
 	if (orderCancellationResponse.s != "ok" && orderCancellationResponse.code != 200) return false
 }
-export const exitPositionById = async (positionId: string) => { }
+export const exitPositionById = async (positionId: string) => {}
 
-export const placeMultiOrder = async (orderDetails: iSingleOrder[]) => { }
-export const cancelMultiOrder = async (orderDetails: iSingleOrder[]) => { }
-export const getOrders = async (userId: string) => { }
-export const getOrderById = async (userId: string, orderId: string) => { }
+export const placeMultiOrder = async (orderDetails: iSingleOrder[]) => {}
+export const cancelMultiOrder = async (orderDetails: iSingleOrder[]) => {}
+export const getOrders = async (userId: string) => {}
+export const getOrderById = async (userId: string, orderId: string) => {}
 /**
  * Position Types
  * 1 - Long Position : Stop Loss and Target not so aggressive and RR ratio above or equal to 1:2

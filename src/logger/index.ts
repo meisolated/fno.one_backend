@@ -1,7 +1,7 @@
 import chalk from "chalk"
 import fs from "fs"
+import { Logger } from "../model"
 type LogLevel = "info" | "error" | "warn" | "debug"
-
 interface LoggerOptions {
 	colors: Record<LogLevel, chalk.ChalkFunction>
 }
@@ -18,7 +18,7 @@ class CustomLogger {
 		const currentTime = new Date().toLocaleString()
 		const formattedMessage = `[${level.toUpperCase()}] [${currentTime}] ${sector ? ` [${sector}]` : ""} - ${message}`
 		const logString = JSON.stringify(formattedMessage) + "\n"
-
+		Logger.create({ message, type: level, by: sector ? sector : "system", loggedFrom: "system", timestamp: new Date() })
 		// check is logs folder exists
 		if (!fs.existsSync("./logs")) {
 			fs.mkdirSync("./logs")

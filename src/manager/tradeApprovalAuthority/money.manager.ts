@@ -1,5 +1,5 @@
-import chatter from "../../events"
 import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../handler/fyers.handler"
+import { updatePosition } from "../position.manager"
 export default async function (positionId: number, user: any, newPositionDetails: iPosition) {
 	/**
 	 * first update user funds
@@ -16,7 +16,8 @@ export default async function (positionId: number, user: any, newPositionDetails
 			: _fyersUserProfitOrLoss
 			? "updateFyersUserBrokerFunds"
 			: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
-		chatter.emit("positionManager-", "rejectedByMoneyManager", { status: "rejectedByMoneyManager", message: _error + _errorIn, positionDetails: newPositionDetails, userId: user._id })
+
+		updatePosition({ ...newPositionDetails, status: "rejectedByMoneyManager", message: _error + _errorIn })
 		return false
 	} else {
 		const _totalFunds = user.funds.fyers.total
@@ -28,28 +29,15 @@ export default async function (positionId: number, user: any, newPositionDetails
 		if (_fyersUserProfitOrLoss.realized > 0) {
 			const percentageOfProfit = (_fyersUserProfitOrLoss.realized / _totalFunds) * 100
 			if (percentageOfProfit > 5) {
-				chatter.emit("positionManager-", "rejectedByMoneyManager", {
-					status: "tradeRejectedByMoneyManager",
-					message: "Profit is more than 5% of total funds",
-					positionDetails: newPositionDetails,
-					userId: user._id,
-				})
+				updatePosition({ ...newPositionDetails, status: "rejectedByMoneyManager", message: "Profit is more than 5% of total funds" })
 				return false
 			}
-			chatter.emit("positionManager-", "positionApprovedByMoneyManager", {
-				status: "approvedByMoneyManager",
-				message: "Profit is less than 5% of total funds",
-				positionDetails: newPositionDetails,
-				userId: user._id,
-			})
+
+			updatePosition({ ...newPositionDetails, status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds" })
 			return true
 		}
-		chatter.emit("positionManager-", "positionApprovedByMoneyManager", {
-			status: "approvedByMoneyManager",
-			message: "Profit is less than 5% of total funds",
-			positionDetails: newPositionDetails,
-			userId: user._id,
-		})
+
+		updatePosition({ ...newPositionDetails, status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds" })
 		return true
 	}
 }

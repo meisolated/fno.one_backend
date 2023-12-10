@@ -11,20 +11,21 @@ const checkIsConfigured = async () => {
 	return true
 }
 const initializeEmptySettings = async () => {
-	const settingsiSettings = {
+	const settingsSettings: iSettings = {
 		id: 1,
-		state: "development",
-		simulateTicks: false,
 		enableLogging: true,
-		realTimeMarketsToWatch: [],
 		keepRealTimeMarketsData: false,
 		activeStrategies: [],
-		primaryFyersAccountEmail: "",
+		developmentMode: true,
 		global: {
 			maxProfit: 30,
 			maxLoss: 10,
 			maxTradesPerDay: 3,
 			enableMoneyManager: true,
+			orderPlacementSettings: {
+				orderType: 1,
+				productType: "INTRADAY",
+			}
 		},
 		serverConf: {
 			APIPort: 0,

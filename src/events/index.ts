@@ -1,6 +1,7 @@
 import events from "events"
 import logger from "../logger"
 import sensitiveLog from "../logger/sensitiveLog"
+import { Logger } from "../model"
 const chatter = new events.EventEmitter()
 
 class Chatter {
@@ -36,6 +37,7 @@ class Chatter {
 
 	storeSensitive(eventPrefix: string, event: string, data: any) {
 		if (eventPrefix.includes("positionManager")) {
+			Logger.create({ message: JSON.stringify(data), type: "sensitive", by: `${eventPrefix} ${event}`, loggedFrom: "system", timestamp: new Date() })
 			sensitiveLog(`${eventPrefix} ${event} ${JSON.stringify(data)}`)
 		}
 	}

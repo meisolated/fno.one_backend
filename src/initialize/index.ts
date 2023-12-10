@@ -21,6 +21,7 @@ const commonAxiosGet = async (url: string) => {
 		"Sec-Fetch-Dest": "empty",
 		"Sec-Fetch-Mode": "cors",
 		"Sec-Fetch-Site": "same-origin",
+		"timeout": 10000,
 	}
 	try {
 		const response = await axios.get(url, { headers })

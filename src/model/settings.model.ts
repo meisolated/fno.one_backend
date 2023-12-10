@@ -3,13 +3,9 @@ import { Schema } from "mongoose"
 export default new Schema<iSettings>(
 	{
 		id: { type: Number, required: false, unique: true },
-		state: { type: String, required: false },
-		simulateTicks: { type: Boolean, required: false },
 		enableLogging: { type: Boolean, required: false },
-		realTimeMarketsToWatch: [{ type: String, required: false }],
 		keepRealTimeMarketsData: { type: Boolean, required: false },
 		activeStrategies: [{ type: String, required: false }],
-		primaryFyersAccountEmail: { type: String, required: false },
 		developmentMode: { type: Boolean, required: false },
 		global: {
 			maxProfit: { type: Number, required: false },
@@ -17,6 +13,10 @@ export default new Schema<iSettings>(
 			maxTradesPerDay: { type: Number, required: false },
 			enableRiskManager: { type: Boolean, required: false },
 			enableMoneyManager: { type: Boolean, required: false },
+			orderPlacementSettings: {
+				orderType: { type: Number, required: false, default: 1 }, // MARKET, LIMIT, SL, SL-M
+				productType: { type: String, required: false, default: "INTRADAY" }, // CNC, MIS, NRML
+			}
 		},
 		serverConf: {
 			APIPort: { type: Number, required: false },

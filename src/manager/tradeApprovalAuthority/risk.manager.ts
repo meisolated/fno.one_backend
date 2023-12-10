@@ -1,73 +1,31 @@
 import { indiesConfig } from "../../config/symbols"
 import chatter from "../../events"
-import { Positions, Settings } from "../../model"
+import { Settings } from "../../model"
 import { isCurrentTimeIsInMarketHours, isTodayHoliday } from "../../provider/marketData.provider"
+import { updatePosition } from "../position.manager"
 
 export default async function (positionId: number, user: any, newPositionDetails: iPosition) {
 	const _isTodayHoliday = await isTodayHoliday()
 	const _isCurrentTimeIsInMarketHours = await isCurrentTimeIsInMarketHours()
 	const settings = await Settings.findOne({ userId: user._id })
-	if (_isTodayHoliday || !_isCurrentTimeIsInMarketHours) {
-		chatter.emit("positionManager-", "positionRejectedByRiskManager", {
-			status: "rejectedByRiskManager",
-			message: "Today is holiday or current time is not in market hours.",
-			positionDetails: newPositionDetails,
-			userId: user._id,
-		})
-		await Positions.findOneAndUpdate(
-			{ id: positionId },
-			{
-				status: "rejectedByRiskManager",
-				message: "Today is holiday or current time is not in market hours.",
-			},
-		)
-		return false
-	}
+
 	if (!settings) {
-		chatter.emit("positionManager-", "positionRejectedByRiskManager", {
-			status: "rejectedByRiskManager",
-			message: "Settings not found",
-			positionDetails: newPositionDetails,
-			userId: user._id,
-		})
-		await Positions.findOneAndUpdate(
-			{ id: positionId },
-			{
-				status: "rejectedByRiskManager",
-				message: "Settings not found",
-			},
-		)
+		updatePosition({ ...newPositionDetails, status: "rejectedByRiskManager", message: "Settings not found" })
 		return false
 	}
-	if (settings.developmentMode) {
-		chatter.emit("positionManager-", "log", {
-			status: "info",
-			message: "Development mode is on, So quantity will be modified to the minimums.",
-			positionDetails: newPositionDetails,
-			userId: user._id,
-		})
-		const baseQuantity = getBaseQuantity(newPositionDetails.symbol)
-		newPositionDetails.quantity = baseQuantity
-		await Positions.findOneAndUpdate(
-			{ id: positionId },
-			{
-				quantity: baseQuantity,
-			},
-		)
+
+	if (_isTodayHoliday || !_isCurrentTimeIsInMarketHours) {
+		const absoluteReason = _isTodayHoliday ? "Today is holiday" : "Current time is not in market hours"
+		updatePosition({ ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason })
+		if (settings.developmentMode) return true
+		return false
 	}
-	await Positions.findOneAndUpdate(
-		{ id: positionId },
-		{
-			status: "approvedByRiskManager",
-			message: "Trade approved by Risk manager",
-		},
-	)
-	chatter.emit("positionManager-", "positionApprovedByRiskManager", {
-		status: "approvedByRiskManager",
-		message: "Trade approved by Risk manager",
-		positionDetails: newPositionDetails,
-		userId: user._id,
-	})
+
+	if (settings.developmentMode) {
+		const baseQuantity = getBaseQuantity(newPositionDetails.symbol)
+		updatePosition({ ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." })
+	}
+	updatePosition({ ...newPositionDetails, status: "approvedByRiskManager", message: "Trade approved by Risk manager" })
 	return true
 }
 

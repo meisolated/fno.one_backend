@@ -63,7 +63,6 @@ export default function userSocketNamespace(socket: Namespace) {
 	})
 	chatter.on("positionManager-", "positionUpdated", async (data: any) => {
 		const userId = data.userId
-		console.log(data)
 		socket.to(userId + "-positionUpdates").emit("positionUpdates", JSON.stringify(data))
 	})
 

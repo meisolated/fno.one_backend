@@ -1,13 +1,12 @@
 import { indiesConfig } from "../config/symbols"
 import { FyersMonthStringToNumberInMFormat, TrueDataMonthStringToNumber, datePassed } from "../helper"
 import HistoricalData from "../lib/trueData/historical"
-import logger from "../logger"
 import { MarketData, SymbolData } from "../model"
 export const indicesSymbol = ["NIFTY 50", "NIFTY BANK", "NIFTY FIN SERVICE", "NIFTY IT", "INDIA VIX"]
 export const bankNiftyUnderlyingAssets = ["HDFCNIFBAN", "SETFNIFBK", "ICICIBANKN", "KOTAKBANK", "AXISBANK", "INDUSINDBK", "AUBANK", "BANKBARODA", "FEDERALBNK", "BANDHANBNK"]
 
-export var _baseSymbolsList: any = []
-export var _optionChainSymbolsList: any = {}
+export var _trueDataSymbolToFyersSymbol: any = {}
+export var _fyersSymbolToTrueDataSymbol: any = {}
 
 export const allIndiesOptionChainGenerator = async () => {
 	const indies = [
@@ -60,9 +59,15 @@ export const allIndiesOptionChainGenerator = async () => {
 						})
 						symbol.PE_LTP = LTP[symbol.PE] || 0
 						symbol.CE_LTP = LTP[symbol.CE] || 0
+						_trueDataSymbolToFyersSymbol[symbol.CE] = symbol.other.fy.CE
+						_trueDataSymbolToFyersSymbol[symbol.PE] = symbol.other.fy.PE
+						_fyersSymbolToTrueDataSymbol[symbol.other.fy.CE] = symbol.CE
+						_fyersSymbolToTrueDataSymbol[symbol.other.fy.PE] = symbol.PE
+
 					}),
 				)
 				return (optionChain[index.optionPrefix] = symbols)
+
 			}),
 		)
 		return optionChain

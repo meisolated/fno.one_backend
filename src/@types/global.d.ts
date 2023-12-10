@@ -60,12 +60,13 @@ declare global {
 		type: string
 		by: string //[user, server]
 		user: string //[null or userId]
-		date: Date
+		timestamp: Date
 		loggedFrom: string
 	}
 	interface iSymbolTicks {
 		symbolId: string
 		symbol: string
+		fySymbol: string
 		originalName: string
 		shortName: string
 		description: string
@@ -164,14 +165,10 @@ declare global {
 	}
 	interface iSettings {
 		id: Number
-		state: string
-		simulateTicks: boolean
 		enableLogging: boolean
-		realTimeMarketsToWatch: string[]
 		keepRealTimeMarketsData: boolean
 		activeStrategies: string[]
 		developmentMode: boolean
-		primaryFyersAccountEmail: string
 		serverConf: {
 			APIPort: number
 			socketPort: number
@@ -224,6 +221,10 @@ declare global {
 			maxLoss: number
 			maxTradesPerDay: number
 			enableMoneyManager: boolean
+			orderPlacementSettings: {
+				orderType: tOrderType
+				productType: tProductType
+			}
 		}
 		tasksLastRun: {
 			[key: string]: any
@@ -240,7 +241,7 @@ declare global {
 		segment: number
 		instrument: string
 		productType: tProductType
-		status: number
+		status: tOrderStatus
 		quantity: number
 		remainingQuantity: number
 		filledQuantity: number
@@ -615,6 +616,7 @@ declare global {
 		symbol: string
 		lastUpdateTime: string
 		symbolId: string
+		fySymbol: string
 		lp: number
 		tickVolume: number
 		ATP: number
@@ -654,7 +656,7 @@ declare global {
 	//   ----------------| Fyers Types | ----------------
 	//! Not using these for now because fyers and kite both have different types for these
 	//! will process data coming from fyers and kite and then convert them to our types
-	type tPositionType = "long" | "scalping" | "swing" | "expiry"
+	type tPositionType = "long" | "scalping" | "swing" | "expiry" | "manual"
 	type tOrderType = 1 | 2 | 3 | 4 // 1 - Limit Order, 2 - Market Order, 3 - Stop Loss (SL-M), 4 StopLimit (SL-L)
 	type tOrderSide = 1 | -1 // 1 - Buy, -1 - Sell
 	type tProductType = "CNC" | "INTRADAY" | "MARGIN" | "CO" | "BO"

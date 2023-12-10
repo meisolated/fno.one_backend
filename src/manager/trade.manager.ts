@@ -7,5 +7,3 @@ import riskManager from "./tradeApprovalAuthority/risk.manager"
 export default async () => {
 	logger.info("Loaded Trade Manager", "Trade Manager")
 }
-
-
