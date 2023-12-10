@@ -25,7 +25,7 @@ const initializeEmptySettings = async () => {
 			orderPlacementSettings: {
 				orderType: 1,
 				productType: "INTRADAY",
-			}
+			},
 		},
 		serverConf: {
 			APIPort: 0,

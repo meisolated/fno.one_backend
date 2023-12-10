@@ -63,11 +63,9 @@ export const allIndiesOptionChainGenerator = async () => {
 						_trueDataSymbolToFyersSymbol[symbol.PE] = symbol.other.fy.PE
 						_fyersSymbolToTrueDataSymbol[symbol.other.fy.CE] = symbol.CE
 						_fyersSymbolToTrueDataSymbol[symbol.other.fy.PE] = symbol.PE
-
 					}),
 				)
 				return (optionChain[index.optionPrefix] = symbols)
-
 			}),
 		)
 		return optionChain

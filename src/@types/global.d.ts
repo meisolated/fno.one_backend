@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface iRateLimitData {
@@ -284,6 +284,8 @@ declare global {
 		orderType: tOrderType
 		productType: tProductType
 		positionType: tPositionType
+		realizedProfit: number
+		unRealizedProfit: number
 		madeBy: string
 		strategyName: string
 		orderStatus: tOrderStatus

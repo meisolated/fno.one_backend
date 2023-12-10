@@ -6,9 +6,9 @@ import { placeOrder } from "./order.manager"
 import moneyManager from "./tradeApprovalAuthority/money.manager"
 import riskManager from "./tradeApprovalAuthority/risk.manager"
 
-export const positions = [] as iPosition[]
-export const orders = [] as iOrder[]
-export const trades = [] as iTrade[]
+export const _positionsList = [] as iPosition[]
+export const _ordersList = [] as iOrder[]
+export const _tradesList = [] as iTrade[]
 
 // Handle new position request
 export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) => {
@@ -53,7 +53,7 @@ export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) =
 		})
 	if (!position) return logger.error("Error while creating position", "trade.manager")
 	chatter.emit("positionManager-", "positionDetailsReceived", { status: "received", message: "New position details received", positionDetails: position, userId: user._id })
-	positions.push(position)
+	_positionsList.push(position)
 
 	await moneyManager(position.id, user, position).then(async (moneyManagerApprovalResponse) => {
 		if (moneyManagerApprovalResponse) {
@@ -77,7 +77,7 @@ export default async () => {
 	logger.info("Loaded Position Manager", "Position Manager")
 	const _positions = await Positions.find({ status: { $nin: ["positionClosed", "positionCancelled", "positionFailed", "positionExpired"] } })
 	_positions.forEach((position) => {
-		positions.push(position.toObject())
+		_positionsList.push(position.toObject())
 	})
 	chatter.on("positionManager-", "handOverToPositionManager", async (newPositionDetails: iPosition) => {
 		const takePositionResponse = await executeOrder(newPositionDetails.userId, newPositionDetails)
@@ -154,9 +154,37 @@ export default async () => {
 	})
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
 		if (!symbolData) return
-
+		const _position = _positionsList.find((position) => position.symbol === symbolData.fySymbol)
+		if (!_position) return
+		if (activePositionStatuses.includes(_position.status)) {
+			trailingStopLoss(_position, symbolData)
+			stopLoss(_position, symbolData)
+			target(_position, symbolData)
+		}
 	})
 }
+
+// --------------| Position Handler Function |---------------
+/**
+ * @info This function can only modify the position object, can't place order
+ * @param position
+ * @param marketTick
+ */
+function trailingStopLoss(position: iPosition, marketTick: iSymbolTicks) { }
+/**
+ * @info This function can close a position
+ * @param position
+ * @param marketTick
+ */
+function stopLoss(position: iPosition, marketTick: iSymbolTicks) { }
+/**
+ * @info This function can close a position
+ * @param position
+ * @param marketTick
+ */
+function target(position: iPosition, marketTick: iSymbolTicks) { }
+
+// ----------------------------------------------------------
 
 const executeOrder = async (userId: string, position: iPosition) => {
 	const prepareOrderFrame: iSingleOrder = {
@@ -194,9 +222,9 @@ const executeOrder = async (userId: string, position: iPosition) => {
 }
 
 export async function updatePosition(positionData: iPosition) {
-	positions.forEach((position, index) => {
+	_positionsList.forEach((position, index) => {
 		if (position.id === positionData.id) {
-			positions[index] = positionData
+			_positionsList[index] = positionData
 		}
 	})
 	chatter.emit("positionManager-", "positionUpdated", {
