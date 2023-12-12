@@ -52,8 +52,8 @@ export const updateFyersUserBrokerFunds = async (user: iUser) => {
 	user.funds.fyers.available = userFyersFunds.fund_limit.filter((fund: any) => fund.id === 10)[0].equityAmount.toFixed(2)
 	user.funds.fyers.used = userFyersFunds.fund_limit.filter((fund: any) => fund.id === 2)[0].equityAmount.toFixed(2)
 	//money manager
-	user.moneyManager.fundsToUse = parseFloat(((user.funds.fyers.available * user.moneyManager.percentageOfFundsToUse) / 100).toFixed(2))
-	user.moneyManager.weekDays.monday.fundsToUse = parseFloat(((user.moneyManager.fundsToUse * user.moneyManager.weekDays.monday.percentageOfFundsToUse) / 100).toFixed(2))
+	// user.moneyManager.fundsToUse = parseFloat(((user.funds.fyers.available * user.moneyManager.percentageOfFundsToUse) / 100).toFixed(2))
+	// user.moneyManager.weekDays.monday.fundsToUse = parseFloat(((user.moneyManager.fundsToUse * user.moneyManager.weekDays.monday.percentageOfFundsToUse) / 100).toFixed(2))
 	await User.findOneAndUpdate(user)
 	return userFyersFunds
 }

@@ -2,7 +2,7 @@ import { Schema } from "mongoose"
 
 export default new Schema<iOrder>(
 	{
-		positionId: { type: String, required: true, unique: false },
+		positionId: { type: Number, required: true, unique: false },
 		orderDateTime: { type: String, required: false, unique: false },
 		orderId: { type: String, required: false, unique: true },
 		exchOrdId: { type: String, required: false, unique: false },

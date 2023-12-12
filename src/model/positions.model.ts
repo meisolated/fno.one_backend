@@ -13,7 +13,7 @@ const positions = new Schema<iPosition>(
 		quantity: { type: Number, required: true, default: 0 },
 		stopLoss: { type: Number, required: true, default: 0 },
 		peakLTP: { type: Number, required: true, default: 0 },
-		trailingStopLoss: { type: Boolean, required: true, default: true },
+		trailingStopLoss: { type: Number, required: true, default: 0 },
 		riskToRewardRatio: { type: Number, required: true, default: 0 },
 		orderType: { type: Number, required: true, default: 1 },
 		productType: { type: String, required: true, default: "INTRADAY" },

@@ -10,23 +10,29 @@ export default async function (positionId: number, user: any, newPositionDetails
 	const settings = await Settings.findOne({ userId: user._id })
 
 	if (!settings) {
-		updatePosition({ ...newPositionDetails, status: "rejectedByRiskManager", message: "Settings not found" })
-		return false
+		// await updatePosition({ ...newPositionDetails, status: "rejectedByRiskManager", message: "Settings not found" })
+		return { status: false, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: "Settings not found" } }
 	}
 
 	if (_isTodayHoliday || !_isCurrentTimeIsInMarketHours) {
 		const absoluteReason = _isTodayHoliday ? "Today is holiday" : "Current time is not in market hours"
-		updatePosition({ ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason })
-		if (settings.developmentMode) return true
-		return false
-	}
+		// await updatePosition({ ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason })
+		if (settings.developmentMode) {
+			return { status: true, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason } }
+		} else {
+			return {
+				status: false, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason }
 
+			}
+		}
+	}
 	if (settings.developmentMode) {
 		const baseQuantity = getBaseQuantity(newPositionDetails.symbol)
-		updatePosition({ ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." })
+		// await updatePosition({ ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." })
+		return { status: true, position: { ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." } }
 	}
-	updatePosition({ ...newPositionDetails, status: "approvedByRiskManager", message: "Trade approved by Risk manager" })
-	return true
+	// await updatePosition({ ...newPositionDetails, status: "approvedByRiskManager", message: "Trade approved by Risk manager" })
+	return { status: true, position: { ...newPositionDetails, status: "approvedByRiskManager", message: "Trade approved by Risk manager" } }
 }
 
 const getBaseQuantity = (symbol: string) => {

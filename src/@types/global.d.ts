@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface iRateLimitData {
@@ -233,7 +233,7 @@ declare global {
 	}
 
 	interface iOrder {
-		positionId: string
+		positionId: number
 		orderDateTime: string
 		orderId: string
 		exchOrdId: string
@@ -279,7 +279,7 @@ declare global {
 		quantity: number
 		stopLoss: number
 		peakLTP: number
-		trailingStopLoss: Boolean
+		trailingStopLoss: number
 		riskToRewardRatio: number
 		orderType: tOrderType
 		productType: tProductType
