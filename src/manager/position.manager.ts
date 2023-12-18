@@ -6,9 +6,14 @@ import { placeOrder } from "./order.manager"
 import moneyManager from "./tradeApprovalAuthority/money.manager"
 import riskManager from "./tradeApprovalAuthority/risk.manager"
 
+const positionInterval = 1000
+const fyersOrderEventsDelay = 500
+
 export const _positionsList = [] as iPosition[]
 export const _ordersList = [] as iOrder[]
 export const _tradesList = [] as iTrade[]
+
+const marketData: any = {}
 
 // Handle new position request
 export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) => {
@@ -55,7 +60,6 @@ export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) =
 	chatter.emit("positionManager-", "positionDetailsReceived", { status: "received", message: "New position details received", positionDetails: position, userId: user._id })
 	_positionsList.push(position)
 
-
 	await moneyManager(position.id, user, position).then(async (moneyManagerApprovalResponse) => {
 		if (moneyManagerApprovalResponse.status) {
 			await updatePosition(moneyManagerApprovalResponse.position)
@@ -70,44 +74,130 @@ export const takeNewPosition = async (newPositionDetails: iNewPositionDetails) =
 						positionId: position.id,
 						userId: user._id,
 					})
+				} else {
+					return updatePosition(riskManagerApprovalResponse.position)
 				}
 			})
+		} else {
+			return updatePosition(moneyManagerApprovalResponse.position)
 		}
 	})
 }
 
+//  Entry function for position manager
 export default async () => {
 	logger.info("Loaded Position Manager", "Position Manager")
+
+	// ----------------------------------------------------------------
+	// -----------------| Load all positions from db |-----------------
+	// ----------------------------------------------------------------
 	const _positions = await Positions.find({ status: { $nin: closedPositionStatuses } })
 	_positions.forEach((position) => {
 		_positionsList.push(position.toObject())
 	})
+	// ----------------------------------------------------------------
+	// -----------------| Internal Events |----------------------------
+	// ----------------------------------------------------------------
 	chatter.on("positionManager-", "handOverToPositionManager", async (newPositionDetails: iPosition) => {
 		const takePositionResponse = await enterPosition(newPositionDetails.userId, newPositionDetails)
 		chatter.emit("positionManager-", "log", { status: "info", message: "Order placed", positionDetails: newPositionDetails, userId: newPositionDetails.userId, takePositionResponse })
 	})
-
-	// handle order update from fyers
-	chatter.on("fyersOrderUpdateSocket-", "order", async (orderData: iFyersSocketOrderUpdateData) => {
-		await timeout(500)
-		const _order = _ordersList.find((order) => order.orderId === orderData.orderId)
-		if (!_order) return logger.error("Order not found", "position.manager")
-		var _position = _positionsList.find((position) => position.id === _order.positionId && beforePositionOrderFilledStatuses.includes(position.status))
+	// ----------------------------------------------------------------
+	// -----------------| Fyers Events |------------------------------
+	// ----------------------------------------------------------------
+	async function updatePositionBasesOnOrderUpdate(orderData: iFyersSocketOrderUpdateData) {
+		/**
+		 * if the order is filled then we don't have to do anything
+		 * */
+		const findOrderInList = _ordersList.find((order) => order.orderId === orderData.orderId)
+		if (!findOrderInList) return handleManuallyPlacedOrder(orderData)
+		const _position = _positionsList.find((position) => position.id === findOrderInList.positionId)
 		if (!_position) return logger.error("Position not found", "position.manager")
-
-
-		if (orderData.status == 2) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
-		else if (orderData.status == 5) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderRejected, message: orderData.message })
-		else if (orderData.status == 1) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderCancelled, message: orderData.message })
-		else if (orderData.status == 6) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPending, message: orderData.message })
-		else if (orderData.status == 4) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderBeingPlaced, message: orderData.message })
-		else if (orderData.filledQuantity >= 0 && orderData.remainingQuantity > 0) {
-			await updatePosition({ ..._position, status: positionStatuses.orderPartiallyFilled, message: orderData.message })
-
+		if (orderData.status == 1 || orderData.status == 5) {
+			// order rejected or cancelled
+			if (findOrderInList.status == 2) return logger.error("Order is already filled", "position.manager")
+			if (findOrderInList.status == 1 || findOrderInList.status == 5) return logger.error("Order is already rejected or cancelled", "position.manager")
+			if (
+				_position.status == positionStatuses.exitPositionOrderPlaced ||
+				_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
+				_position.status == positionStatuses.exitPositionOrderPending
+			) {
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderRejected, message: orderData.message })
+			} else await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderRejected, message: orderData.message })
+		} else if (orderData.status == 4) {
+			if (findOrderInList.status == 1 || findOrderInList.status == 5) {
+				logger.error("Order is already rejected or cancelled", "position.manager")
+			} else if (findOrderInList.status == 2) {
+				// order filled
+				if (
+					_position.status == positionStatuses.exitPositionOrderPlaced ||
+					_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
+					_position.status == positionStatuses.exitPositionOrderPending
+				) {
+					await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, message: orderData.message })
+				} else {
+					await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
+				}
+			} else {
+				// order partially filled
+				if (orderData.filledQuantity >= 0 && orderData.remainingQuantity > 0) {
+					if (
+						_position.status == positionStatuses.exitPositionOrderPlaced ||
+						_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
+						_position.status == positionStatuses.exitPositionOrderPending
+					) {
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderPartiallyFilled, message: orderData.message })
+					} else {
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPartiallyFilled, message: orderData.message })
+					}
+				} else if (orderData.filledQuantity == 0 && orderData.remainingQuantity > 0) {
+					if (
+						_position.status == positionStatuses.exitPositionOrderPlaced ||
+						_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
+						_position.status == positionStatuses.exitPositionOrderPending
+					) {
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderPending, message: orderData.message })
+					} else {
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPending, message: orderData.message })
+					}
+				} else if (orderData.filledQuantity > 0 && orderData.remainingQuantity == 0) {
+					if (
+						_position.status == positionStatuses.exitPositionOrderPlaced ||
+						_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
+						_position.status == positionStatuses.exitPositionOrderPending
+					) {
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, message: orderData.message })
+					} else {
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
+					}
+				}
+			}
+		} else if (orderData.status == 6) {
+			// order pending
+			if (findOrderInList.status == 2) return logger.error("Order is already filled", "position.manager")
+			if (findOrderInList.status == 1 || findOrderInList.status == 5) return logger.error("Order is already rejected or cancelled", "position.manager")
+			if (
+				_position.status == positionStatuses.exitPositionOrderPlaced ||
+				_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
+				_position.status == positionStatuses.exitPositionOrderPending
+			) {
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderPending, message: orderData.message })
+			} else {
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPending, message: orderData.message })
+			}
+		} else if (orderData.status == 2) {
+			// order filled
+			if (findOrderInList.status == 1 || findOrderInList.status == 5) return logger.error("Order is already rejected or cancelled", "position.manager")
+			if (
+				_position.status == positionStatuses.exitPositionOrderPlaced ||
+				_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
+				_position.status == positionStatuses.exitPositionOrderPending
+			) {
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, message: orderData.message })
+			} else {
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
+			}
 		}
-
-
-		//update order details in db
 
 		const orderModified: any = {
 			positionId: _position.id,
@@ -135,11 +225,60 @@ export default async () => {
 			clientId: orderData.clientId,
 			instrument: orderData.instrument,
 		}
-		updateOrder(orderModified)
+		await updateOrder(orderModified)
+	}
 
+	function handleManuallyPlacedOrder(orderData: iFyersSocketOrderUpdateData) {
+		logger.warn("Manually placed order", "position.manager")
+	}
+	chatter.on("fyersOrderUpdateSocket-", "order", async (orderData: iFyersSocketOrderUpdateData) => {
+		await timeout(fyersOrderEventsDelay)
+		await updatePositionBasesOnOrderUpdate(orderData)
+		// const _order = _ordersList.find((order) => order.orderId === orderData.orderId)
+		// if (!_order) return logger.error("Order not found", "position.manager")
+		// var _position = _positionsList.find((position) => position.id === _order.positionId && beforePositionOrderFilledStatuses.includes(position.status))
+		// if (!_position) return logger.error("Position not found", "position.manager")
+
+		// if (orderData.status == 2) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
+		// else if (orderData.status == 5) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderRejected, message: orderData.message })
+		// else if (orderData.status == 1) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderCancelled, message: orderData.message })
+		// else if (orderData.status == 6) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPending, message: orderData.message })
+		// else if (orderData.status == 4) await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderBeingPlaced, message: orderData.message })
+		// if (orderData.filledQuantity >= 0 && orderData.remainingQuantity > 0) {
+		// 	await updatePosition({ ..._position, status: positionStatuses.orderPartiallyFilled, message: orderData.message })
+		// }
+
+		// //update order details in db
+
+		// const orderModified: any = {
+		// 	positionId: _position.id,
+		// 	status: orderData.status,
+		// 	message: orderData.message,
+		// 	exchOrdId: orderData.exchangeOrderId,
+		// 	orderId: orderData.orderId,
+		// 	symbol: orderData.symbol,
+		// 	quantity: orderData.quantity,
+		// 	remainingQuantity: orderData.remainingQuantity,
+		// 	filledQuantity: orderData.filledQuantity,
+		// 	segment: orderData.segment,
+		// 	limitPrice: orderData.limitPrice,
+		// 	stopPrice: orderData.stopPrice,
+		// 	productType: orderData.productType,
+		// 	orderType: orderData.orderType,
+		// 	side: orderData.orderSide,
+		// 	orderValidity: orderData.orderValidity,
+		// 	orderDateTime: orderData.orderDateTime,
+		// 	tradedPrice: orderData.tradedPrice,
+		// 	source: orderData.source,
+		// 	fyToken: orderData.fyToken,
+		// 	offlineOrder: orderData.offlineOrder,
+		// 	pan: orderData.pan,
+		// 	clientId: orderData.clientId,
+		// 	instrument: orderData.instrument,
+		// }
+		// updateOrder(orderModified)
 
 		// handle position update
-
 	})
 
 	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => {
@@ -148,23 +287,46 @@ export default async () => {
 	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => {
 		// console.log("tradeData", tradeData)
 	})
+	// ----------------------------------------------------------------
+	// -----------------| TrueData Events |----------------------------
+	// ----------------------------------------------------------------
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
-		if (!symbolData) return
-		const _position = _positionsList.filter((position) => position.symbol === symbolData.fySymbol)
-		if (!_position) return
-		_position.forEach((_position_) => {
-			if (inPositionStatues.includes(_position_.status)) {
-				trailingStopLoss(_position_, symbolData)
-				stopLoss(_position_, symbolData)
-				target(_position_, symbolData)
-				updatePositionProfitAndLoss(_position_, symbolData)
+		marketData[symbolData.fySymbol] = symbolData
+	})
+	// ----------------------------------------------------------------
+	// -----------------| Position Manager Events |--------------------
+	// ----------------------------------------------------------------
+	setInterval(async () => {
+		await new Promise((resolve) =>
+			_positionsList.forEach(async (_position_) => {
+				if (inPositionStatues.includes(_position_.status)) {
+					if (marketData[_position_.symbol] == undefined) return resolve(true)
+					await stopLoss(_position_, marketData[_position_.symbol])
+					await trailingStopLoss(_position_, marketData[_position_.symbol])
+					await target(_position_, marketData[_position_.symbol])
+					await updatePositionProfitAndLoss(_position_, marketData[_position_.symbol])
+					return resolve(true)
+				} else {
+					return resolve(true)
+				}
+			}),
+		)
+	}, positionInterval)
+
+	// ----------------------------------------------------------------
+
+	setInterval(async () => {
+		_positionsList.forEach(async (_position_) => {
+			if (_position_.status == positionStatuses.orderFilled) {
+				await updatePosition({ ..._position_, status: positionStatuses.inPosition, message: "InPosition" })
 			}
 		})
-
-	})
+	}, 1000)
 }
 
-// --------------| Position Handler Function |---------------
+// ----------------------------------------------------------------
+// --------------| Position Handler Function |---------------------
+// ----------------------------------------------------------------
 /**
  * @info This function can only modify the position object, can't place order
  * @param position
@@ -179,7 +341,7 @@ async function trailingStopLoss(position: iPosition, marketTick: iSymbolTicks) {
 			await updatePosition({ ...position, status: positionStatuses.trailingPositionStopLoss, message: "Trailing stop loss activated" })
 		}
 	} else {
-		const oneRatioOnePrice = position.trailingStopLoss + (position.stopLoss * 2)
+		const oneRatioOnePrice = position.trailingStopLoss + position.stopLoss * 2
 		if (currentSymbolPrice > oneRatioOnePrice) {
 			position.trailingStopLoss = position.trailingStopLoss + position.stopLoss
 			await updatePosition({ ...position, status: positionStatuses.trailingPositionStopLoss, message: "Trailing stop loss shifted" })
@@ -198,28 +360,16 @@ async function stopLoss(position: iPosition, marketTick: iSymbolTicks) {
 		if (currentPrice <= stopLossPrice) {
 			// close position
 			console.log("stopLoss hit")
-			console.time("exitPosition")
-			await exitPosition(position.userId, position, "negative")
-			console.timeEnd("exitPosition")
-			console.time("updatePosition")
 			await updatePosition({ ...position, status: positionStatuses.positionClosedWithStopLoss, message: "Position closed with stop loss" })
-			console.timeEnd("updatePosition")
-
-
+			await exitPosition(position.userId, position, "negative")
 		}
 	} else {
 		if (currentPrice <= position.trailingStopLoss) {
 			console.log("stopLoss hit")
-			console.time("exitPosition")
-			await exitPosition(position.userId, position, "negative")
-			console.timeEnd("exitPosition")
-			console.time("updatePosition-trailingStopLoss")
 			await updatePosition({ ...position, status: positionStatuses.positionClosedWithTrailingStopLoss, message: "Position closed with trailing stop loss" })
-			console.timeEnd("updatePosition-trailingStopLoss")
-
+			await exitPosition(position.userId, position, "negative")
 		}
 	}
-
 }
 /**
  * @info This function can close a position
@@ -230,31 +380,33 @@ async function target(position: iPosition, marketTick: iSymbolTicks) {
 	const target = position.stopLoss * position.riskToRewardRatio
 	const targetPrice = position.price + target
 	const currentPrice = marketTick.lp
-	console.log("currentPrice", currentPrice, "stopLoss", (position.price - position.stopLoss), "targetPrice", targetPrice, "positionId", position.id)
+	console.log("currentPrice", currentPrice, "stopLoss", position.price - position.stopLoss, "targetPrice", targetPrice, "positionId", position.id, "positionStatus", position.status)
 	if (currentPrice >= targetPrice) {
 		// close position
 		console.log("target hit")
-		console.time("exitPosition")
-		await exitPosition(position.userId, position, "positive")
-		console.timeEnd("exitPosition")
-		console.time("updatePosition-target")
 		await updatePosition({ ...position, status: positionStatuses.positionClosedWithTarget, message: "Position closed with target" })
-		console.timeEnd("updatePosition-target")
-
+		await exitPosition(position.userId, position, "positive")
 	}
 }
 
 /**
  * @info This function can only modify the position object, can't place order
- * @param position 
- * @param marketTick 
+ * @param position
+ * @param marketTick
  */
-function updatePositionProfitAndLoss(position: iPosition, marketTick: iSymbolTicks) { }
+function updatePositionProfitAndLoss(position: iPosition, marketTick: iSymbolTicks) {}
 // ----------------------------------------------------------
 
 const exitPosition = async (userId: string, position: iPosition, result: "positive" | "negative") => {
 	const side = position.side == 1 ? -1 : 1
-	const limitPrice = position.side == 1 ? result == "positive" ? position.price + (position.stopLoss * position.riskToRewardRatio) : position.price - position.stopLoss : result == "positive" ? position.price - (position.stopLoss * position.riskToRewardRatio) : position.price + position.stopLoss
+	const limitPrice =
+		position.side == 1
+			? result == "positive"
+				? position.price + position.stopLoss * position.riskToRewardRatio
+				: position.price - position.stopLoss
+			: result == "positive"
+			? position.price - position.stopLoss * position.riskToRewardRatio
+			: position.price + position.stopLoss
 	const prepareOrderFrame: iSingleOrder = {
 		symbol: position.symbol,
 		qty: position.quantity,
@@ -270,21 +422,21 @@ const exitPosition = async (userId: string, position: iPosition, result: "positi
 		takeProfit: 0,
 	}
 	console.log("prepareOrderFrame", prepareOrderFrame)
+	console.time("exitPosition")
 	const orderResponse = await placeOrder(userId, prepareOrderFrame)
+	console.timeEnd("exitPosition")
+	if (orderResponse.message.includes("Successfully placed order")) {
+		await updatePosition({ ...position, status: positionStatuses.exitPositionOrderPlaced, message: orderResponse.message })
+		// create order in db and update position
+	} else {
+		await updatePosition({ ...position, status: positionStatuses.exitPositionOrderFailed, message: orderResponse.message })
+	}
 	if (orderResponse.id) {
 		await createOrder({
 			positionId: position.id,
 			orderId: orderResponse.id,
 		})
 	}
-	if (orderResponse.message.includes("Successfully placed order")) {
-		await updatePosition({ ...position, status: positionStatuses.orderPlaced, message: orderResponse.message })
-		// create order in db and update position
-	} else {
-		await updatePosition({ ...position, status: positionStatuses.orderFailed, message: orderResponse.message })
-	}
-
-
 }
 
 const enterPosition = async (userId: string, position: iPosition) => {
@@ -318,8 +470,9 @@ const enterPosition = async (userId: string, position: iPosition) => {
 			// create order in db and update position
 		} else {
 			await updatePosition({ ...position, status: positionStatuses.orderFailed, message: orderResponse.message })
+			const orderData = _ordersList.find((order) => order.orderId === orderResponse.id)
+			await updateOrder({ ...orderData, status: 5, message: orderResponse.message })
 		}
-
 	}
 }
 
@@ -405,22 +558,27 @@ const positionStatuses = {
 	positionClosedWithTarget: "positionClosedWithTarget",
 	positionClosedWithStopLoss: "positionClosedWithStopLoss",
 	positionClosedWithTrailingStopLoss: "positionClosedWithTrailingStopLoss",
+	exitPositionOrderPlaced: "exitPositionOrderPlaced",
+	exitPositionOrderFilled: "exitPositionOrderFilled",
+	exitPositionOrderRejected: "exitPositionOrderRejected",
+	exitPositionOrderCancelled: "exitPositionOrderCancelled",
+	exitPositionOrderFailed: "exitPositionOrderFailed",
+	exitPositionOrderExpired: "exitPositionOrderExpired",
+	exitPositionOrderPartiallyFilled: "exitPositionOrderPartiallyFilled",
+	exitPositionOrderPending: "exitPositionOrderPending",
+	exitPositionOrderBeingPlaced: "exitPositionOrderBeingPlaced",
 }
 
-const beforePositionOrderFilledStatuses = [
+export const beforePositionOrderFilledStatuses = [
 	positionStatuses.approvedByMoneyManager,
 	positionStatuses.approvedByRiskManager,
 	positionStatuses.orderBeingPlaced,
 	positionStatuses.orderPlaced,
 	positionStatuses.orderPartiallyFilled,
 	positionStatuses.orderPending,
-	positionStatuses.inPosition,
-	positionStatuses.positionNearStopLoss,
-	positionStatuses.positionNearTarget,
-	positionStatuses.trailingPositionStopLoss,
 ]
 
-const inPositionStatues = [
+export const inPositionStatues = [
 	positionStatuses.orderFilled,
 	positionStatuses.inPosition,
 	positionStatuses.positionNearStopLoss,
@@ -428,19 +586,31 @@ const inPositionStatues = [
 	positionStatuses.trailingPositionStopLoss,
 ]
 
-const closedPositionStatuses = [
+export const closedPositionStatuses = [
+	positionStatuses.positionClosed,
+	positionStatuses.handedOverToUser,
+	positionStatuses.positionClosedWithTarget,
+	positionStatuses.positionClosedWithStopLoss,
+	positionStatuses.positionClosedWithTrailingStopLoss,
+	positionStatuses.exitPositionOrderPlaced,
+	positionStatuses.exitPositionOrderFilled,
+	positionStatuses.exitPositionOrderPartiallyFilled,
+	positionStatuses.exitPositionOrderPending,
+	positionStatuses.exitPositionOrderBeingPlaced,
+]
+
+export const rejectedPositionStatuses = [
 	positionStatuses.rejectedByRiskManager,
 	positionStatuses.rejectedByMoneyManager,
 	positionStatuses.orderRejected,
 	positionStatuses.orderCancelled,
 	positionStatuses.orderFailed,
 	positionStatuses.orderExpired,
-	positionStatuses.positionClosed,
 	positionStatuses.positionCancelled,
 	positionStatuses.positionFailed,
 	positionStatuses.positionExpired,
-	positionStatuses.handedOverToUser,
-	positionStatuses.positionClosedWithTarget,
-	positionStatuses.positionClosedWithStopLoss,
-	positionStatuses.positionClosedWithTrailingStopLoss,
+	positionStatuses.exitPositionOrderRejected,
+	positionStatuses.exitPositionOrderCancelled,
+	positionStatuses.exitPositionOrderFailed,
+	positionStatuses.exitPositionOrderExpired,
 ]

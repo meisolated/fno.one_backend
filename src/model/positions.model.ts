@@ -1,6 +1,10 @@
 import { Schema } from "mongoose"
 import { getNextSequenceValue } from "."
 
+// things we need to add in this model
+// remainingQuantity: { type: Number, required: true, default: 0 },
+// averagePrice: { type: Number, required: true, default: 0 },
+// filledQuantity: { type: Number, required: true, default: 0 },
 const positions = new Schema<iPosition>(
 	{
 		id: { type: Number, unique: true, index: true },
@@ -25,38 +29,13 @@ const positions = new Schema<iPosition>(
 		orderStatus: { type: Number, required: true, default: 6 },
 		status: { type: String, required: true, default: "created" },
 		message: { type: String, required: true, default: "created" },
-		enteredAt: { type: Number, required: true, default: 0 },
-		exitedAt: { type: Number, required: true, default: 0 },
+		enteredAt: { type: Number, required: true, default: new Date().getTime() },
+		exitedAt: { type: Number, required: true, default: new Date().getTime() },
+		createdAt: { type: Number, required: true, default: new Date().getTime() },
+		updatedAt: { type: Number, required: true, default: new Date().getTime() },
 	},
 	{
-		timestamps: {
-			createdAt: "createdAt",
-			updatedAt: "updatedAt",
-			currentTime: () => {
-				const date = new Date()
-				const options = { timeZone: "Asia/Kolkata" }
-				const formattedDate = date.toLocaleString("en-US", options)
-				return new Date(formattedDate).getTime()
-			},
-		},
-		toJSON: {
-			getters: true,
-			virtuals: false,
-			transform: function (doc, ret) {
-				ret.createdAt = new Date(ret.createdAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-				ret.updatedAt = new Date(ret.updatedAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-				return ret
-			},
-		},
-		toObject: {
-			getters: true,
-			virtuals: false,
-			transform: function (doc, ret) {
-				ret.createdAt = new Date(ret.createdAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-				ret.updatedAt = new Date(ret.updatedAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-				return ret
-			},
-		},
+		timestamps: true,
 	},
 )
 

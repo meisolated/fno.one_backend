@@ -16,6 +16,7 @@ import tradeManager from "./manager/trade.manager"
 // import { allIndiesOptionChainGenerator } from "./provider/symbols.provider" // ! will think about it later
 import positionManager from "./manager/position.manager"
 import { marketAlerts } from "./worker"
+import marketSyncDetector from "./worker/marketSyncDetector.worker"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -52,6 +53,7 @@ initialize()
 			logger.info("Starting Trade Manager and Position Manager...", "Index")
 			tradeManager()
 			positionManager()
+			marketSyncDetector()
 			logger.info("Starting server...", "Index")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "Index")

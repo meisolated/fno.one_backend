@@ -227,7 +227,6 @@ export default class FyersOrderSocket {
 		return this.connection?.readyState === ws.OPEN
 	}
 	private autoReConnect() {
-
 		if (this.reconnectInterval) clearInterval(this.reconnectInterval)
 		if (!this.isConnected() && this.reconnectTries < this.maxReconnectionTries) {
 			this.reconnectInterval = setInterval(() => {

@@ -1,4 +1,4 @@
-export { }
+export {}
 
 declare global {
 	interface iRateLimitData {
@@ -293,6 +293,8 @@ declare global {
 		message: string
 		enteredAt: number
 		exitedAt: number
+		createdAt: number
+		updatedAt: number
 	}
 	interface iTrade {
 		positionId: string
@@ -316,6 +318,7 @@ declare global {
 		tradedQty: number
 	}
 	interface iUser {
+		_id: string
 		email: string
 		name: string
 		displayName: string

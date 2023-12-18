@@ -1,7 +1,9 @@
 import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../handler/fyers.handler"
 import { Settings } from "../../model"
-import { updatePosition } from "../position.manager"
-export default async function (positionId: number, user: any, newPositionDetails: iPosition) {
+
+const maxProfitPercentage = 15
+const maxLossPercentage = 10
+export default async function (positionId: number, user: iUser, newPositionDetails: iPosition) {
 	/**
 	 * first update user funds
 	 * then check if new trade funds requirement is less than allowed funds
@@ -12,7 +14,6 @@ export default async function (positionId: number, user: any, newPositionDetails
 	const settings = await Settings.findOne({ id: 1 })
 
 	if (!settings) {
-		// await updatePosition({ ...newPositionDetails, status: "rejectedByMoneyManager", message: "Settings not found" })
 		return { status: false, position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: "Settings not found" } }
 	}
 
@@ -21,10 +22,9 @@ export default async function (positionId: number, user: any, newPositionDetails
 		const _errorIn = _updateUserBrokerFunds
 			? "getFyersUserProfitOrLossOfTheDay"
 			: _fyersUserProfitOrLoss
-				? "updateFyersUserBrokerFunds"
-				: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
+			? "updateFyersUserBrokerFunds"
+			: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
 
-		// await updatePosition({ ...newPositionDetails, status: "rejectedByMoneyManager", message: _error + _errorIn })
 		if (settings.developmentMode) {
 			return { status: true, position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: _error + _errorIn } }
 		} else {
@@ -38,22 +38,41 @@ export default async function (positionId: number, user: any, newPositionDetails
 		// check if we had loss or profit today
 		// ! to be improved later
 		if (_fyersUserProfitOrLoss.realized > 0) {
-			const percentageOfProfit = (_fyersUserProfitOrLoss.realized / _totalFunds) * 100
-			if (percentageOfProfit > 5) {
-				// await updatePosition({ ...newPositionDetails, status: "rejectedByMoneyManager", message: "Profit is more than 5% of total funds" })
+			const percentageOfProfit = (_fyersUserProfitOrLoss.realized / (_availableFunds + _usedFunds)) * 100
+			if (percentageOfProfit > user.riskManager.percentageOfMaxProfitPerDay) {
 				if (settings.developmentMode) {
-					return { status: true, position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: "Profit is more than 5% of total funds" } }
+					return {
+						status: true,
+						position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: `Profit is more than ${user.riskManager.percentageOfMaxProfitPerDay}% of total funds` },
+					}
 				} else {
-					return { status: false, position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: "Profit is more than 5% of total funds" } }
-
+					return {
+						status: false,
+						position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: `Profit is more than ${user.riskManager.percentageOfMaxProfitPerDay}% of total funds` },
+					}
 				}
 			}
 
-			// await updatePosition({ ...newPositionDetails, status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds" })
-			return { status: true, position: { ...newPositionDetails, status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds" } }
+			return {
+				status: true,
+				position: { ...newPositionDetails, status: "approvedByMoneyManager", message: `Profit is less than ${user.riskManager.percentageOfMaxProfitPerDay}% of total funds` },
+			}
+		} else {
+			const percentageOfLoss = (_fyersUserProfitOrLoss.realized / (_availableFunds + _usedFunds)) * 100
+			if (percentageOfLoss > user.riskManager.percentageOfMaxLossPerDay) {
+				if (settings.developmentMode) {
+					return {
+						status: true,
+						position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: `Loss is more than ${user.riskManager.percentageOfMaxLossPerDay}% of total funds` },
+					}
+				} else {
+					return {
+						status: false,
+						position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: `Loss is more than ${user.riskManager.percentageOfMaxLossPerDay}% of total funds` },
+					}
+				}
+			}
+			return { status: true, position: { ...newPositionDetails, status: "approvedByMoneyManager", message: `Loss is less than ${user.riskManager.percentageOfMaxLossPerDay}% of total funds` } }
 		}
-
-		// await updatePosition({ ...newPositionDetails, status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds" })
-		return { status: true, position: { ...newPositionDetails, status: "approvedByMoneyManager", message: "Profit is less than 5% of total funds" } }
 	}
 }
