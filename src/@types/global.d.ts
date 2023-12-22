@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
 	interface iRateLimitData {
@@ -279,6 +279,10 @@ declare global {
 		quantity: number
 		stopLoss: number
 		peakLTP: number
+		remainingQuantity: number
+		filledQuantity: number
+		buyAveragePrice: number
+		sellAveragePrice: number
 		trailingStopLoss: number
 		riskToRewardRatio: number
 		orderType: tOrderType

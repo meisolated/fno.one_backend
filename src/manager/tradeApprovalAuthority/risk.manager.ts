@@ -4,12 +4,19 @@ import { Positions, Settings } from "../../model"
 import { isCurrentTimeIsInMarketHours, isTodayHoliday } from "../../provider/marketData.provider"
 import { beforePositionOrderFilledStatuses, closedPositionStatuses, inPositionStatues } from "../position.manager"
 
+/**
+ * ?---------------------------------------------------------| TODO: |----------------------------------------------------------------|
+ * TODO we need to add a function that can generate logical support and resistance for the index markets like BANKNIFTY , NIFTY50 and FINNIFTY
+ * TODO based on that data we can approve or reject the trade
+ * TODO also we can add major round levels like for banknifty X500 and X000 levels similar for nifty50 and finnifty 
+ */
+
+
 export default async function (positionId: number, user: iUser, newPositionDetails: iPosition) {
 	const _isTodayHoliday = await isTodayHoliday()
 	const _isCurrentTimeIsInMarketHours = await isCurrentTimeIsInMarketHours()
 	const settings = await Settings.findOne({ userId: user._id })
 	const numberOfPositions = await getUserNumberOfTradesExecutedToday(user._id)
-	console.log(numberOfPositions)
 	if (!settings) {
 		return { status: false, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: "Settings not found" } }
 	}
@@ -47,7 +54,7 @@ async function getUserNumberOfTradesExecutedToday(id: string) {
 	const startTime = new Date(today.setHours(9, 15, 0, 0))
 	const endTime = new Date(today.setHours(15, 30, 0, 0))
 	const numberOfPositions = await Positions.countDocuments({
-		status: { $in: [...inPositionStatues, ...closedPositionStatuses, ...beforePositionOrderFilledStatuses] },
+		status: { $in: [...inPositionStatues, ...closedPositionStatuses,] },
 		paper: false,
 		userId: id,
 		createdAt: {
@@ -55,10 +62,12 @@ async function getUserNumberOfTradesExecutedToday(id: string) {
 			$lt: endTime,
 		},
 	}).countDocuments()
+
 	return numberOfPositions
 }
 
-function checks() {
+function checks(user: iUser, newPositionDetails: iPosition) {
+	let modifiedPositionDetails = newPositionDetails
 	const checksArray = {
 		isCurrentTimeIsInMarketHours: async () => {
 			const _isCurrentTimeIsInMarketHours = await isCurrentTimeIsInMarketHours()
@@ -107,8 +116,19 @@ function checks() {
 				}
 			}
 		},
-		isDevelopmentMode: async () => {},
+		isDevelopmentMode: async (newPositionDetails: iPosition) => {
+			const settings = await Settings.findOne({ id: 1 })
+			if (!settings) return { status: false, message: "Settings not found" }
+			if (settings.developmentMode) {
+				const baseQuantity = getBaseQuantity(newPositionDetails.symbol, 2)
+				return {
+					status: true,
+					position: { ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." },
+				}
+			}
+		}
 	}
+
 }
 const getBaseQuantity = (symbol: string, multiplier: number) => {
 	const match = symbol.match(/([A-Z]+)\d+/)

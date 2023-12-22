@@ -19,9 +19,9 @@ export default () => {
 			const nifty50Side = lastFiveMinuteLTP["NIFTY 50"] - ltp["NIFTY 50"] > 0 ? "up" : "down"
 			const niftyBankSide = lastFiveMinuteLTP["NIFTY BANK"] - ltp["NIFTY BANK"] > 0 ? "up" : "down"
 			if (nifty50DiffPercentage <= niftyBankDiffPercentage && nifty50Side === niftyBankSide) {
-				console.log("NIFTY 50 is in sync with NIFTY BANK", nifty50DiffPercentage, niftyBankDiffPercentage, nifty50Side, niftyBankSide)
+				// console.log("NIFTY 50 is in sync with NIFTY BANK", nifty50DiffPercentage, niftyBankDiffPercentage, nifty50Side, niftyBankSide)
 			} else {
-				console.log("NIFTY 50 is not in sync with NIFTY BANK", nifty50DiffPercentage, niftyBankDiffPercentage, nifty50Side, niftyBankSide)
+				// console.log("NIFTY 50 is not in sync with NIFTY BANK", nifty50DiffPercentage, niftyBankDiffPercentage, nifty50Side, niftyBankSide)
 			}
 
 			lastFiveMinuteLTP["NIFTY 50"] = ltp["NIFTY 50"]

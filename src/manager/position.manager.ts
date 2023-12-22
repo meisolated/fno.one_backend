@@ -106,6 +106,7 @@ export default async () => {
 	// -----------------| Fyers Events |------------------------------
 	// ----------------------------------------------------------------
 	async function updatePositionBasesOnOrderUpdate(orderData: iFyersSocketOrderUpdateData) {
+		console.log(orderData.limitPrice)
 		/**
 		 * if the order is filled then we don't have to do anything
 		 * */
@@ -134,9 +135,9 @@ export default async () => {
 					_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
 					_position.status == positionStatuses.exitPositionOrderPending
 				) {
-					await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, message: orderData.message })
+					await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, sellAveragePrice: orderData.limitPrice, message: orderData.message })
 				} else {
-					await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
+					await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, buyAveragePrice: orderData.limitPrice, message: orderData.message })
 				}
 			} else {
 				// order partially filled
@@ -146,9 +147,9 @@ export default async () => {
 						_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
 						_position.status == positionStatuses.exitPositionOrderPending
 					) {
-						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderPartiallyFilled, message: orderData.message })
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderPartiallyFilled, filledQuantity: orderData.filledQuantity, remainingQuantity: orderData.remainingQuantity, message: orderData.message })
 					} else {
-						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPartiallyFilled, message: orderData.message })
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPartiallyFilled, filledQuantity: orderData.filledQuantity, remainingQuantity: orderData.remainingQuantity, message: orderData.message })
 					}
 				} else if (orderData.filledQuantity == 0 && orderData.remainingQuantity > 0) {
 					if (
@@ -161,14 +162,15 @@ export default async () => {
 						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPending, message: orderData.message })
 					}
 				} else if (orderData.filledQuantity > 0 && orderData.remainingQuantity == 0) {
+					console.log("rare case")
 					if (
 						_position.status == positionStatuses.exitPositionOrderPlaced ||
 						_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
 						_position.status == positionStatuses.exitPositionOrderPending
 					) {
-						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, message: orderData.message })
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, sellAveragePrice: orderData.limitPrice, message: orderData.message })
 					} else {
-						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
+						await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, buyAveragePrice: orderData.limitPrice, message: orderData.message })
 					}
 				}
 			}
@@ -181,9 +183,9 @@ export default async () => {
 				_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
 				_position.status == positionStatuses.exitPositionOrderPending
 			) {
-				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderPending, message: orderData.message })
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderPending, sellAveragePrice: orderData.limitPrice, message: orderData.message })
 			} else {
-				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPending, message: orderData.message })
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderPending, buyAveragePrice: orderData.limitPrice, message: orderData.message })
 			}
 		} else if (orderData.status == 2) {
 			// order filled
@@ -193,9 +195,9 @@ export default async () => {
 				_position.status == positionStatuses.exitPositionOrderPartiallyFilled ||
 				_position.status == positionStatuses.exitPositionOrderPending
 			) {
-				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, message: orderData.message })
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.exitPositionOrderFilled, sellAveragePrice: orderData.limitPrice, message: orderData.message })
 			} else {
-				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, message: orderData.message })
+				await updatePosition({ ..._position, orderStatus: orderData.status, status: positionStatuses.orderFilled, buyAveragePrice: orderData.limitPrice, message: orderData.message })
 			}
 		}
 
@@ -305,6 +307,10 @@ export default async () => {
 					await trailingStopLoss(_position_, marketData[_position_.symbol])
 					await target(_position_, marketData[_position_.symbol])
 					await updatePositionProfitAndLoss(_position_, marketData[_position_.symbol])
+					// peakLTP
+					if (marketData[_position_.symbol].lp > _position_.peakLTP) {
+						updatePosition({ ..._position_, peakLTP: marketData[_position_.symbol].lp })
+					}
 					return resolve(true)
 				} else {
 					return resolve(true)
@@ -335,18 +341,20 @@ export default async () => {
 async function trailingStopLoss(position: iPosition, marketTick: iSymbolTicks) {
 	const currentSymbolPrice = marketTick.lp
 	if (!position.trailingStopLoss || position.trailingStopLoss === 0) {
-		const oneRatioOnePrice = position.price + position.stopLoss
-		if (currentSymbolPrice > oneRatioOnePrice) {
-			position.trailingStopLoss = position.price
+		const oneRatioTwoPrice = position.price + (position.stopLoss * 2) // when lp is above 1:2
+		if (currentSymbolPrice > oneRatioTwoPrice) {
+			position.trailingStopLoss = position.price + position.stopLoss // 1:1 will be our trailing stop loss
 			await updatePosition({ ...position, status: positionStatuses.trailingPositionStopLoss, message: "Trailing stop loss activated" })
 		}
 	} else {
-		const oneRatioOnePrice = position.trailingStopLoss + position.stopLoss * 2
-		if (currentSymbolPrice > oneRatioOnePrice) {
+		const nextRatioPrice = position.trailingStopLoss + (position.stopLoss * 2) // after that every ratio will be our trailing stop loss
+		if (currentSymbolPrice > nextRatioPrice) {
 			position.trailingStopLoss = position.trailingStopLoss + position.stopLoss
 			await updatePosition({ ...position, status: positionStatuses.trailingPositionStopLoss, message: "Trailing stop loss shifted" })
 		}
 	}
+
+	// const typesOfTrailing = ["simple", "decremental", "fibonacci"]
 }
 /**
  * @info This function can close a position
@@ -394,7 +402,7 @@ async function target(position: iPosition, marketTick: iSymbolTicks) {
  * @param position
  * @param marketTick
  */
-function updatePositionProfitAndLoss(position: iPosition, marketTick: iSymbolTicks) {}
+function updatePositionProfitAndLoss(position: iPosition, marketTick: iSymbolTicks) { }
 // ----------------------------------------------------------
 
 const exitPosition = async (userId: string, position: iPosition, result: "positive" | "negative") => {
@@ -405,8 +413,8 @@ const exitPosition = async (userId: string, position: iPosition, result: "positi
 				? position.price + position.stopLoss * position.riskToRewardRatio
 				: position.price - position.stopLoss
 			: result == "positive"
-			? position.price - position.stopLoss * position.riskToRewardRatio
-			: position.price + position.stopLoss
+				? position.price - position.stopLoss * position.riskToRewardRatio
+				: position.price + position.stopLoss
 	const prepareOrderFrame: iSingleOrder = {
 		symbol: position.symbol,
 		qty: position.quantity,
@@ -489,6 +497,7 @@ export async function updatePosition(positionData: iPosition) {
 		positionId: positionData.id,
 		userId: positionData.userId,
 	})
+	console.log(positionData.status)
 	await Positions.findOneAndUpdate({ id: positionData.id }, positionData)
 }
 

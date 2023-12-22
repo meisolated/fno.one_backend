@@ -2,6 +2,7 @@ import { Express, Request, Response } from "express"
 import logger from "../../../logger"
 import { beforePositionOrderFilledStatuses, closedPositionStatuses, inPositionStatues } from "../../../manager/position.manager"
 import { Positions, Session, User } from "../../../model"
+import { _fyersSymbolToTrueDataSymbol } from "../../../provider/symbols.provider"
 
 export default async function (app: Express, path: string) {
 	logger.info("Loaded route: " + path, "routes")
@@ -29,7 +30,7 @@ async function getUserPositionsOfTheDay(id: string) {
 	const today = new Date()
 	const options = { timeZone: "Asia/Kolkata" }
 	const startTime = new Date(today.setHours(9, 15, 0, 0)).toLocaleString("en-US", options)
-	const endTime = new Date(today.setHours(15, 30, 0, 0)).toLocaleString("en-US", options)
+	const endTime = new Date(today.setHours(18, 30, 0, 0)).toLocaleString("en-US", options)
 	const positions = await Positions.find({
 		status: { $in: [...inPositionStatues, ...closedPositionStatuses, ...beforePositionOrderFilledStatuses] },
 		paper: false,
@@ -39,6 +40,11 @@ async function getUserPositionsOfTheDay(id: string) {
 			$lt: new Date(endTime).getTime(),
 		},
 	})
-
-	return positions
+	const modifiedPositions = positions.map((position) => {
+		return {
+			...position.toObject(),
+			trueDataSymbol: _fyersSymbolToTrueDataSymbol[position.symbol],
+		}
+	})
+	return modifiedPositions
 }

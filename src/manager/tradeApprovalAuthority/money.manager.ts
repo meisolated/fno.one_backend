@@ -22,8 +22,8 @@ export default async function (positionId: number, user: iUser, newPositionDetai
 		const _errorIn = _updateUserBrokerFunds
 			? "getFyersUserProfitOrLossOfTheDay"
 			: _fyersUserProfitOrLoss
-			? "updateFyersUserBrokerFunds"
-			: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
+				? "updateFyersUserBrokerFunds"
+				: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
 
 		if (settings.developmentMode) {
 			return { status: true, position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: _error + _errorIn } }
@@ -58,7 +58,7 @@ export default async function (positionId: number, user: iUser, newPositionDetai
 				position: { ...newPositionDetails, status: "approvedByMoneyManager", message: `Profit is less than ${user.riskManager.percentageOfMaxProfitPerDay}% of total funds` },
 			}
 		} else {
-			const percentageOfLoss = (_fyersUserProfitOrLoss.realized / (_availableFunds + _usedFunds)) * 100
+			const percentageOfLoss = Math.abs((_fyersUserProfitOrLoss.realized / (_availableFunds + _usedFunds)) * 100)
 			if (percentageOfLoss > user.riskManager.percentageOfMaxLossPerDay) {
 				if (settings.developmentMode) {
 					return {
