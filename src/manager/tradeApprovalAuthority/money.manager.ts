@@ -1,8 +1,6 @@
 import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../handler/fyers.handler"
 import { Settings } from "../../model"
 
-const maxProfitPercentage = 15
-const maxLossPercentage = 10
 export default async function (positionId: number, user: iUser, newPositionDetails: iPosition) {
 	/**
 	 * first update user funds

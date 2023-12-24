@@ -27,54 +27,29 @@ export default new Schema<iUser>(
 			},
 		},
 		moneyManager: {
-			mode: { type: String, required: false, default: "percentage" }, // percentage or amount
-			percentageOfFundsToUse: { type: Number, required: false },
 			fundsToUse: { type: String, required: false },
-			maxLossPerDay: { type: String, required: false }, // in percentage and this percentage is going to get calculated from money manager funds to use -> weekday funds to use (PERCENTAGE OF THIS AMOUNT)
-			weekDays: {
-				monday: {
-					percentageOfFundsToUse: { type: Number, required: false },
-					fundsToUse: { type: String, required: false },
-				},
-				tuesday: {
-					percentageOfFundsToUse: { type: Number, required: false },
-					fundsToUse: { type: String, required: false },
-				},
-				wednesday: {
-					percentageOfFundsToUse: { type: Number, required: false },
-					fundsToUse: { type: String, required: false },
-				},
-				thursday: {
-					percentageOfFundsToUse: { type: Number, required: false },
-					fundsToUse: { type: String, required: false },
-				},
-				friday: {
-					percentageOfFundsToUse: { type: Number, required: false },
-					fundsToUse: { type: String, required: false },
-				},
-			},
 		},
 		positionTypeSettings: {
 			long: {
-				percentageOfFundsToUse: { type: Number, required: false },
+				quantity: { type: Number, required: false },
 				preferredOptionPrice: { type: String, required: false },
 				riskToRewardRatio: { type: String, required: false },
 				stopLoss: { type: String, required: false },
 			},
 			scalping: {
-				percentageOfFundsToUse: { type: Number, required: false },
+				quantity: { type: Number, required: false },
 				preferredOptionPrice: { type: String, required: false },
 				riskToRewardRatio: { type: String, required: false },
 				stopLoss: { type: String, required: false },
 			},
 			swing: {
-				percentageOfFundsToUse: { type: Number, required: false },
+				quantity: { type: Number, required: false },
 				preferredOptionPrice: { type: String, required: false },
 				riskToRewardRatio: { type: String, required: false },
 				stopLoss: { type: String, required: false },
 			},
 			expiry: {
-				percentageOfFundsToUse: { type: Number, required: false },
+				quantity: { type: Number, required: false },
 				preferredOptionPrice: { type: String, required: false },
 				riskToRewardRatio: { type: String, required: false },
 				stopLoss: { type: String, required: false },

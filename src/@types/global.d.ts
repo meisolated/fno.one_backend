@@ -346,54 +346,29 @@ declare global {
 			}
 		}
 		moneyManager: {
-			mode: string // percentage or amount
-			percentageOfFundsToUse: number
 			fundsToUse: number
-			maxLossPerDay: number // in percentage and this percentage is going to get calculated from money manager funds to use -> weekday funds to use (PERCENTAGE OF THIS AMOUNT)
-			weekDays: {
-				monday: {
-					percentageOfFundsToUse: number
-					fundsToUse: number
-				}
-				tuesday: {
-					percentageOfFundsToUse: number
-					fundsToUse: number
-				}
-				wednesday: {
-					percentageOfFundsToUse: number
-					fundsToUse: number
-				}
-				thursday: {
-					percentageOfFundsToUse: number
-					fundsToUse: number
-				}
-				friday: {
-					percentageOfFundsToUse: number
-					fundsToUse: number
-				}
-			}
 		}
 		positionTypeSettings: {
 			long: {
-				percentageOfFundsToUse: number
+				quantity: number
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
 				stopLoss: number
 			}
 			scalping: {
-				percentageOfFundsToUse: number
+				quantity: number
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
 				stopLoss: number
 			}
 			swing: {
-				percentageOfFundsToUse: number
+				quantity: number
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
 				stopLoss: number
 			}
 			expiry: {
-				percentageOfFundsToUse: number
+				quantity: number
 				preferredOptionPrice: number | "ATM"
 				riskToRewardRatio: number
 				stopLoss: number
