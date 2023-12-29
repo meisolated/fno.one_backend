@@ -8,9 +8,8 @@ import { beforePositionOrderFilledStatuses, closedPositionStatuses, inPositionSt
  * ?---------------------------------------------------------| TODO: |----------------------------------------------------------------|
  * TODO we need to add a function that can generate logical support and resistance for the index markets like BANKNIFTY , NIFTY50 and FINNIFTY
  * TODO based on that data we can approve or reject the trade
- * TODO also we can add major round levels like for banknifty X500 and X000 levels similar for nifty50 and finnifty 
+ * TODO also we can add major round levels like for banknifty X500 and X000 levels similar for nifty50 and finnifty
  */
-
 
 export default async function (positionId: number, user: iUser, newPositionDetails: iPosition) {
 	const _isTodayHoliday = await isTodayHoliday()
@@ -20,33 +19,25 @@ export default async function (positionId: number, user: iUser, newPositionDetai
 	if (!settings) {
 		return { status: false, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: "Settings not found" } }
 	}
-	if (numberOfPositions >= user.riskManager.numberOfTradesAllowedPerDay) {
-		if (settings.developmentMode) {
-			return { status: true, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: "Number of trades allowed per day is reached" } }
+	if (settings.developmentMode) {
+		const baseQuantity = getBaseQuantity(newPositionDetails.symbol, 1)
+		return {
+			status: true,
+			position: { ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." },
 		}
+	}
+	if (numberOfPositions >= user.riskManager.numberOfTradesAllowedPerDay) {
 		return { status: false, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: "Number of trades allowed per day is reached" } }
 	}
 
 	if (_isTodayHoliday || !_isCurrentTimeIsInMarketHours) {
 		const absoluteReason = _isTodayHoliday ? "Today is holiday" : "Current time is not in market hours"
-		if (settings.developmentMode) {
-			return { status: true, position: { ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason } }
-		} else {
-			return {
-				status: false,
-				position: { ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason },
-			}
-		}
-	}
-	if (settings.developmentMode) {
-		const baseQuantity = getBaseQuantity(newPositionDetails.symbol, 2)
 		return {
-			status: true,
-			position: { ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." },
+			status: false,
+			position: { ...newPositionDetails, status: "rejectedByRiskManager", message: absoluteReason },
 		}
-	} else {
-		return { status: true, position: { ...newPositionDetails, status: "approvedByRiskManager", message: "Trade approved by Risk manager" } }
 	}
+	return { status: true, position: { ...newPositionDetails, status: "approvedByRiskManager", message: "Trade approved by Risk manager" } }
 }
 
 async function getUserNumberOfTradesExecutedToday(id: string) {
@@ -54,7 +45,7 @@ async function getUserNumberOfTradesExecutedToday(id: string) {
 	const startTime = new Date(today.setHours(9, 15, 0, 0))
 	const endTime = new Date(today.setHours(15, 30, 0, 0))
 	const numberOfPositions = await Positions.countDocuments({
-		status: { $in: [...inPositionStatues, ...closedPositionStatuses,] },
+		status: { $in: [...inPositionStatues, ...closedPositionStatuses] },
 		paper: false,
 		userId: id,
 		createdAt: {
@@ -123,12 +114,16 @@ function checks(user: iUser, newPositionDetails: iPosition) {
 				const baseQuantity = getBaseQuantity(newPositionDetails.symbol, 2)
 				return {
 					status: true,
-					position: { ...newPositionDetails, quantity: baseQuantity, status: "modificationDoneByRiskManager", message: "Development mode is on, So quantity will be modified to the minimums." },
+					position: {
+						...newPositionDetails,
+						quantity: baseQuantity,
+						status: "modificationDoneByRiskManager",
+						message: "Development mode is on, So quantity will be modified to the minimums.",
+					},
 				}
 			}
-		}
+		},
 	}
-
 }
 const getBaseQuantity = (symbol: string, multiplier: number) => {
 	const match = symbol.match(/([A-Z]+)\d+/)

@@ -2,9 +2,10 @@ import { Schema } from "mongoose"
 import { getNextSequenceValue } from "."
 
 // things we need to add in this model
-// remainingQuantity: { type: Number, required: true, default: 0 },
-// averagePrice: { type: Number, required: true, default: 0 },
-// filledQuantity: { type: Number, required: true, default: 0 },
+// manuallyClosed - true/false
+// manuallyEntered - true/false
+
+
 const positions = new Schema<iPosition>(
 	{
 		id: { type: Number, unique: true, index: true },

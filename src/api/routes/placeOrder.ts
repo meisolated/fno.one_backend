@@ -1,7 +1,7 @@
 import { Express, Request, Response } from "express"
 import chatter from "../../events"
 import logger from "../../logger"
-import { takeNewPosition } from "../../manager/position.manager"
+import { handleNewPosition } from "../../manager/position.manager"
 import { Session, User } from "../../model"
 
 export default async function (app: Express, path: string) {
@@ -26,7 +26,7 @@ export default async function (app: Express, path: string) {
 						console.log(data)
 						return res.json({ message: "Invalid request", code: 400 })
 					} else {
-						takeNewPosition(newPositionDetails)
+						handleNewPosition(newPositionDetails)
 						return res.json({ message: "Order placed", code: 200 })
 					}
 				} else {
