@@ -6,7 +6,6 @@ import { _ordersList, _positionsList, createOrder, positionStatuses, updateOrder
 import moneyManager from "../positionApprovalAuthority/money.manager"
 import riskManager from "../positionApprovalAuthority/risk.manager"
 
-
 export default async function (newPosition: iNewPositionDetails) {
 	const user = await User.findById(newPosition.userId)
 	if (!user) {

@@ -1,10 +1,13 @@
 import chatter from "../events"
+import logger from "../logger"
 
 const symbolPair = [["NIFTY 50", "NIFTY BANK"]]
 const ltp: { [key: string]: number } = {}
 const symbolSyncInterval = 5 * 60 * 1000 // 5 minutes
 const lastFiveMinuteLTP: { [key: string]: number } = {}
 export default () => {
+	logger.info("Starting market sync detector...", "MarketSyncDetector")
+
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
 		if (symbolPair[0].includes(symbolData.symbol)) {
 			ltp[symbolData.symbol] = symbolData.lp

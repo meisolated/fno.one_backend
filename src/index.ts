@@ -17,6 +17,7 @@ import tradeManager from "./manager/trade.manager"
 import positionManager from "./manager/position.manager"
 import { marketAlerts } from "./worker"
 import marketSyncDetector from "./worker/marketSyncDetector.worker"
+import ticksToCandleConverter from "./worker/ticksToCandleConverter"
 
 const app: Express = express()
 const server = http.createServer(app)
@@ -54,6 +55,7 @@ initialize()
 			tradeManager()
 			positionManager()
 			marketSyncDetector()
+			ticksToCandleConverter()
 			logger.info("Starting server...", "Index")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "Index")

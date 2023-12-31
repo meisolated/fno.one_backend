@@ -1,3 +1,4 @@
+import cron from "node-cron"
 import { indiesConfig } from "../config/symbols"
 import chatter from "../events"
 
@@ -10,23 +11,21 @@ const ATMStrikePriceLTP = [0, 0, 0]
 const vixSymbol = "INDIA VIX"
 
 chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
-    marketData[symbolData.fySymbol] = symbolData
+	marketData[symbolData.fySymbol] = symbolData
+	
 })
 
-
-setInterval(() => {
-
-}, 60000)
+const jobEvery1Minute = cron.schedule("* * * * *", async () => { })
 
 function getATMStrikePrice(tick: iTrueDataMarketFeedsTouchlineData) {
-    if (indexSymbols.includes(tick.symbol)) {
-        const _precision = precision[indexSymbols.indexOf(tick.symbol)]
-        const ATMStrikePrice = roundOff(tick.lp, _precision)
-        return ATMStrikePrice
-    }
-    return false
+	if (indexSymbols.includes(tick.symbol)) {
+		const _precision = precision[indexSymbols.indexOf(tick.symbol)]
+		const ATMStrikePrice = roundOff(tick.lp, _precision)
+		return ATMStrikePrice
+	}
+	return false
 }
 function roundOff(num: number, precision: number) {
-    const factor = precision === 100 ? 100 : 50
-    return Math.round(num / factor) * factor
+	const factor = precision === 100 ? 100 : 50
+	return Math.round(num / factor) * factor
 }

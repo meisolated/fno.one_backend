@@ -5,7 +5,6 @@ import { getNextSequenceValue } from "."
 // manuallyClosed - true/false
 // manuallyEntered - true/false
 
-
 const positions = new Schema<iPosition>(
 	{
 		id: { type: Number, unique: true, index: true },

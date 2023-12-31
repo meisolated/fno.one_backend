@@ -1,5 +1,6 @@
 import { Express, Request, Response } from "express"
 import logger from "../../../logger"
+import { rejectedPositionStatuses } from "../../../manager/position.manager"
 import { Positions, Session, User } from "../../../model"
 
 export default async function (app: Express, path: string) {
@@ -11,7 +12,7 @@ export default async function (app: Express, path: string) {
 			if (userId) {
 				const user = await User.findOne({ _id: userId.userId })
 				if (user) {
-					const positions = await Positions.find({ userId: user._id.toString() }).sort({ createdAt: -1 })
+					const positions = await Positions.find({ userId: user._id.toString(), paper: false, status: { $nin: [...rejectedPositionStatuses] } }).sort({ createdAt: -1 })
 					return res.json({ message: "User positions", code: 200, data: positions })
 				} else {
 					return res.json({ message: "User not found", code: 404 })

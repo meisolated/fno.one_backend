@@ -1,3 +1,15 @@
+let something = {}
+something["a"] = {
+	a: 1,
+}
 
+if (something["a"]) {
+	console.log("exist")
+}
+something["a"] = null
 
-console.log(roundOff(48249, 100))
+if (something["a"]) {
+	console.log("exist")
+} else {
+	console.log("not exist")
+}

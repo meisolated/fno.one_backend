@@ -26,7 +26,6 @@ const marketData: any = {}
 
 // chatter events
 
-
 //  Entry function for position manager
 export default async () => {
 	logger.info("Loaded Position Manager", "Position Manager")
@@ -38,7 +37,7 @@ export default async () => {
 	_positions.forEach((position) => {
 		_positionsList.push(position.toObject())
 	})
-	// find all order from db with id from _positions 
+	// find all order from db with id from _positions
 	const _orders = await Orders.find({ positionId: { $in: _positions.map((position) => position.id) } })
 	_orders.forEach((order) => {
 		_ordersList.push(order.toObject())
@@ -51,8 +50,8 @@ export default async () => {
 		await timeout(fyersOrderEventsDelay)
 		await handleOrderUpdates(orderData)
 	})
-	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => { })
-	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => { })
+	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => {})
+	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => {})
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
 		marketData[symbolData.fySymbol] = symbolData
 	})
@@ -90,7 +89,6 @@ export default async () => {
 	// ----------------------------------------------------------------
 }
 
-
 /**
  *
  * @param userId userId String
@@ -105,8 +103,8 @@ export const exitPosition = async (userId: string, position: iPosition, result: 
 				? position.price + position.stopLoss * position.riskToRewardRatio
 				: position.price - position.stopLoss
 			: result == "positive"
-				? position.price - position.stopLoss * position.riskToRewardRatio
-				: position.price + position.stopLoss
+			? position.price - position.stopLoss * position.riskToRewardRatio
+			: position.price + position.stopLoss
 	const prepareOrderFrame: iSingleOrder = {
 		symbol: position.symbol,
 		qty: position.quantity,
@@ -138,7 +136,6 @@ export const exitPosition = async (userId: string, position: iPosition, result: 
 		})
 	}
 }
-
 
 export async function updatePosition(positionData: iPosition) {
 	_positionsList.forEach((position, index) => {
