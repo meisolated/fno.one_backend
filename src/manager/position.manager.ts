@@ -50,8 +50,8 @@ export default async () => {
 		await timeout(fyersOrderEventsDelay)
 		await handleOrderUpdates(orderData)
 	})
-	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => {})
-	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => {})
+	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => { })
+	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => { })
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
 		marketData[symbolData.fySymbol] = symbolData
 	})
@@ -103,8 +103,8 @@ export const exitPosition = async (userId: string, position: iPosition, result: 
 				? position.price + position.stopLoss * position.riskToRewardRatio
 				: position.price - position.stopLoss
 			: result == "positive"
-			? position.price - position.stopLoss * position.riskToRewardRatio
-			: position.price + position.stopLoss
+				? position.price - position.stopLoss * position.riskToRewardRatio
+				: position.price + position.stopLoss
 	const prepareOrderFrame: iSingleOrder = {
 		symbol: position.symbol,
 		qty: position.quantity,
@@ -213,7 +213,6 @@ export const beforePositionOrderFilledStatuses = [
 	positionStatuses.orderPending,
 ]
 export const inPositionStatues = [
-	positionStatuses.orderFilled,
 	positionStatuses.inPosition,
 	positionStatuses.positionNearStopLoss,
 	positionStatuses.positionNearTarget,

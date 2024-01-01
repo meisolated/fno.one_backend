@@ -4,7 +4,7 @@ import handleManuallyEnteredPositions from "./handleManuallyEnteredPositions"
 
 export default async function (orderData: iFyersSocketOrderUpdateData) {
 	const findOrderInList = _ordersList.find((order) => order.orderId === orderData.orderId)
-	if (!findOrderInList) return handleManuallyEnteredPositions(orderData)
+	if (!findOrderInList) return await handleManuallyEnteredPositions(orderData)
 	const _position = _positionsList.find((position) => position.id === findOrderInList.positionId)
 	if (!_position) return logger.error("Position not found", "position.manager")
 	if (orderData.status == 1 || orderData.status == 5) {

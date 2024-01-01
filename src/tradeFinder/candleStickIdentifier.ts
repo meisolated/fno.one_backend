@@ -5,7 +5,7 @@ interface CandleStick {
 	low: number
 }
 
-const isHammer = (candle: CandleStick) => {
+export const isHammer = (candle: CandleStick) => {
 	const bodySize = Math.abs(candle.close - candle.open)
 	const lowerShadow = Math.abs(candle.low - Math.min(candle.open, candle.close))
 	const upperShadow = Math.abs(candle.high - Math.max(candle.open, candle.close))
@@ -13,7 +13,7 @@ const isHammer = (candle: CandleStick) => {
 	return isHammer
 }
 
-const isInvertedHammer = (candle: CandleStick) => {
+export const isInvertedHammer = (candle: CandleStick) => {
 	const bodySize = Math.abs(candle.close - candle.open)
 	const lowerShadow = Math.abs(candle.low - Math.min(candle.open, candle.close))
 	const upperShadow = Math.abs(candle.high - Math.max(candle.open, candle.close))
