@@ -95,7 +95,9 @@ const enterPosition = async (userId: string, position: iPosition) => {
 		const lots = splitQuantity(900, position.quantity)
 		await updatePosition({ ...position, status: positionStatuses.positionCancelled, message: "Position quantity is more than 900, splitting into multiple orders is currently disabled" })
 	} else {
+		console.time("placeOrder")
 		const orderResponse = await placeOrder(userId, prepareOrderFrame)
+		console.timeEnd("placeOrder")
 		if (orderResponse.id) {
 			await createOrder({
 				positionId: position.id,

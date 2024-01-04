@@ -1,26 +1,27 @@
 import chatter from "../events"
 import { timeout } from "../helper"
 import logger from "../logger"
-import { Orders, Positions, User } from "../model"
+import { Orders, Positions, Trades, User } from "../model"
 import { placeOrder } from "./order.manager"
-import moneyManager from "./positionApprovalAuthority/money.manager"
-import riskManager from "./positionApprovalAuthority/risk.manager"
 import handleNewPosition from "./positionHandler/handleNewPosition"
 import handleOrderUpdates from "./positionHandler/handleOrderUpdates"
 import handlePositionUpdates from "./positionHandler/handlePositionUpdates"
 import handleStopLoss from "./positionHandler/handleStopLoss"
 import handleStopLossTrailing from "./positionHandler/handleStopLossTrailing"
 import handleTarget from "./positionHandler/handleTarget"
+import handleTradeUpdates from "./positionHandler/handleTradeUpdates"
 
 // export
 export { handleNewPosition }
 
 const positionInterval = 1000
-const fyersOrderEventsDelay = 500
+const fyersOrderUpdatesDelay = 500
+const fyersTradeUpdatesDelay = 500
 
 export const _positionsList = [] as iPosition[]
 export const _ordersList = [] as iOrder[]
 export const _tradesList = [] as iTrade[]
+export const _orderToPositionMap = {} as { [key: string]: number }
 
 const marketData: any = {}
 
@@ -47,11 +48,14 @@ export default async () => {
 	// -----------------| Socket Events |------------------------------
 	// ----------------------------------------------------------------
 	chatter.on("fyersOrderUpdateSocket-", "order", async (orderData: iFyersSocketOrderUpdateData) => {
-		await timeout(fyersOrderEventsDelay)
+		await timeout(fyersOrderUpdatesDelay)
 		await handleOrderUpdates(orderData)
 	})
 	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => { })
-	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => { })
+	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => {
+		await timeout(fyersTradeUpdatesDelay)
+		await handleTradeUpdates(tradeData)
+	})
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
 		marketData[symbolData.fySymbol] = symbolData
 	})
@@ -61,15 +65,15 @@ export default async () => {
 	// ----------------------------------------------------------------
 	setInterval(async () => {
 		await new Promise((resolve) =>
-			_positionsList.forEach(async (_position_) => {
+			_positionsList.forEach(async (_position_, index) => {
 				if (inPositionStatues.includes(_position_.status)) {
 					if (marketData[_position_.symbol] == undefined) return resolve(true)
-					await handleStopLoss(_position_, marketData[_position_.symbol])
-					await handleStopLossTrailing(_position_, marketData[_position_.symbol])
-					await handleTarget(_position_, marketData[_position_.symbol])
-					await handlePositionUpdates(_position_, marketData[_position_.symbol])
-					if (marketData[_position_.symbol].lp > _position_.peakLTP) {
-						updatePosition({ ..._position_, peakLTP: marketData[_position_.symbol].lp })
+					await handleStopLoss(_positionsList[index], marketData[_positionsList[index].symbol])
+					await handleStopLossTrailing(_positionsList[index], marketData[_positionsList[index].symbol])
+					await handleTarget(_positionsList[index], marketData[_positionsList[index].symbol])
+					await handlePositionUpdates(_positionsList[index], marketData[_positionsList[index].symbol])
+					if (marketData[_position_.symbol].lp > _positionsList[index].peakLTP) {
+						updatePosition({ ..._positionsList[index], peakLTP: marketData[_positionsList[index].symbol].lp })
 					}
 					return resolve(true)
 				} else {
@@ -134,6 +138,7 @@ export const exitPosition = async (userId: string, position: iPosition, result: 
 			positionId: position.id,
 			orderId: orderResponse.id,
 		})
+		_orderToPositionMap[orderResponse.id] = position.id
 	}
 }
 
@@ -212,12 +217,7 @@ export const beforePositionOrderFilledStatuses = [
 	positionStatuses.orderPartiallyFilled,
 	positionStatuses.orderPending,
 ]
-export const inPositionStatues = [
-	positionStatuses.inPosition,
-	positionStatuses.positionNearStopLoss,
-	positionStatuses.positionNearTarget,
-	positionStatuses.trailingPositionStopLoss,
-]
+export const inPositionStatues = [positionStatuses.inPosition, positionStatuses.positionNearStopLoss, positionStatuses.positionNearTarget, positionStatuses.trailingPositionStopLoss]
 export const closedPositionStatuses = [
 	positionStatuses.positionManuallyClosed,
 	positionStatuses.positionClosed,
@@ -245,4 +245,12 @@ export const rejectedPositionStatuses = [
 	positionStatuses.exitPositionOrderCancelled,
 	positionStatuses.exitPositionOrderFailed,
 	positionStatuses.exitPositionOrderExpired,
+]
+
+export const exitPositionStatuses = [
+	positionStatuses.exitPositionOrderPlaced,
+	positionStatuses.exitPositionOrderFilled,
+	positionStatuses.exitPositionOrderPartiallyFilled,
+	positionStatuses.exitPositionOrderPending,
+	positionStatuses.exitPositionOrderBeingPlaced,
 ]

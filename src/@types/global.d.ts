@@ -301,25 +301,23 @@ declare global {
 		updatedAt: number
 	}
 	interface iTrade {
-		positionId: string
-		userId: string
 		id: string
-		clientId: string
+		positionId: number
+		userId: string
 		exchange: string
 		exchangeOrderNo: string
-		brokerToken: string
 		orderDateTime: string
 		orderNumber: string
-		orderType: tOrderType
 		productType: tProductType
-		row: number
-		segment: string
+		segment: tOrderSegment
 		side: tOrderSide
 		symbol: string
 		tradeNumber: string
 		tradePrice: number
 		tradeValue: number
 		tradedQty: number
+		createdAt: number
+		updatedAt: number
 	}
 	interface iUser {
 		_id: string
@@ -551,9 +549,10 @@ declare global {
 	}
 
 	interface iFyersSocketTradeUpdateData {
+		id: string
 		userId: string
 		symbol: string
-		tradeId: string
+		tradeId: number
 		orderDateTime: string
 		orderNumber: string
 		tradeNumber: string

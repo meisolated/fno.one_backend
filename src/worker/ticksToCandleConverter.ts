@@ -40,17 +40,17 @@ export default async function () {
 		const hour = now.getHours()
 		const minute = now.getMinutes() - 1
 		const second = now.getSeconds()
-		console.log(hour, ":", minute, ":", second)
 		const isMarketOpenNow = await isMarketOpen()
 		if (!isMarketOpenNow) return
+		// console.log(hour, ":", minute, ":", second)
 		for (const symbol in marketData) {
 			if (candle1Minute[symbol]) {
 				candle1Minute[symbol].close = marketData[symbol].lp
 				chatter.emit("candleStickUpdate-", "1min", candle1Minute[symbol])
 				if (symbol == "NIFTY BANK") {
-					console.log(candle1Minute[symbol], "1min")
-					console.log("isHammer", isHammer(candle1Minute[symbol]))
-					console.log("isInvertedHammer", isInvertedHammer(candle1Minute[symbol]))
+					// console.log(candle1Minute[symbol], "1min")
+					// console.log("isHammer", isHammer(candle1Minute[symbol]))
+					// console.log("isInvertedHammer", isInvertedHammer(candle1Minute[symbol]))
 				}
 				// remove the 1 minute candle
 				candle1Minute[symbol] = {
@@ -76,18 +76,17 @@ export default async function () {
 		const hour = now.getHours()
 		const minute = now.getMinutes() - 5
 		const second = now.getSeconds()
-		console.log(hour, ":", minute, ":", second)
 		const isMarketOpenNow = await isMarketOpen()
 		if (!isMarketOpenNow) return
-
+		// console.log(hour, ":", minute, ":", second)
 		for (const symbol in marketData) {
 			if (candle5Minute[symbol]) {
 				candle5Minute[symbol].close = marketData[symbol].lp
 				chatter.emit("candleStickUpdate-", "5min", candle5Minute[symbol])
 				if (symbol == "NIFTY BANK") {
-					console.log(candle5Minute[symbol], "5min")
-					console.log("isHammer", isHammer(candle5Minute[symbol]))
-					console.log("isInvertedHammer", isInvertedHammer(candle5Minute[symbol]))
+					// console.log(candle5Minute[symbol], "5min")
+					// console.log("isHammer", isHammer(candle5Minute[symbol]))
+					// console.log("isInvertedHammer", isInvertedHammer(candle5Minute[symbol]))
 				}
 				// remove the 5 minute candle
 				candle5Minute[symbol] = {

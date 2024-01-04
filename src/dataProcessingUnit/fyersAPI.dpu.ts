@@ -67,6 +67,7 @@ export const fyersSocketPositionsUpdateDataProcessing = (positionData: any, user
 
 export const fyersSocketTradeUpdateDataProcessing = (tradeData: any, userId: string) => {
 	const processData: iFyersSocketTradeUpdateData = {
+		id: tradeData.id,
 		userId: userId,
 		symbol: tradeData.symbol,
 		tradeId: tradeData.id,

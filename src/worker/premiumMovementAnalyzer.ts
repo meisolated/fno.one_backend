@@ -12,10 +12,9 @@ const vixSymbol = "INDIA VIX"
 
 chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
 	marketData[symbolData.fySymbol] = symbolData
-	
 })
 
-const jobEvery1Minute = cron.schedule("* * * * *", async () => { })
+const jobEvery1Minute = cron.schedule("* * * * *", async () => {})
 
 function getATMStrikePrice(tick: iTrueDataMarketFeedsTouchlineData) {
 	if (indexSymbols.includes(tick.symbol)) {
