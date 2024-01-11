@@ -16,7 +16,7 @@ export default new Schema<iTrade>(
 		tradeNumber: { type: String, required: true, unique: false },
 		tradePrice: { type: Number, required: true, unique: false },
 		tradeValue: { type: Number, required: true, unique: false },
-		tradedQty: { type: Number, required: true, unique: false },
+		tradeQuantity: { type: Number, required: true, unique: false },
 		createdAt: { type: Number, required: true, default: Date.now },
 		updatedAt: { type: Number, required: true, default: Date.now },
 	},

@@ -1,5 +1,5 @@
-import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../handler/fyers.handler"
-import { Settings } from "../../model"
+import { getFyersUserProfitOrLossOfTheDay, updateFyersUserBrokerFunds } from "../../../handler/fyers.handler"
+import { Settings } from "../../../model"
 
 export default async function (positionId: number, user: iUser, newPositionDetails: iPosition) {
 	/**
@@ -20,8 +20,8 @@ export default async function (positionId: number, user: iUser, newPositionDetai
 		const _errorIn = _updateUserBrokerFunds
 			? "getFyersUserProfitOrLossOfTheDay"
 			: _fyersUserProfitOrLoss
-			? "updateFyersUserBrokerFunds"
-			: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
+				? "updateFyersUserBrokerFunds"
+				: "updateFyersUserBrokerFunds and getFyersUserProfitOrLossOfTheDay"
 
 		if (settings.developmentMode) {
 			return { status: true, position: { ...newPositionDetails, status: "rejectedByMoneyManager", message: _error + _errorIn } }

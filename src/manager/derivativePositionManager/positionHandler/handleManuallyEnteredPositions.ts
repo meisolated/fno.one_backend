@@ -1,5 +1,5 @@
-import logger from "../../logger"
-import { _positionsList, createOrder, inPositionStatues, positionStatuses, updatePosition } from "../position.manager"
+import logger from "../../../logger"
+import { _ordersList, _positionsList, createOrder, inPositionStatues, positionStatuses, updatePosition } from "../position.manager"
 
 export default async function (orderData: iFyersSocketOrderUpdateData) {
 	const _position = _positionsList.find(

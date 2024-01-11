@@ -1,7 +1,7 @@
-import { indiesConfig } from "../../config/symbols"
-import chatter from "../../events"
-import { Positions, Settings } from "../../model"
-import { isCurrentTimeIsInMarketHours, isTodayHoliday } from "../../provider/marketData.provider"
+import { indiesConfig } from "../../../config/symbols"
+import chatter from "../../../events"
+import { Positions, Settings } from "../../../model"
+import { isCurrentTimeIsInMarketHours, isTodayHoliday } from "../../../provider/marketData.provider"
 import { beforePositionOrderFilledStatuses, closedPositionStatuses, inPositionStatues } from "../position.manager"
 
 /**
@@ -137,4 +137,9 @@ const getBaseQuantity = (symbol: string, multiplier: number) => {
 	}
 	chatter.emit("positionManager-", "log", { status: "error", message: "Symbol not found in indiesConfig", symbol })
 	return 0
+}
+
+
+function isTheCurrentPriceOfTheIndexNearRoundLevels(symbol: string) {
+
 }

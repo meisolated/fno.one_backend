@@ -1,7 +1,7 @@
 import { Express, Request, Response } from "express"
 import chatter from "../../events"
 import logger from "../../logger"
-import { handleNewPosition } from "../../manager/position.manager"
+import { handleNewPosition } from "../../manager/derivativePositionManager/position.manager"
 import { Session, User } from "../../model"
 
 export default async function (app: Express, path: string) {

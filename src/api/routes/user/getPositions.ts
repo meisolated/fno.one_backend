@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express"
 import logger from "../../../logger"
-import { beforePositionOrderFilledStatuses, closedPositionStatuses, inPositionStatues } from "../../../manager/position.manager"
+import { beforePositionOrderFilledStatuses, closedPositionStatuses, inPositionStatues } from "../../../manager/derivativePositionManager/position.manager"
 import { Positions, Session, User } from "../../../model"
 import { _fyersSymbolToTrueDataSymbol } from "../../../provider/symbols.provider"
 
@@ -14,7 +14,8 @@ export default async function (app: Express, path: string) {
 				const user = await User.findOne({ _id: userId.userId })
 				if (user) {
 					const positions = await getUserPositionsOfTheDay(user._id.toString())
-					return res.json({ message: "User positions", code: 200, data: positions })
+					const positionMetrics = calculatePositionsMetrics(positions)
+					return res.json({ message: "User positions", code: 200, data: { positions, positionMetrics } })
 				} else {
 					return res.json({ message: "User not found", code: 404 })
 				}
@@ -48,3 +49,18 @@ async function getUserPositionsOfTheDay(id: string) {
 	})
 	return modifiedPositions
 }
+function calculatePositionsMetrics(positions: any) {
+	let totalPointsCaptured = 0
+	let totalProfitAndLoss = 0
+	positions.map((position: any) => {
+		if (position.side == 1) {
+			totalProfitAndLoss += (position.sellAveragePrice - position.buyAveragePrice) * position.quantity
+			totalPointsCaptured += position.sellAveragePrice - position.buyAveragePrice
+		} else {
+			totalProfitAndLoss += (position.buyAveragePrice - position.sellAveragePrice) * position.quantity
+			totalPointsCaptured += position.buyAveragePrice - position.sellAveragePrice
+		}
+	})
+	return { totalPointsCaptured: parseFloat(totalPointsCaptured.toFixed(2)), totalProfitAndLoss: parseFloat(totalProfitAndLoss.toFixed(2)) }
+}
+

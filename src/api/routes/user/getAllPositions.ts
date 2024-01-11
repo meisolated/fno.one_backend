@@ -1,6 +1,6 @@
 import { Express, Request, Response } from "express"
 import logger from "../../../logger"
-import { rejectedPositionStatuses } from "../../../manager/position.manager"
+import { rejectedPositionStatuses } from "../../../manager/derivativePositionManager/position.manager"
 import { Positions, Session, User } from "../../../model"
 
 export default async function (app: Express, path: string) {
