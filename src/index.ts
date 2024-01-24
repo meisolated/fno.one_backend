@@ -15,6 +15,7 @@ import logger from "./logger"
 import positionManager from "./manager/derivativePositionManager/position.manager"
 import tradeManager from "./manager/derivativePositionManager/trade.manager"
 import { marketAlerts } from "./worker"
+import marketMovementAnalyzer from "./worker/marketMovementAnalyzer"
 import marketSyncDetector from "./worker/marketSyncDetector.worker"
 import ticksToCandleConverter from "./worker/ticksToCandleConverter"
 
@@ -54,6 +55,7 @@ initialize()
 			positionManager()
 			marketSyncDetector()
 			ticksToCandleConverter()
+			marketMovementAnalyzer()
 			logger.info("Starting server...", "Index")
 			server.listen(APIport, () => {
 				logger.info(`Server started on port ${APIport}`, "Index")

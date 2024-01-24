@@ -80,7 +80,7 @@ const initializeEmptySettings = async () => {
 	}
 
 	try {
-		await Settings.create(settings)
+		await Settings.create(settingsSettings)
 		logger.info("Empty Settings Initialized", "Config/initialize.ts")
 		logger.info("Please configure the settings and restart the server")
 		process.exit(0)

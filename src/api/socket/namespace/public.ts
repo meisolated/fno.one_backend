@@ -13,6 +13,7 @@ export default function publicSocketNamespace(socket: Namespace) {
 		_socket.on("subscribeMarketDataUpdate", async (data) => {
 			logger.info("subscribeMarketDataUpdate " + id, "PublicSocket")
 			_socket.emit("marketDataUpdate", JSON.stringify({ message: "Market data update socket connected" }))
+
 		})
 		// chatter.on("symbolUpdateTicks-", "tick", (data) => {
 		// 	_socket.emit("marketDataUpdate", JSON.stringify(data))
@@ -20,5 +21,8 @@ export default function publicSocketNamespace(socket: Namespace) {
 	})
 	chatter.on("symbolUpdateTicks-", "tick", (data) => {
 		socket.emit("marketDataUpdate", JSON.stringify(data))
+	})
+	chatter.on("marketMovementUpdate-", "5min", (data) => {
+		socket.emit("marketMovementUpdate", JSON.stringify(data))
 	})
 }

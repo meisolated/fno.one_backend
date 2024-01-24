@@ -23,6 +23,11 @@ export const _ordersList = [] as iOrder[]
 export const _tradesList = [] as iTrade[]
 export const _orderToPositionMap = {} as { [key: string]: number }
 
+const _orderUpdatesQueue = [] as iFyersSocketOrderUpdateData[]
+const _tradeUpdatesQueue = [] as iFyersSocketTradeUpdateData[]
+const _positionUpdatesQueue = [] as iFyersSocketPositionUpdateData[]
+var _isOrderUpdatesQueueProcessing = false
+
 const marketData: any = {}
 
 // chatter events
@@ -48,14 +53,37 @@ export default async () => {
 	// -----------------| Socket Events |------------------------------
 	// ----------------------------------------------------------------
 	chatter.on("fyersOrderUpdateSocket-", "order", async (orderData: iFyersSocketOrderUpdateData) => {
-		await timeout(fyersOrderUpdatesDelay)
-		await handleOrderUpdates(orderData)
+		_orderUpdatesQueue.push(orderData)
+		// await timeout(fyersOrderUpdatesDelay)
+		// await handleOrderUpdates(orderData)
 	})
+	setInterval(processOrderQueue, 100)
+	function processOrderQueue() {
+		if (!_isOrderUpdatesQueueProcessing && _orderUpdatesQueue.length > 0) {
+			// If not currently processing and there are orders in the queue
+			const currentOrder: iFyersSocketOrderUpdateData | undefined = _orderUpdatesQueue.shift() // Get the next order
+			_isOrderUpdatesQueueProcessing = true
+			// Process the order if it exists
+			if (currentOrder) {
+				handleOrderUpdates(currentOrder)
+					.then(async () => {
+						_isOrderUpdatesQueueProcessing = false
+					})
+					.catch((error: any) => {
+						console.error('Error processing order:', error)
+						_isOrderUpdatesQueueProcessing = false
+					})
+			}
+		}
+	}
+
+
 	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => { })
 	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => {
 		await timeout(fyersTradeUpdatesDelay)
 		await handleTradeUpdates(tradeData)
 	})
+	// ------------------------| Fyers Socket Events |--------------------------
 	chatter.on("symbolUpdateTicks-", "tick", async (symbolData: iSymbolTicks) => {
 		marketData[symbolData.fySymbol] = symbolData
 	})

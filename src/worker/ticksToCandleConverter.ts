@@ -9,6 +9,7 @@ interface iMarketData {
 }
 var candle1Minute: any = {}
 var candle5Minute: any = {}
+var candle15Minute: any = {}
 var marketData: iMarketData = {}
 
 export default async function () {
@@ -46,7 +47,7 @@ export default async function () {
 		for (const symbol in marketData) {
 			if (candle1Minute[symbol]) {
 				candle1Minute[symbol].close = marketData[symbol].lp
-				chatter.emit("candleStickUpdate-", "1min", candle1Minute[symbol])
+				chatter.emit("candleStickUpdate-", "1min", { ...candle1Minute[symbol], symbol })
 				if (symbol == "NIFTY BANK") {
 					// console.log(candle1Minute[symbol], "1min")
 					// console.log("isHammer", isHammer(candle1Minute[symbol]))
@@ -82,7 +83,7 @@ export default async function () {
 		for (const symbol in marketData) {
 			if (candle5Minute[symbol]) {
 				candle5Minute[symbol].close = marketData[symbol].lp
-				chatter.emit("candleStickUpdate-", "5min", candle5Minute[symbol])
+				chatter.emit("candleStickUpdate-", "5min", { ...candle5Minute[symbol], symbol })
 				if (symbol == "NIFTY BANK") {
 					// console.log(candle5Minute[symbol], "5min")
 					// console.log("isHammer", isHammer(candle5Minute[symbol]))
@@ -105,6 +106,43 @@ export default async function () {
 			}
 		}
 	})
+
+	const jobEvery15Minutes = cron.schedule("*/15 * * * *", async () => {
+		// current time hour and minute
+		const now = new Date()
+		const hour = now.getHours()
+		const minute = now.getMinutes() - 15
+		const second = now.getSeconds()
+		const isMarketOpenNow = await isMarketOpen()
+		if (!isMarketOpenNow) return
+		// console.log(hour, ":", minute, ":", second)
+		for (const symbol in marketData) {
+			if (candle15Minute[symbol]) {
+				candle15Minute[symbol].close = marketData[symbol].lp
+				chatter.emit("candleStickUpdate-", "15min", { ...candle15Minute[symbol], symbol })
+				if (symbol == "NIFTY BANK") {
+					// console.log(candle15Minute[symbol], "15min")
+					// console.log("isHammer", isHammer(candle15Minute[symbol]))
+					// console.log("isInvertedHammer", isInvertedHammer(candle15Minute[symbol]))
+				}
+				// remove the 15 minute candle
+				candle15Minute[symbol] = {
+					open: marketData[symbol].lp,
+					close: 0,
+					high: 0,
+					low: 0,
+				}
+			} else {
+				candle15Minute[symbol] = {
+					open: marketData[symbol].lp,
+					close: 0,
+					high: 0,
+					low: 0,
+				}
+			}
+		}
+	})
+
 	// Start the cron jobs
 	jobEvery1Minute.start()
 	jobEvery5Minutes.start()
