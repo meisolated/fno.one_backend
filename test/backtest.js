@@ -26,7 +26,7 @@ const breakoutStrategyBacktest = async () => {
 		for (let i = 1; i < candleData.length; i++) {
 			const currentCandle = candleData[i]
 
-			if (currentCandle.t.getHours() === 9 && currentCandle.t.getMinutes() === 15) {
+			if (currentCandle.t.getHours() === 9 && currentCandle.t.getMinutes() === 20) {
 				// Market opens, initialize trade
 				currentTrade = {
 					entryPrice: currentCandle.o,

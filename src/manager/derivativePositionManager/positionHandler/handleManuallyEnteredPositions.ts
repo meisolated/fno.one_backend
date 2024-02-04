@@ -13,4 +13,4 @@ export default async function (orderData: iFyersSocketOrderUpdateData) {
 	await updatePosition({ ..._position, status: positionStatuses.exitPositionOrderPlaced, message: "position closed manually" })
 }
 
-function handleManuallyEnteredPositions() { }
+function handleManuallyEnteredPositions() {}

@@ -139,7 +139,4 @@ const getBaseQuantity = (symbol: string, multiplier: number) => {
 	return 0
 }
 
-
-function isTheCurrentPriceOfTheIndexNearRoundLevels(symbol: string) {
-
-}
+function isTheCurrentPriceOfTheIndexNearRoundLevels(symbol: string) {}

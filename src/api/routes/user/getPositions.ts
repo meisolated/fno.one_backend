@@ -63,4 +63,3 @@ function calculatePositionsMetrics(positions: any) {
 	})
 	return { totalPointsCaptured: parseFloat(totalPointsCaptured.toFixed(2)), totalProfitAndLoss: parseFloat(totalProfitAndLoss.toFixed(2)) }
 }
-

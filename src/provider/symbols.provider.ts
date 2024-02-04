@@ -35,6 +35,7 @@ export const allIndiesOptionChainGenerator = async () => {
 						return expiryDate
 					}
 				})
+
 				const strikePrices = marketData[index.optionPrefix].strikePrices
 				const currentPrice: any = await SymbolData.findOne({ trueDataSymbol: index.symbol }).then(async (data: any) => {
 					if (!data || data.ltp == 0) {
@@ -131,22 +132,32 @@ const FyersSymbolMaker = (ex: string, symbol: string, expiryDate: string, strike
 	const MMM = expiryDate.split("-")[1].slice(0, 3).toUpperCase()
 	const YY = expiryDate.split("-")[2].slice(2, 4)
 	const prepareExpiryDate = YY + M + DD
-	if (hasAnotherOccurrenceAfterExpiry(expiryDate, indiesConfig[symbol].monthlyExpiryDay)) {
-		return `${ex}:${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
-	} else {
+	if (isComingExpiryMonthlyExpiry(expiryDate, indiesConfig[symbol].monthlyExpiryDay, indiesConfig[symbol].expiryDay)) {
 		return `${ex}:${symbol}${YY}${MMM}${strikePrice}${optionType}`
+	} else {
+		return `${ex}:${symbol}${prepareExpiryDate}${strikePrice}${optionType}`
 	}
 }
 
-function hasAnotherOccurrenceAfterExpiry(expiryDateStr: string, expiryDay: string) {
-	// expiryDateStr format is DD-MM-YYYY
-	const expiryDate = new Date(expiryDateStr)
-	const expiryDateDay = expiryDate.getDate()
-	const numberOfDaysInTheExpiryMonth = new Date(expiryDate.getFullYear(), expiryDate.getMonth() + 1, 0).getDate()
-	if (expiryDateDay + 7 >= numberOfDaysInTheExpiryMonth) {
-		return false
+function isComingExpiryMonthlyExpiry(upcomingExpiryDateStr: string, monthlyExpiryDay: string, weeklyExpiryDay: string): boolean {
+	const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+	// Parse the date string to get the day of the week
+	const upcomingDate = new Date(upcomingExpiryDateStr)
+	const dayOfWeek = daysOfWeek[upcomingDate.getDay()]
+
+	// Check if it's a monthly expiry
+	if (monthlyExpiryDay && dayOfWeek === monthlyExpiryDay) {
+		return true
 	}
-	return true
+
+	// Check if it's a weekly expiry
+	if (weeklyExpiryDay && dayOfWeek === weeklyExpiryDay) {
+		return true
+	}
+
+	// If it's neither monthly nor weekly expiry, return false
+	return false
 }
 
 // Symbols mapping for WebSocket API:

@@ -70,15 +70,14 @@ export default async () => {
 						_isOrderUpdatesQueueProcessing = false
 					})
 					.catch((error: any) => {
-						console.error('Error processing order:', error)
+						console.error("Error processing order:", error)
 						_isOrderUpdatesQueueProcessing = false
 					})
 			}
 		}
 	}
 
-
-	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => { })
+	chatter.on("fyersOrderUpdateSocket-", "position", async (positionData: iFyersSocketPositionUpdateData) => {})
 	chatter.on("fyersOrderUpdateSocket-", "trade", async (tradeData: iFyersSocketTradeUpdateData) => {
 		await timeout(fyersTradeUpdatesDelay)
 		await handleTradeUpdates(tradeData)
@@ -135,8 +134,8 @@ export const exitPosition = async (userId: string, position: iPosition, result: 
 				? position.price + position.stopLoss * position.riskToRewardRatio
 				: position.price - position.stopLoss
 			: result == "positive"
-				? position.price - position.stopLoss * position.riskToRewardRatio
-				: position.price + position.stopLoss
+			? position.price - position.stopLoss * position.riskToRewardRatio
+			: position.price + position.stopLoss
 	const prepareOrderFrame: iSingleOrder = {
 		symbol: position.symbol,
 		qty: position.quantity,

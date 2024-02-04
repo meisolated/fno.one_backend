@@ -301,7 +301,7 @@ export const getMarketStatus = () => `${SyncAPI + marketStatusPath}`
  *
  */
 export const getHistoricalDataUrl = (symbol: string, resolution: string, dateFormat: number, from: string, to: string, contFlag: number) =>
-	`${dataApi + historyPath}?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=${contFlag}`
+	`${dataApi1 + historyPath}?symbol=${symbol}&resolution=${resolution}&date_format=${dateFormat}&range_from=${from}&range_to=${to}&cont_flag=${contFlag}`
 
 /**
  *

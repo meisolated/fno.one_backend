@@ -23,11 +23,11 @@ const breakoutStrategyBacktest = async () => {
 			const getHoursInIST = new Date(currentCandle.t * 1000).getHours()
 			const getMinutesInIST = new Date(currentCandle.t * 1000).getMinutes()
 			if (currentCandle.t == 1698810300) console.log(getHoursInIST, getMinutesInIST)
-			if (getHoursInIST === 9 && getMinutesInIST === 15) {
+			if (getHoursInIST === 9 && getMinutesInIST === 20) {
 				// Market opens, initialize trade
 				currentTrade = {
 					entryPrice: currentCandle.o,
-					stopLoss: currentCandle.o - 60,
+					stopLoss: currentCandle.o - 100,
 				}
 			} else if (currentTrade) {
 				// Check for breakout

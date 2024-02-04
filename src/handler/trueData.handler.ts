@@ -15,14 +15,7 @@ const connectTrueDataMarketDataSocket = async () => {
 			allIndiesOptionChain[item.optionPrefix].map((item: any) => allIndiesOptionChainCombineSymbolsOnlyList.push(item.CE) && allIndiesOptionChainCombineSymbolsOnlyList.push(item.PE))
 		})
 		const _symbols = [...symbolsList, ...allIndiesOptionChainCombineSymbolsOnlyList]
-		const trueDataConnection = new trueData.MarketFeeds(
-			config.apis.trueData.username,
-			config.apis.trueData.password,
-			_symbols,
-			"live",
-			true,
-			false,
-		)
+		const trueDataConnection = new trueData.MarketFeeds(config.apis.trueData.username, config.apis.trueData.password, _symbols, "live", true, false)
 
 		chatter.on("trueDataLibMarketDataUpdates-", "askReconnect", async (data: any) => {
 			trueDataConnection.closeConnection()
@@ -46,12 +39,9 @@ const connectTrueDataMarketDataSocket = async () => {
 				sub: __symbols,
 			})
 		}, 1000 * 60 * 30)
-
 	} catch (err: any) {
 		logger.error("Error in connecting to true data socket", "trueData.handler")
 	}
 }
-
-
 
 export { connectTrueDataMarketDataSocket }
